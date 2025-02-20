@@ -1,5 +1,5 @@
 from Extractor import app
-from pyrogram import filters 
+from pyrogram import filters, enums
 from Extractor.core import script
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -21,8 +21,11 @@ button = InlineKeyboardMarkup([
 @app.on_message(filters.command("start"))
 async def start_(_, message):
   name = message.from_user.mention
-  await message.reply_photo(photo=script.PHOTO, 
+  if message.chat.type == enums.ChatType.PRIVATE:
+    await message.reply_photo(photo=script.PHOTO, 
          caption=script.START_TEXT.format(name), reply_markup=buttons)
+  else:
+    await message.reply_text("I am Alive Master.")
 
 
 
