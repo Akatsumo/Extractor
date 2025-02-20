@@ -8,6 +8,8 @@ import json_repair
 from Extractor import app
 from pyrogram import filters
 from Extractor.core import main_func
+from Extractir.modules.start import keyboard
+
 
 
 cookies = {"csrf_name": "", "ci_session": ""}
@@ -189,20 +191,23 @@ async def utkarsh_login(_, message):
 
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
         start_time = time.time()
-        vt = ""
+        links = ""
         async with aiohttp.ClientSession() as session:
             tasks = [process_uk(msg, session, raw_text2, token, [item["id"]]) for item in data["data"]["data"]]
             results = await asyncio.gather(*tasks)
-            vt = "".join(results)
+            links = "".join(results)
 
         elapsed = main_func.get_time(time.time() - start_time)
-
-        cap = f"**App Name: Utkarsh\nBatch Name: `{batch_name}`\n🍿 Total Video: `{v_count}`\n📝 Total pdf: `{p_count}`\n⌚️ Time Taken: `{elapsed}`**"
-        file_path = f"{batch_name}.txt"
+        caption = f"**App Name** : `Utkarsh`\n\n**Batch Name** : `{batch_name}`\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
+        
+        file_path = f"{batch_name}_{user_id}.txt"
         with open(file_path, "w") as f:
-            f.write(vt)
+            f.write(links)
 
-        await app.send_document(message.chat.id, document=file_path, caption=cap)
+        me = await app.get_me()
+        big_file_id = me.photo.big_file_id
+        thumb = await asyncio.create_task(app.download_media(big_file_id))
+        await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
         os.remove(file_path)
 
 
