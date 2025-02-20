@@ -3,6 +3,24 @@ from Crypto.Util.Padding import unpad, pad
 from base64 import b64decode, b64encode
 
 
+
+# --------------------------------------------------------------------------- #
+
+def get_time(duration_seconds):
+    if duration_seconds < 60:
+        elapsed = str(round(duration_seconds)) + " seconds"
+    elif duration_seconds < 3600:
+        duration_minutes = int(duration_seconds // 60)
+        remaining_seconds = duration_seconds % 60
+        elapsed = str(duration_minutes) + " minutes " + str(round(remaining_seconds)) + " seconds"
+    else:
+        duration_hours = int(duration_seconds // 3600)
+        remaining_minutes = int((duration_seconds % 3600) // 60)
+        remaining_seconds = duration_seconds % 60
+        elapsed = str(duration_hours) + " hours " + str(remaining_minutes) + " minutes " + str(round(remaining_seconds)) + " seconds"
+    
+    return elapsed
+    
 # --------------------------------------------------------------------------- #
 
 def appx_decrypt(encoded_data):
