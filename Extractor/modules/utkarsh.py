@@ -162,7 +162,9 @@ async def utkarsh_login(_, message):
     async with aiohttp.ClientSession() as session:
         async with session.post(login_url, cookies=cookies, data=data) as response:
             if response.status == 200:
-                resp = await response.json()["response"]            
+                resp = await response.json()["response"] 
+                t = await response.text()
+                print(t)
                 res = utkarsh_decrypt(resp)
                 token = json.loads(res)["data"]["jwt"]
                 await msg.edit_text("✅ **Login Successfully**")
