@@ -1,18 +1,14 @@
-import json_repair
 import os
-import requests
-import aiohttp
-import asyncio
 import time
 import json
-from pyrogram import Client, filters
+import aiohttp
+import asyncio
+import requests
+import json_repair
 from Extractor import app
-from Extractor.core.main_func import (
-    utkarsh_decrypt,
-    utkarsh_encrypt,
-    encode_base64,
-    get_time,
-)
+from pyrogram import filters
+from Extractor.core import main_func
+
 
 cookies = {"csrf_name": "", "ci_session": ""}
 
@@ -35,7 +31,7 @@ async def process_uk(msg, session, raw_text2, token, ids):
                 "type": "content",
             }
         )
-        course_id1 = utkarsh_encrypt(d_text)
+        course_id1 = main_func.utkarsh_encrypt(d_text)
         data = {"tile_input": course_id1, "csrf_name": token}
 
         async with session.post(
@@ -45,7 +41,7 @@ async def process_uk(msg, session, raw_text2, token, ids):
         ) as response:
             ror = await response.text()
             res = json.loads(ror)
-            x2 = utkarsh_decrypt(res.get("response"))
+            x2 = main_func.utkarsh_decrypt(res.get("response"))
             decoded2 = json_repair.repair_json(x2, return_objects=True)
             x_ids = [sx["id"] for sx in decoded2["data"]["list"]]
 
@@ -63,7 +59,7 @@ async def process_uk(msg, session, raw_text2, token, ids):
                     "type": "content",
                 }
             )
-            c = encode_base64(e_text)
+            c = main_func.encode_base64(e_text)
             data = {"layer_two_input_data": c, "content": "content", "csrf_name": token}
 
             async with session.post(
@@ -73,7 +69,7 @@ async def process_uk(msg, session, raw_text2, token, ids):
             ) as response:
                 ror = await response.text()
                 res2 = json.loads(ror)
-                data2 = utkarsh_decrypt(res2.get("response"))
+                data2 = main_func.utkarsh_decrypt(res2.get("response"))
                 decoded3 = json_repair.repair_json(data2, return_objects=True)
                 s_ids = [item["id"] for item in decoded3["data"]["list"]]
 
@@ -91,7 +87,7 @@ async def process_uk(msg, session, raw_text2, token, ids):
                         "type": "content",
                     }
                 )
-                d = encode_base64(f_text)
+                d = main_func.encode_base64(f_text)
                 data3 = {"layer_two_input_data": d, "content": "content", "csrf_name": token}
 
                 async with session.post(
@@ -101,7 +97,7 @@ async def process_uk(msg, session, raw_text2, token, ids):
                 ) as response:
                     ror = await response.text()
                     res3 = json.loads(ror)
-                    data3 = utkarsh_decrypt(res3.get("response"))
+                    data3 = main_func.utkarsh_decrypt(res3.get("response"))
                     decoded4 = json_repair.repair_json(data3, return_objects=True)
 
                 for data in decoded4["data"]["list"]:
@@ -163,7 +159,7 @@ async def utkarsh_login(_, message):
         async with session.post(login_url, cookies=cookies, data=data) as response:
             if response.status == 200:
                 resp = await response.text()
-                res = utkarsh_decrypt(json.loads(resp)["response"])
+                res = main_func.utkarsh_decrypt(json.loads(resp)["response"])
                 token = json.loads(res)["token"]
                 await msg.edit_text("✅ **Login Successfully**")
             else:
@@ -175,7 +171,7 @@ async def utkarsh_login(_, message):
             "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
         ) as response:
             data = await response.text()            
-            respon = utkarsh_decrypt(json.loads(data)["response"])
+            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
             data = json.loads(respon)
             await message.reply_text(data)
 
@@ -199,7 +195,7 @@ async def utkarsh_login(_, message):
             results = await asyncio.gather(*tasks)
             vt = "".join(results)
 
-        elapsed = get_time(time.time() - start_time)
+        elapsed = main_func.get_time(time.time() - start_time)
 
         cap = f"**App Name: Utkarsh\nBatch Name: `{batch_name}`\n🍿 Total Video: `{v_count}`\n📝 Total pdf: `{p_count}`\n⌚️ Time Taken: `{elapsed}`**"
         file_path = f"{batch_name}.txt"
