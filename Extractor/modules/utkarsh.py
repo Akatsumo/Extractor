@@ -132,11 +132,11 @@ async def utkarsh_login(_, message):
 
     login_url = "https://online.utkarsh.com/web/Auth/login"
     url = "https://online.utkarsh.com/"
-    sos = requests.Session()
+    cook = requests.Session()
 
     try:
-        response = sos.get(url)
-        cookie = sos.cookies.get_dict()
+        response = cook.get(url)
+        cookie = cook.cookies.get_dict()
     except requests.exceptions.RequestException as e:
         return await message.reply_text(f"**Error** : `{e}`")
 
@@ -162,11 +162,9 @@ async def utkarsh_login(_, message):
     async with aiohttp.ClientSession() as session:
         async with session.post(login_url, cookies=cookies, data=data) as response:
             if response.status == 200:
-                r = await response.text()
-                t = json.loads(r)
-                res = utkarsh_decrypt(t.get("response"))
-                data = json.loads(res)
-                token = data["token"]
+                resp = await response.text()["response"]            
+                res = utkarsh_decrypt(resp)
+                token = json.loads(res)["data"]["jwt"]
                 await msg.edit_text("✅ **Login Successfully**")
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
