@@ -3,6 +3,7 @@ from pyromod import listen
 from pyrogram import Client
 from config import API_ID, API_HASH, BOT_TOKEN
 
+loop = asyncio.get_event_loop()
 
 app = Client(
     ":Extractor:",
