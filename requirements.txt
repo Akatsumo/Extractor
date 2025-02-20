@@ -4,10 +4,9 @@ motor
 tgcrypto
 aiofiles
 requests
-hachoir
 cloudscraper
 pycryptodome
 pytz
 pyromod
 json-repair
-telegraph
+
