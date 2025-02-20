@@ -3,10 +3,10 @@ PHOTO = "https://envs.sh/djQ.jpg"
 
 # ------------------------------------------------------------ #
 
-START_TXT = """
-**ʜᴇʟʟᴏ** {},
+START_TEXT = """
+Hello {},
 
-**ɪ'ᴍ ᴀᴅᴇᴘᴛ ᴀᴛ ᴇxᴛʀᴀᴄᴛɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜʀsᴇs ᴡɪᴛʜ ᴄᴜᴛᴛɪɴɢ-ᴇᴅɢᴇ ᴛᴇᴄʜɴᴏʟᴏɢʏ. ɪ'ᴠᴇ ᴍᴀɴᴀɢᴇᴅ ᴛᴏ ɢᴀᴛʜᴇʀ ʟɪɴᴋs ғᴏʀ ᴀʟᴍᴏsᴛ ᴀʟʟ ᴀᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴜʀsᴇs, ᴍᴀᴋɪɴɢ ᴛʜᴇ ᴘʀᴏᴄᴇss ᴇғғᴏʀᴛʟᴇss ᴀɴᴅ ᴇғғɪᴄɪᴇɴᴛ.**
+I am skilled at extracting online courses using advanced technology. I have collected links for almost all available courses, making the process smooth and efficient.
 """
 
 FORCE_MSG = """
@@ -16,7 +16,7 @@ FORCE_MSG = """
 """
 
 HELP_TEXT = """
-📝 Notice : Most people won't be able to use certain commands because they are premium-only.
+📝 <u>Notice : Most people won't be able to use certain commands because they are premium-only.</u>
 
 `/appx` : For Appx apps [Multi Purpose] [Free]
 `/cp` : For Classplus apps [Multi Purpose] [Free]
