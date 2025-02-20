@@ -4,42 +4,54 @@ from Extractor.core import script
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+# ------------------------ Buttons ------------------------ # 
 
 buttons = InlineKeyboardMarkup([
-              [
-                 InlineKeyboardButton("🔖 Tools", callback_data="help_"),
-                 InlineKeyboardButton("🔗 Support", url="https://t.me/DevsHubChat")
-              ])
+    [
+        InlineKeyboardButton("🔖 Tools", callback_data="help_"),
+        InlineKeyboardButton("🔗 Support", url="https://t.me/DevsHubChat")
+    ]
+])
 
 button = InlineKeyboardMarkup([
-              [
-                 InlineKeyboardButton("🔖 Home", callback_data="home_")
-              ])
+    [
+        InlineKeyboardButton("🔖 Home", callback_data="home_")
+    ]
+])
 
 
+# ------------------------ Start ------------------------ # 
 
 @app.on_message(filters.command("start"))
 async def start_(_, message):
-  name = message.from_user.mention
-  if message.chat.type == enums.ChatType.PRIVATE:
-    await message.reply_photo(photo=script.PHOTO, 
-         caption=script.START_TEXT.format(name), reply_markup=buttons)
-  else:
-    await message.reply_text("I am Alive Master.")
+    name = message.from_user.mention
+    if message.chat.type == enums.ChatType.PRIVATE:
+        await message.reply_photo(
+            photo=script.PHOTO,
+            caption=script.START_TEXT.format(name),
+            reply_markup=buttons
+        )
+    else:
+        await message.reply_text("I am Alive Master.")
 
 
 
+# ------------------------ Callback-Data ------------------------ # 
 
 @app.on_callback_query()
 async def handle_callback(_, query):
-  name = query.from_user.mention
-  if query.data=="home_":
-    await query.message.edit_text(
-          script.START_TEXT.format(name),
-          reply_markup=button)
+    name = query.from_user.mention
 
-  elif query.data=="help_":
-    await query.message.edit_text(
-          script.HELP_TEXT,
-          reply_markup=button)
-        
+    if query.data == "home_":
+        await query.message.edit_text(
+            script.START_TEXT.format(name),
+            reply_markup=buttons
+        )
+    elif query.data == "help_":
+        await query.message.edit_text(
+            script.HELP_TEXT,
+            reply_markup=button
+        )
+
+
+
