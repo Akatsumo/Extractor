@@ -8,14 +8,14 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 buttons = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton("🔖 Tools", callback_data="help_"),
+        InlineKeyboardButton("🧰 Tools", callback_data="help_"),
         InlineKeyboardButton("🔗 Support", url="https://t.me/DevsHubChat")
     ]
 ])
 
 button = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton("🔖 Home", callback_data="home_")
+        InlineKeyboardButton("🏘 Home", callback_data="home_")
     ]
 ])
 
