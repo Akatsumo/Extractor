@@ -126,10 +126,8 @@ async def process_uk(msg, session, raw_text2, token, ids):
 @app.on_message(filters.command("uk"))
 async def utkarsh_login(_, message):
     user_id = message.from_user.id
-    msg = await message.reply_text(
-        "**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**"
-    )
-    input1 = await app.ask(user_id)
+    msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
+    input1 = await app.listen(user_id)
     raw_text = input1.text
 
     login_url = "https://online.utkarsh.com/web/Auth/login"
@@ -188,7 +186,7 @@ async def utkarsh_login(_, message):
             FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
 
         await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
-        input2 = await app.ask(user_id)
+        input2 = await app.listen(user_id)
         raw_text2 = input2.text
 
         batch_name = next(
