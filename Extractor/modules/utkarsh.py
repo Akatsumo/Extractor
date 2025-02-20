@@ -164,7 +164,7 @@ async def utkarsh_login(_, message):
             if response.status == 200:
                 resp = await response.text()
                 res = utkarsh_decrypt(json.loads(resp)["response"])
-                token = json.loads(res)["data"]["jwt"]
+                token = json.loads(res)["data"]["token"]
                 await msg.edit_text("✅ **Login Successfully**")
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
