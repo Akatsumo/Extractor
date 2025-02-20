@@ -10,15 +10,17 @@ buttons = InlineKeyboardMarkup([
     [
         InlineKeyboardButton("🧰 Tools", callback_data="help_"),
         InlineKeyboardButton("🔗 Support", url="https://t.me/DevsHubChat")
-    ]
-])
+    ]])
 
 button = InlineKeyboardMarkup([
     [
         InlineKeyboardButton("🏘 Home", callback_data="home_")
-    ]
-])
+    ]])
 
+keyboard = InlineKeyboardMarkup([
+    [
+        InlineKeyboardButton("📢 Channel", url="https://t.me/DevsLaboratory")
+    ]])
 
 # ------------------------ Start ------------------------ # 
 
