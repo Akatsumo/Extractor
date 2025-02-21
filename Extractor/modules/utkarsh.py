@@ -180,7 +180,7 @@ async def utkarsh_login(_, message):
 #        for course in data["data"].get("data"):
 #            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
 
-        await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
+        await msg.edit_text("**📊 Now send the Batch ID to Download**")
         input2 = await app.listen(user_id)
         raw_text2 = input2.text
 
