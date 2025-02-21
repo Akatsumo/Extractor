@@ -7,6 +7,11 @@ from bs4 import BeautifulSoup
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+keyboard = InlineKeyboardMarkup([
+    [
+        InlineKeyboardButton("📢 Channel", url="https://t.me/DevsLaboratory")
+    ]])
+
 study_materials = {}
 
 def study_material(session):
