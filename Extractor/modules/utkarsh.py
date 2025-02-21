@@ -167,19 +167,18 @@ async def utkarsh_login(_, message):
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
 
-        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
+#        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
 
-        async with session.post(
+#        async with session.post(
             "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
-        ) as response:
-            data = await response.text()            
-            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
-            data = json.loads(respon)
-            await message.reply_text(data)
-
-        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
-        for course in data["data"].get("data"):
-            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
+#        ) as response:
+#            data = await response.text()            
+#            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
+#            data = json.loads(respon)
+#            await message.reply_text(data)
+#        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
+#        for course in data["data"].get("data"):
+#            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
 
         await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
         input2 = await app.listen(user_id)
@@ -199,7 +198,7 @@ async def utkarsh_login(_, message):
 
         elapsed = main_func.get_time(time.time() - start_time)
         caption = f"**App Name** : `Utkarsh`\n\n**Batch Name** : `{batch_name}`\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
-        
+        batch_name = "test"
         file_path = f"{batch_name}_{user_id}.txt"
         with open(file_path, "w") as f:
             f.write(links)
