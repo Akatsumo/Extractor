@@ -9,4 +9,5 @@ pycryptodome
 pytz
 pyromod
 json-repair
+bs4
 
