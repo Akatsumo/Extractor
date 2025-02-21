@@ -107,7 +107,7 @@ async def vision_login(_, message):
                     await app.send_document(
                         chat_id=user_id, 
                         document=file_name, 
-                        caption=f"**Course Name**: `{data['course_name']}`"
+                        caption=f"**Course Name**: `{data['course_name']}`",
                         thumb=thumb,
                         reply_markup=keyboard
                     )
