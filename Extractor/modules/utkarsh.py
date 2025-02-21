@@ -187,12 +187,20 @@ async def utkarsh_login(_, message):
 #        batch_name = next(
 #            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
 #        )
-
+        
+        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'
+        course_id = main_func.utkarsh_encrypt(combo_text)
+        data = {'tile_input': course_id, 'csrf_name': token}
+        async with session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data) as response:
+            data = json.loads(await response.text())
+            respon = main_func.utkarsh_decrypt(data["response"])
+            decoded = json_repair.repair_json(respon, return_objects=True)
+             
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
         start_time = time.time()
         links = ""
         async with aiohttp.ClientSession() as session:
-            tasks = [process_uk(msg, session, raw_text2, token, [item["id"]]) for item in data["data"]["data"]]
+            tasks = [process_uk(msg, session, raw_text2, token, [item["id"]]) for item in decoded['data']]
             results = await asyncio.gather(*tasks)
             links = "".join(results)
 
