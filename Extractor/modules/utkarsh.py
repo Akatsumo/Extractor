@@ -8,7 +8,7 @@ import json_repair
 from Extractor import app
 from pyrogram import filters
 from Extractor.core import main_func
-from Extractir.modules.start import keyboard
+from Extractor.modules.start import keyboard
 
 
 
