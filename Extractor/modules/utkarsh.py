@@ -204,9 +204,10 @@ async def utkarsh_login(_, message):
             results = await asyncio.gather(*tasks)
             links = "".join(results)
 
+        batch_name = "test" 
         elapsed = main_func.get_time(time.time() - start_time)
         caption = f"**App Name** : `Utkarsh`\n\n**Batch Name** : `{batch_name}`\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
-        batch_name = "test"
+        
         file_path = f"{batch_name}_{user_id}.txt"
         with open(file_path, "w") as f:
             f.write(links)
