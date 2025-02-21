@@ -184,9 +184,9 @@ async def utkarsh_login(_, message):
         input2 = await app.listen(user_id)
         raw_text2 = input2.text
 
-        batch_name = next(
-            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
-        )
+#        batch_name = next(
+#            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
+#        )
 
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
         start_time = time.time()
