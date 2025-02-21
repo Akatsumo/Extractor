@@ -170,7 +170,7 @@ async def utkarsh_login(_, message):
 #        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
 
 #        async with session.post(
-            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
+#            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
 #        ) as response:
 #            data = await response.text()            
 #            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
