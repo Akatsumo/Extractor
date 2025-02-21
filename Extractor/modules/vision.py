@@ -94,14 +94,19 @@ async def vision_login(_, message):
                 await msg.edit_text("🛑 Study Material Fetching Failed!!")
                 return 
 
+            me = await app.get_me()
+            big_file_id = me.photo.big_file_id
+            thumb = await asyncio.create_task(app.download_media(big_file_id))
             for file_name, data in study_materials.items():
                 try:
                     await app.send_document(
                         chat_id=user_id, 
                         document=file_name, 
                         caption=f"**Course Name**: `{data['course_name']}`"
+                        thumb=thumb,
+                        reply_markup=keyboard
                     )
-                    asyncio.sleep(2)
+                    await asyncio.sleep(1.5)
                 except Exception as e:
                     await message.reply_text(f"⚠️ Error sending file: {str(e)}")
 
