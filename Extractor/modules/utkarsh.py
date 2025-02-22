@@ -108,15 +108,15 @@ async def process_uk(msg, session, raw_text2, token, ids):
                         for u in data.get("bitrate_urls", []):
                             if u["title"] == "720x1280.mp4":
                                 url = f"{u['url']}"
-                              #  url = f"{'/'.join(u['url'].split('/')[:-2])}/plain/720x1280.mp4"
+                              
                     if url:
                         lecture += f"{title}: {url}\n"
-#                   #     v_count += 1
+                        v_count += 1
 
                     if data.get("file_type") == "1":
                         pdf = data["file_url"]
                         lecture += f"{title}: {pdf}\n"
-                     #   p_count += 1
+                        p_count += 1
 
     return lecture
 
@@ -206,7 +206,8 @@ async def utkarsh_login(_, message):
             data = json.loads(await response.text())          
             respon = main_func.utkarsh_decrypt(data["response"])
             decoded = json_repair.repair_json(respon, return_objects=True)
-            await message.reply_text(decoded)
+            if decide["status"] is not True:
+                await message.reply_text("✏️ **Invalid Course ID**")
              
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
         start_time = time.time()
