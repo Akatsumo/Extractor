@@ -13,6 +13,77 @@ v_count = 0
 p_count = 0
 counter = 0
 
+# --------------------------- Appex-V3 --------------------------- #
+
+async def appex_down(session, message, hdr1, api, raw_text2, f, msg):
+    try:
+        global v_count, p_count
+        prev_v_count = v_count
+        prev_p_count = p_count
+        vt = ""
+        counter = 0
+        
+        async with session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={raw_text2}&subjectid={f}", headers=hdr1) as response:
+            respo = await response.read()
+            data = json.loads(respo)
+            b_data2 = data.get('data', [])
+                
+        for data in b_data2:
+            tid = data.get("topicid")
+                    
+            if tid:
+                async with session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={tid}&start=-1&courseid={raw_text2}&subjectid={f}", headers=hdr1) as response:
+                    res4 = await response.json()
+                    topicid = res4.get("data", [])
+                        
+            for data in topicid:
+                type = data.get('material_type')
+                tid = data.get("Title")
+                if type == 'VIDEO':
+                    if data.get('pdf_link'):
+                        p_count += 1
+                        plink = data.get('pdf_link').split(':')
+                        if len(plink) == 2:
+                            bp = appx_decrypt(plink[0])
+                            vs = f"{bp}"
+                    if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
+                        v_count += 1
+                        dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
+                        if dlink:
+                            b = appx_decrypt(dlink.split(':')[0])
+                            cool2 = f"{b}"
+                    elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0:
+                        v_count += 1
+                        dlink = data.get('file_link')
+                        if dlink:
+                            b = appx_decrypt(dlink.split(':')[0])
+                            cool2 = f"https://youtu.be/{b}"
+                    elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
+                        v_count += 1
+                        dlink = data.get('file_link')
+                        if dlink:
+                            b = appx_decrypt(dlink.split(':')[0])
+                            cool2 = f"https://youtu.be/{b}"
+                    vt += f"{tid} : {cool2}\n{tid} : {vs}\n" if data.get('pdf_link') else f"{tid} : {cool2}\n"
+    
+                elif type == 'PDF':
+                    p_count += 1
+                    bp = appx_decrypt(data.get("pdf_link", "").split(':')[0])
+                    vt += f"{tid} : {bp}\n"
+
+            counter += 1
+            if counter % 8 == 0 and (prev_v_count != v_count or prev_p_count != p_count):
+                await msg.edit_text(f"**Extracting Videos Links Please Wait  📥**\n\n🍿 **Total Video**  - `{v_count}`\n📝 **Total Pdf**  - `{p_count}`")
+                prev_v_count = v_count
+                prev_p_count = p_count
+
+    except Exception as e:
+        print(str(e))
+    
+    return vt
+
+
+
 async def appex_v3_txt(app, message, api, name):
     global v_count, p_count
     user_id = message.from_user.id
@@ -118,73 +189,50 @@ async def appex_v3_txt(app, message, api, name):
         print(f"An error occurred: {str(e)}")
         await message.reply_text("Please try again later. May be Password Wrong")
 
-async def appex_down(session, message, hdr1, api, raw_text2, f, msg):
+
+# --------------------------- Appex-V2 --------------------------- #
+
+async def course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data):
+    global v_count, p_count
     try:
-        global v_count, p_count
-        prev_v_count = v_count
-        prev_p_count = p_count
-        vt = ""
-        counter = 0
-        
-        async with session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={raw_text2}&subjectid={f}", headers=hdr1) as response:
-            respo = await response.read()
-            data = json.loads(respo)
-            b_data2 = data.get('data', [])
-                
-        for data in b_data2:
-            tid = data.get("topicid")
-                    
-            if tid:
-                async with session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={tid}&start=-1&courseid={raw_text2}&subjectid={f}", headers=hdr1) as response:
-                    res4 = await response.json()
-                    topicid = res4.get("data", [])
-                        
-            for data in topicid:
-                type = data.get('material_type')
-                tid = data.get("Title")
-                if type == 'VIDEO':
-                    if data.get('pdf_link'):
-                        p_count += 1
-                        plink = data.get('pdf_link').split(':')
-                        if len(plink) == 2:
-                            bp = appx_decrypt(plink[0])
-                            vs = f"{bp}"
-                    if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
-                        v_count += 1
-                        dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
-                        if dlink:
-                            b = appx_decrypt(dlink.split(':')[0])
-                            cool2 = f"{b}"
-                    elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0:
-                        v_count += 1
-                        dlink = data.get('file_link')
-                        if dlink:
-                            b = appx_decrypt(dlink.split(':')[0])
-                            cool2 = f"https://youtu.be/{b}"
-                    elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
-                        v_count += 1
-                        dlink = data.get('file_link')
-                        if dlink:
-                            b = appx_decrypt(dlink.split(':')[0])
-                            cool2 = f"https://youtu.be/{b}"
-                    vt += f"{tid} : {cool2}\n{tid} : {vs}\n" if data.get('pdf_link') else f"{tid} : {cool2}\n"
-    
-                elif type == 'PDF':
-                    p_count += 1
-                    bp = appx_decrypt(data.get("pdf_link", "").split(':')[0])
-                    vt += f"{tid} : {bp}\n"
+        vj = ""
+        if data['material_type'] == 'FOLDER':
+            folder_id = data['id']
+            vj += await course_content(session, scraper, api, message, raw_text2, folder_id, hdr1, msg)
 
-            counter += 1
-            if counter % 8 == 0 and (prev_v_count != v_count or prev_p_count != p_count):
-                await msg.edit_text(f"**Extracting Videos Links Please Wait  📥**\n\n🍿 **Total Video**  - `{v_count}`\n📝 **Total Pdf**  - `{p_count}`")
-                prev_v_count = v_count
-                prev_p_count = p_count
+        if data['material_type'] == 'VIDEO':
+            tid = data.get("Title")
+            plink = data.get('pdf_link', "").split(':')            
+            if len(plink) == 2:
+                p_count += 1
+                vs = appx_decrypt(plink[0])
+                               
+            if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
+                v_count += 1
+                dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
+                if dlink:
+                    lec = appx_decrypt(dlink.split(':')[0])
+                                                
+            elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0 or data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
+                v_count += 1
+                dlink = data.get('file_link')
+                if dlink:
+                    b = appx_decrypt(dlink.split(':')[0])
+                    lec = f"https://youtu.be/{b}"
+                                
+            msg = f"{tid} : {lec}\n{tid} : {vs}\n" if data.get('pdf_link') else f"{tid} : {lec}\n"
+            vj += msg                        
 
+        elif data['material_type'] == 'PDF':
+            p_count += 1
+            tid = data.get("Title")
+            vs = appx_decrypt(data.get("pdf_link", "").split(':')[0])
+            vj += f"{tid} : {vs}\n"
+
+        return vj
     except Exception as e:
-        print(str(e))
-    
-    return vt
-
+        print(f"An error occurred in course_content2: {str(e)}")
+        raise
 
 
 async def appex_v2_txt(app, message, api, name):
@@ -285,50 +333,10 @@ async def course_content(session, scraper, api, message, raw_text2, parent_Id, h
         print(f"An error occurred in course_content: {str(e)}")
         raise
 
-async def course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data):
-    global v_count, p_count
-    try:
-        vj = ""
-        if data['material_type'] == 'FOLDER':
-            folder_id = data['id']
-            vj += await course_content(session, scraper, api, message, raw_text2, folder_id, hdr1, msg)
-
-        if data['material_type'] == 'VIDEO':
-            tid = data.get("Title")
-            plink = data.get('pdf_link', "").split(':')            
-            if len(plink) == 2:
-                p_count += 1
-                vs = appx_decrypt(plink[0])
-                               
-            if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
-                v_count += 1
-                dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
-                if dlink:
-                    lec = appx_decrypt(dlink.split(':')[0])
-                                                
-            elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0 or data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
-                v_count += 1
-                dlink = data.get('file_link')
-                if dlink:
-                    b = appx_decrypt(dlink.split(':')[0])
-                    lec = f"https://youtu.be/{b}"
-                                
-            msg = f"{tid} : {lec}\n{tid} : {vs}\n" if data.get('pdf_link') else f"{tid} : {lec}\n"
-            vj += msg                        
-
-        elif data['material_type'] == 'PDF':
-            p_count += 1
-            tid = data.get("Title")
-            vs = appx_decrypt(data.get("pdf_link", "").split(':')[0])
-            vj += f"{tid} : {vs}\n"
-
-        return vj
-    except Exception as e:
-        print(f"An error occurred in course_content2: {str(e)}")
-        raise
 
 
 
+# --------------------------- Appex-Command --------------------------- #
 
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
