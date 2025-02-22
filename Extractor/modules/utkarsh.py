@@ -126,8 +126,12 @@ async def process_uk(msg, session, raw_text2, token, ids):
 async def utkarsh_login(_, message):
     user_id = message.from_user.id
     msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
-    input1 = await app.listen(user_id)
-    raw_text = input1.text
+    try:
+        input1 = await app.listen(user_id, timeout=30)  
+        raw_text = input1.text
+    except:
+        await message.reply_text("⏳ Timeout! Please try again.")
+        return
 
     login_url = "https://online.utkarsh.com/web/Auth/login"
     url = "https://online.utkarsh.com/"
@@ -185,8 +189,12 @@ async def utkarsh_login(_, message):
 #            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
 
         await msg.edit_text("**📊 Now send the Batch ID to Download**")
-        input2 = await app.listen(user_id)
-        raw_text2 = input2.text
+        try:
+            input2 = await app.listen(user_id, timeout=30)  
+            raw_text2 = input2.text
+        except:
+            await message.reply_text("⏳ Timeout! Please try again.")
+            return
 
 #        batch_name = next(
 #            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
