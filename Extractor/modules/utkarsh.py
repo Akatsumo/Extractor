@@ -204,6 +204,7 @@ async def utkarsh_login(_, message):
         data = {'tile_input': course_id, 'csrf_name': token}
         async with session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data) as response:
             data = json.loads(await response.text())
+            await message.reply_text(data)
             respon = main_func.utkarsh_decrypt(data["response"])
             decoded = json_repair.repair_json(respon, return_objects=True)
              
