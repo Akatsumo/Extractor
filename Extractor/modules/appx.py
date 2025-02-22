@@ -386,7 +386,7 @@ async def appx_logins(_, message):
     name, api = extract_parts(raw_text)
     buttons = InlineKeyboardMarkup([[InlineKeyboardButton("Appx V2", callback_data="appx_v2"), InlineKeyboardButton("Appx V3", callback_data="appx_v3")]])
     mm = await msg.edit_text("🕹 Select Your Appx Api Version 👇", reply_markup=buttons)
-    r = await mm.wait_for_click(from_user_id=query.from_user.id)
+    r = await mm.wait_for_click(from_user_id=user_id)
     if r.data == 'app_v2':
        appex_v2_txt(app, message, api, name)               
     elif r.data == 'app_v3':
