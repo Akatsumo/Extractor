@@ -7,10 +7,14 @@ import asyncio
 import cloudscraper
 from Extractor import app
 from pyrogram import filters 
-from Extractor.modules.start import keyboard
 from Extractor.core.main_func import appx_decrypt, get_time
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+
+keyboard = InlineKeyboardMarkup([
+    [
+        InlineKeyboardButton("📢 Channel", url="https://t.me/DevsLaboratory")
+    ]])
 
 v_count = 0
 p_count = 0
@@ -87,11 +91,9 @@ async def appex_down(session, message, hdr1, api, raw_text2, f, msg):
 
 
 
-async def appex_v3_txt(app, message, api, name):
+async def appex_v3_txt(app, message, user_id, api, name):
     global v_count, p_count
-    user_id = message.from_user.id
-
-
+    
     try:
         raw_url = f"https://{api}/post/userLogin"
         hdr = {
@@ -272,11 +274,9 @@ async def course_content2(session, scraper, api, message, raw_text2, parent_Id, 
         raise
 
 
-async def appex_v2_txt(app, message, api, name):
+async def appex_v2_txt(app, message, user_id, api, name):
     global counter, v_count, p_count
-    user_id = message.from_user.id
-
-
+    
     async with aiohttp.ClientSession() as session:
         raw_url = f"https://{api}/post/userLogin"
         hdr = {
@@ -373,7 +373,7 @@ async def appex_v2_txt(app, message, api, name):
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
     user_id = message.from_user.id
-    msg = await message.reply_text("📝 **Please Provide Your Appx API URL.**")
+    msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
 
     input_msg = await app.ask(user_id)
     raw_text = input_msg.text
