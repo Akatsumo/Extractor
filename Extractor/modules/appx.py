@@ -332,7 +332,7 @@ async def appex_v2_txt(app, message, api, name):
                 FFF += f"`{cdata['id']}`  -   **{cdata['course_name']}**\n\n"
 
         await msg.edit_text(f"{FFF}\n\n**📊Now send the Batch ID to Download**")
-        input2 = await app.listen(user_id=query.from_user.id)
+        input2 = await app.listen(user_id=user_id)
         raw_text2 = input2.text
         await input2.delete(True)
         batch_name = next((cdata['course_name'] for data in b_data for cdata in data['coursedt'] if cdata['id'] == raw_text2), "")
