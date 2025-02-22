@@ -377,7 +377,7 @@ async def appx_logins(_, message):
 
     input_msg = await app.listen(user_id)
     raw_text = input_msg.text
-
+    await input_msg.delete(True)
     def extract_parts(url):
         match = re.search(r'(\w+?)(api)?\.classx\.co\.in', url)
         if match:
@@ -393,7 +393,8 @@ async def appx_logins(_, message):
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("🌿 Appx V2", callback_data=f"appx_v2*{name}#{api}"), 
          InlineKeyboardButton("🌴 Appx V3", callback_data=f"appx_v3*{name}#{api}")]
-    ])
-    
+    ])    
     mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
+    await asyncio.sleep(5)
+    await mm.delete()
 
