@@ -206,8 +206,9 @@ async def utkarsh_login(_, message):
             data = json.loads(await response.text())          
             respon = main_func.utkarsh_decrypt(data["response"])
             decoded = json_repair.repair_json(respon, return_objects=True)
-            if decide["status"] is not True:
+            if decoded["status"] is not True:
                 await message.reply_text("✏️ **Invalid Course ID**")
+                return 
              
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
         start_time = time.time()
