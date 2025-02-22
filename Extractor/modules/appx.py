@@ -7,6 +7,7 @@ import asyncio
 import cloudscraper
 from Extractor import app
 from pyrogram import filters 
+from Extractor.modules.start import keyboard
 from Extractor.core.main_func import appx_decrypt, get_time
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -184,16 +185,20 @@ async def appex_v3_txt(app, message, api, name):
             for result in results:
                 vt += result
         
-            filename = batch_name.replace("/", "") if '/' in batch_name else batch_name
-            file_path = f"{filename}_{user_id}.txt"
             end_time = time.time()
             duration_seconds = end_time - start_time
             elapsed = get_time(duration_seconds)
-        
-            caption = f"**App Name :- {name}\nBatch Name :-** `{batch_name}`\n\n🍿 **Total Video**: `{v_count}`\n📝 **Total pdf**: `{p_count}`\n⌚️**Time Taken**: `{elapsed}`"
+
+            file_name = batch_name.replace("/", "") if '/' in batch_name else batch_name
+            file_path = f"{file_name}_{user_id}.txt"
+            caption = f"**App Name** :- `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
             with open(file_path, 'a') as f:
                 f.write(f"{vt}")
-            await app.send_document(message.chat.id, document=file_path, caption=caption)
+                
+            me = await app.get_me()
+            big_file_id = me.photo.big_file_id
+            thumb = await asyncio.create_task(app.download_media(big_file_id))
+            await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
             await msg.delete()
             os.remove(file_path)
             await message.reply_text("✅ Done")
@@ -338,17 +343,22 @@ async def appex_v2_txt(app, message, api, name):
         await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
         start_time = time.time()
         vj = await course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg)
+        
         end_time = time.time()
         duration_seconds = end_time - start_time
         elapsed = get_time(duration_seconds)
         
-        file_name = batch_name.replace("/", "") if '/' in batch_name else batch_name     
-        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
+        file_name = batch_name.replace("/", "") if '/' in batch_name else batch_name 
         file_path = f"{file_name}_{user_id}.txt"
+        
+        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
         with open(file_path, "a") as f:
             f.write(f"{vj}")
             
-        await app.send_document(message.chat.id, document=file_path, caption=caption)
+        me = await app.get_me()
+        big_file_id = me.photo.big_file_id
+        thumb = await asyncio.create_task(app.download_media(big_file_id))
+        await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
         await msg.delete()
         os.remove(file_path)
         await message.reply_text("✅ Done")
