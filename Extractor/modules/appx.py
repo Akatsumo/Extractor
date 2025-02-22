@@ -375,7 +375,7 @@ async def appx_logins(_, message):
     user_id = message.from_user.id
     msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
 
-    input_msg = await app.ask(user_id)
+    input_msg = await app.listen(user_id)
     raw_text = input_msg.text
 
     def extract_parts(url):
