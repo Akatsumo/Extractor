@@ -159,8 +159,10 @@ async def utkarsh_login(_, message):
 
     if "*" in raw_text:
         data["mobile"], data["password"] = raw_text.split("*")
-        
-    token = raw_text
+    else:
+        await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")
+        return        
+            
     await input1.delete()
     async with aiohttp.ClientSession() as session:
         async with session.post(login_url, cookies=cookies, data=data) as response:
@@ -188,8 +190,8 @@ async def utkarsh_login(_, message):
 #        for course in data["data"].get("data"):
 #            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
 
-        await msg.delete()
-        msg = await message.reply_text("**📊 Now send the Batch ID to Download**")
+        
+        await msg.edit_text("**📊 Now send the Batch ID to Download**")
         try:
             input2 = await app.listen(user_id, timeout=30)  
             raw_text2 = input2.text
@@ -200,9 +202,9 @@ async def utkarsh_login(_, message):
 #        batch_name = next(
 #            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
 #        )
+
         
-        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'
-        
+        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
         course_id = main_func.utkarsh_encrypt(combo_text)
         data = {'tile_input': course_id, 'csrf_name': token}
         async with session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data) as response:
