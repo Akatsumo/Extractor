@@ -14,10 +14,12 @@ from Extractor.modules.start import keyboard
 
 cookies = {"csrf_name": "", "ci_session": ""}
 
-v_count = 0
-p_count = 0
 
-async def process_uk(msg, session, raw_text2, token, ids):        
+
+async def process_uk(msg, session, raw_text2, token, ids):
+    global v_count, p_count
+    v_count = 0
+    p_count = 0
     lec = ""
 
     for id in ids:
@@ -167,15 +169,16 @@ async def utkarsh_login(_, message):
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
 
-#        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
+        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
 
-#        async with session.post(
-#            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
-#        ) as response:
-#            data = await response.text()            
-#            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
-#            data = json.loads(respon)
-#            await message.reply_text(data)
+        async with session.post(
+            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
+        ) as response:
+            data = await response.text()            
+            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
+            data = json.loads(respon)
+            await message.reply_text(data)
+            return 
 #        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
 #        for course in data["data"].get("data"):
 #            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
@@ -188,13 +191,12 @@ async def utkarsh_login(_, message):
 #            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
 #        )
         
-        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "70592", "layer": 1, "type": "course_combo"}'
+        combo_text = '{"course_id": f"{raw_text2}", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "70592", "layer": 1, "type": "course_combo"}'
         course_id = main_func.utkarsh_encrypt(combo_text)
         data = {'tile_input': course_id, 'csrf_name': token}
         async with session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data) as response:
             data = json.loads(await response.text())
             respon = main_func.utkarsh_decrypt(data["response"])
-            await message.reply_text(respon)
             decoded = json_repair.repair_json(respon, return_objects=True)
              
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
