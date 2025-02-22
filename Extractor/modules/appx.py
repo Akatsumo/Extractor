@@ -372,7 +372,7 @@ async def appex_v2_txt(app, message, api, name):
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
     user_id = message.from_user.id
-    msg = await message.reply_text("Send Appx Api")
+    msg = await message.reply_text("📋 **Please Provide Your Appx Api.**")
     input = await app.listen(user_id=user_id)
     raw_text = input.text
     def extract_parts(url):
@@ -388,9 +388,9 @@ async def appx_logins(_, message):
     mm = await msg.edit_text("🕹 Select Your Appx Api Version 👇", reply_markup=buttons)
     r = await mm.wait_for_click(from_user_id=user_id)
     if r.data == 'app_v2':
-       appex_v2_txt(app, message, api, name)               
+       await appex_v2_txt(app, message, api, name)               
     elif r.data == 'app_v3':
-       appex_v3_txt(app, message, api, name) 
+       await appex_v3_txt(app, message, api, name) 
     else:
        pass
 
