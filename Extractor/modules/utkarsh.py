@@ -14,11 +14,10 @@ from Extractor.modules.start import keyboard
 
 cookies = {"csrf_name": "", "ci_session": ""}
 
+v_count = 0
+p_count = 0
 
-async def process_uk(msg, session, raw_text2, token, ids):
-    global v_count, p_count
-    v_count = 0
-    p_count = 0
+async def process_uk(msg, session, raw_text2, token, ids):        
     lec = ""
 
     for id in ids:
@@ -164,7 +163,7 @@ async def utkarsh_login(_, message):
                 res = main_func.utkarsh_decrypt(json.loads(resp)["response"])
                 token = json.loads(res)["token"]
                 await msg.edit_text("✅ **Login Successfully**")
-                await message.reply_text("📋 **Token** : `{token}`")
+                await message.reply_text(f"📋 **Token** : `{token}`")
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
 
