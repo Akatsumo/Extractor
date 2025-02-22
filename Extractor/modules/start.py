@@ -44,6 +44,7 @@ async def start_(_, message):
 @app.on_callback_query()
 async def handle_callback(_, query):
     name = query.from_user.mention
+    user_id = query.from_user.id
 
     if query.data == "home_":
         await query.message.edit_text(
