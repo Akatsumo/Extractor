@@ -171,7 +171,6 @@ async def utkarsh_login(_, message):
                 res = main_func.utkarsh_decrypt(json.loads(resp)["response"])
                 token = json.loads(res)["token"]
                 await msg.edit_text("✅ **Login Successfully**")
-                await message.reply_text(f"📋 **Token** : `{token}`")
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
 
