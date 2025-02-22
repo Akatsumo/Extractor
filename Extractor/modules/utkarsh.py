@@ -203,10 +203,10 @@ async def utkarsh_login(_, message):
         course_id = main_func.utkarsh_encrypt(combo_text)
         data = {'tile_input': course_id, 'csrf_name': token}
         async with session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data) as response:
-            data = json.loads(await response.text())
-            await message.reply_text(data)
+            data = json.loads(await response.text())          
             respon = main_func.utkarsh_decrypt(data["response"])
             decoded = json_repair.repair_json(respon, return_objects=True)
+            await message.reply_text(decoded)
              
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
         start_time = time.time()
