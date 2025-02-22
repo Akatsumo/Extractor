@@ -369,12 +369,15 @@ async def appex_v2_txt(app, message, api, name):
 
 # --------------------------- Appex-Command --------------------------- #
 
+
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
     user_id = message.from_user.id
-    msg = await message.reply_text("📋 **Please Provide Your Appx Api.**")
-    input = await app.listen(user_id=user_id)
-    raw_text = input.text
+    msg = await message.reply_text("📋 **Please Provide Your Appx API URL.**")
+
+    input_msg = await app.ask(user_id)
+    raw_text = input_msg.text
+
     def extract_parts(url):
         match = re.search(r'(\w+?)(api)?\.classx\.co\.in', url)
         if match:
@@ -384,19 +387,13 @@ async def appx_logins(_, message):
         return None, None
 
     name, api = extract_parts(raw_text)
-    buttons = InlineKeyboardMarkup([[InlineKeyboardButton("Appx V2", callback_data="appx_v2"), InlineKeyboardButton("Appx V3", callback_data="appx_v3")]])
-    mm = await msg.edit_text("🕹 Select Your Appx Api Version 👇", reply_markup=buttons)
-    r = await mm.wait_for_click(from_user_id=user_id)
-    if r.data == 'app_v2':
-       await appex_v2_txt(app, message, api, name)               
-    elif r.data == 'app_v3':
-       await appex_v3_txt(app, message, api, name) 
-    else:
-       pass
+    if not name or not api:
+        return await msg.edit_text("❌ **Invalid API URL! Please try again.**")
 
-
-        
-
-
-
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🌿 Appx V2", callback_data=f"appx_v2*{name}#{api}"), 
+         InlineKeyboardButton("🌴 Appx V3", callback_data=f"appx_v3{name}#{api}")]
+    ])
     
+    mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
+
