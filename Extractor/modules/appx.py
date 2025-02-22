@@ -392,7 +392,7 @@ async def appx_logins(_, message):
 
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("🌿 Appx V2", callback_data=f"appx_v2*{name}#{api}"), 
-         InlineKeyboardButton("🌴 Appx V3", callback_data=f"appx_v3{name}#{api}")]
+         InlineKeyboardButton("🌴 Appx V3", callback_data=f"appx_v3*{name}#{api}")]
     ])
     
     mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
