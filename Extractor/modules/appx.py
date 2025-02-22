@@ -1,6 +1,7 @@
-import json
+import re
 import os
 import time
+import json
 import aiohttp
 import asyncio
 import cloudscraper
@@ -14,7 +15,7 @@ counter = 0
 
 async def appex_v3_txt(app, message, api, name):
     global v_count, p_count
-
+    user_id = message.from_user.id
     try:
         raw_url = f"https://{api}/post/userLogin"
         hdr = {
@@ -30,7 +31,7 @@ async def appex_v3_txt(app, message, api, name):
         info = {"email": "", "password": ""}
         
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
-        input1 = await app.listen(user_id=query.from_user.id)
+        input1 = await app.listen(user_id=user_id)
         raw_text = input1.text
         info["email"], info["password"] = raw_text.split("*")
         await input1.delete(True)
@@ -50,7 +51,7 @@ async def appex_v3_txt(app, message, api, name):
                 "Authorization": token
             }
         
-            await msg.edit_text("**✅ Login Successfully**")
+            await msg.edit_text("✅ **Login Successfully**")
         
             async with session.get(f"https://{api}/get/mycourseweb?userid={userid}", headers=hdr1) as response:
                 respo = await response.read()
@@ -328,3 +329,34 @@ async def course_content2(session, scraper, api, message, raw_text2, parent_Id, 
 
 
 
+
+@app.on_message(filters.command("appx")) 
+async def appx_logins(_, message):
+    msg = await message.reply_text("Send Appx Api")
+    input = await app.listen(user_id=query.from_user.id)
+    raw_text = input.text
+    def extract_parts(url):
+        match = re.search(r'(\w+?)(api)?\.classx\.co\.in', url)
+        if match:
+            name = match.group(1)
+            original_subdomain = match.group(0)
+            return name, original_subdomain
+        return None, None
+
+    name, api = extract_parts(raw_text)
+    buttons = InlineKeyboardMarkup([[InlineKeyboardButton("Appx V2", callback_data="appx_v2"), InlineKeyboardButton("Appx V3", callback_data="appx_v3")]])
+    mm = await msg.edit_text("🕹 Select Your Appx Api Version 👇", reply_markup=buttons)
+    r = await mm.wait_for_click(from_user_id=query.from_user.id)
+    if r.data == 'app_v2':
+       appex_v2_txt(app, message, api, name)               
+    elif r.data == 'app_v3':
+       appex_v3_txt(app, message, api, name) 
+    else:
+       pass
+
+
+        
+
+
+
+    
