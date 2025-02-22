@@ -11,13 +11,13 @@ from Extractor.core import main_func
 from Extractor.modules.start import keyboard
 
 
-
 cookies = {"csrf_name": "", "ci_session": ""}
 v_count = 0
 p_count = 0
 
 
 async def process_uk(msg, session, raw_text2, token, ids):
+    global v_count, p_count
     lecture = ""
 
     for id in ids:
@@ -121,7 +121,8 @@ async def process_uk(msg, session, raw_text2, token, ids):
     return lecture
 
 
-@app.on_message(filters.command("uk"))
+
+@app.on_message(filters.command("utkarsh"))
 async def utkarsh_login(_, message):
     user_id = message.from_user.id
     msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
@@ -187,7 +188,8 @@ async def utkarsh_login(_, message):
 #        for course in data["data"].get("data"):
 #            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
 
-        await msg.edit_text("**📊 Now send the Batch ID to Download**")
+        await msg.delete()
+        msg = await message.reply_text("**📊 Now send the Batch ID to Download**")
         try:
             input2 = await app.listen(user_id, timeout=30)  
             raw_text2 = input2.text
