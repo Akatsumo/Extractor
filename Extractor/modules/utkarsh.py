@@ -13,14 +13,12 @@ from Extractor.modules.start import keyboard
 
 
 cookies = {"csrf_name": "", "ci_session": ""}
-
+v_count = 0
+p_count = 0
 
 
 async def process_uk(msg, session, raw_text2, token, ids):
-    global v_count, p_count
-    v_count = 0
-    p_count = 0
-    lec = ""
+    lecture = ""
 
     for id in ids:
         d_text = json.dumps(
@@ -109,17 +107,18 @@ async def process_uk(msg, session, raw_text2, token, ids):
                     if data.get("bitrate_urls", []):
                         for u in data.get("bitrate_urls", []):
                             if u["title"] == "720x1280.mp4":
-                                url = f"{'/'.join(u['url'].split('/')[:-2])}/plain/720x1280.mp4"
+                                url = f"{u['url']}"
+                              #  url = f"{'/'.join(u['url'].split('/')[:-2])}/plain/720x1280.mp4"
                     if url:
-                        lec += f"{title}: {url}\n"
-                        v_count += 1
+                        lecture += f"{title}: {url}\n"
+#                   #     v_count += 1
 
                     if data.get("file_type") == "1":
                         pdf = data["file_url"]
-                        lec += f"{title}: {pdf}\n"
-                        p_count += 1
+                        lecture += f"{title}: {pdf}\n"
+                     #   p_count += 1
 
-    return lec
+    return lecture
 
 
 @app.on_message(filters.command("uk"))
