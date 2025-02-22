@@ -188,7 +188,7 @@ async def utkarsh_login(_, message):
 #            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
 #        )
         
-        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'
+        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "70592", "layer": 1, "type": "course_combo"}'
         course_id = main_func.utkarsh_encrypt(combo_text)
         data = {'tile_input': course_id, 'csrf_name': token}
         async with session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data) as response:
