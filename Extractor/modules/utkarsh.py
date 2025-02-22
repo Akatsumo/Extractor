@@ -158,7 +158,7 @@ async def utkarsh_login(_, message):
     }
 
     if "*" in raw_text:
-        data["mobile"], data["password"] = raw_text.split("*", 1)
+        data["mobile"], data["password"] = raw_text.split("*")
         
     token = raw_text
     await input1.delete()
@@ -173,13 +173,13 @@ async def utkarsh_login(_, message):
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
 
-        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
+#        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
 
-        async with session.post(
-            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
-        ) as response:
-            data = await response.text() 
-            print(data)
+#        async with session.post(
+#            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
+#        ) as response:
+#            data = await response.text() 
+            
             
 #            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
 #            data = json.loads(respon)
