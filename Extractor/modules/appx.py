@@ -371,8 +371,9 @@ async def appex_v2_txt(app, message, api, name):
 
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
+    user_id = message.from_user.id
     msg = await message.reply_text("Send Appx Api")
-    input = await app.listen(user_id=query.from_user.id)
+    input = await app.listen(user_id=user_id)
     raw_text = input.text
     def extract_parts(url):
         match = re.search(r'(\w+?)(api)?\.classx\.co\.in', url)
