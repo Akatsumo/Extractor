@@ -164,6 +164,7 @@ async def utkarsh_login(_, message):
                 res = main_func.utkarsh_decrypt(json.loads(resp)["response"])
                 token = json.loads(res)["token"]
                 await msg.edit_text("✅ **Login Successfully**")
+                await message.reply_text("📋 **Token** : `{token}`")
             else:
                 return await msg.edit_text("❌ Failed Login! Incorrect password.")
 
@@ -194,6 +195,7 @@ async def utkarsh_login(_, message):
         async with session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data) as response:
             data = json.loads(await response.text())
             respon = main_func.utkarsh_decrypt(data["response"])
+            await message.reply_text(respon)
             decoded = json_repair.repair_json(respon, return_objects=True)
              
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
