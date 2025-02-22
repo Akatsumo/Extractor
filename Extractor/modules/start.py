@@ -1,7 +1,7 @@
 from Extractor import app
 from pyrogram import filters, enums
 from Extractor.core import script
-fron Extractor.modules import appx
+from Extractor.modules import appx
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
@@ -59,7 +59,7 @@ async def handle_callback(_, query):
         data = query.data.split("_")[1]
         task = data.split("*")
         name, api = task[1].split("#")
-        if task[0] == "V2":
+        if task[0] == "v2":
             await query.answer("waito...", show_alert=True)
             await appx.appex_v3_txt(app, query.message, user_id, api, name)
         else:
