@@ -5,8 +5,10 @@ import json
 import aiohttp
 import asyncio
 import cloudscraper
+from Extractor import app
+from pyrogram import filters 
+from Extractor.core.main_func import appx_decrypt, get_time
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from Extractor.core.main_func import appx_decrypt
 
 
 v_count = 0
@@ -87,6 +89,8 @@ async def appex_down(session, message, hdr1, api, raw_text2, f, msg):
 async def appex_v3_txt(app, message, api, name):
     global v_count, p_count
     user_id = message.from_user.id
+
+
     try:
         raw_url = f"https://{api}/post/userLogin"
         hdr = {
@@ -102,11 +106,20 @@ async def appex_v3_txt(app, message, api, name):
         info = {"email": "", "password": ""}
         
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
-        input1 = await app.listen(user_id=user_id)
-        raw_text = input1.text
-        info["email"], info["password"] = raw_text.split("*")
-        await input1.delete(True)
-        
+        try:
+            input1 = await app.listen(user_id, timeout=30)  
+            raw_text = input1.text
+        except:
+            await message.reply_text("⏳ Timeout! Please try again.")
+            return
+            
+        if "*" in raw_text:           
+            info["email"], info["password"] = raw_text.split("*")
+        else:
+            await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")
+            return
+            
+        await input1.delete(True)        
         async with aiohttp.ClientSession() as session:
             async with session.post(raw_url, data=info, headers=hdr) as response:
                 res = await response.read()
@@ -133,8 +146,8 @@ async def appex_v3_txt(app, message, api, name):
             for data in b_data:
                 FFF += f"`{data['id']}`   -   **{data['course_name']}**\n\n"
         
-            await msg.edit_text(f"{FFF}\n\n**📊Now send the Batch ID to Download**")
-            input2 = await app.listen(user_id=query.from_user.id)
+            await msg.edit_text(f"{FFF}\n\n📊**Now send the Batch ID to Download**")
+            input2 = await app.listen(user_id=user_id)
             raw_text2 = input2.text
             await input2.delete(True)
             batch_name = name
@@ -150,7 +163,7 @@ async def appex_v3_txt(app, message, api, name):
 
             buttons = InlineKeyboardMarkup([[InlineKeyboardButton("Full Batch", callback_data="full"), InlineKeyboardButton("Subject wise", callback_data="sub")]])
             mm = await msg.edit_text("🕹 Select Your Preferred Mode 👇", reply_markup=buttons)
-            r = await mm.wait_for_click(from_user_id=query.from_user.id)
+            r = await mm.wait_for_click(from_user_id=user_id)
             if r.data == 'full':
                 ss = [sub["subjectid"] for sub in subjID]
             elif r.data == 'sub':
@@ -158,7 +171,7 @@ async def appex_v3_txt(app, message, api, name):
                 for sub in subjID:
                     ff += f"`{sub['subjectid']}`   -   **{sub['subject_name']}**\n\n"
                 await msg.edit_text(f"{ff}**📊Now send the SUBJECT ID to Download, \nIf you want to Download Multipe subjects then Send SUBJ ID like  `12&23&65`**")
-                input3 = await app.listen(user_id=query.from_user.id)
+                input3 = await app.listen(user_id=user_id)
                 ss = input3.text.split('&')
                 await input3.delete(True)
 
@@ -171,26 +184,45 @@ async def appex_v3_txt(app, message, api, name):
             for result in results:
                 vt += result
         
-            name1 = batch_name.replace("/", "") if '/' in batch_name else batch_name
+            filename = batch_name.replace("/", "") if '/' in batch_name else batch_name
+            file_path = f"{filename}_{user_id}.txt"
             end_time = time.time()
             duration_seconds = end_time - start_time
             elapsed = get_time(duration_seconds)
         
-            cap = f"**App Name :- {name}\nBatch Name :-** `{batch_name}`\n\n🍿 **Total Video**: `{v_count}`\n📝 **Total pdf**: `{p_count}`\n⌚️**Time Taken**: `{elapsed}`"
-            with open(f'{name1}.txt', 'a') as f:
+            caption = f"**App Name :- {name}\nBatch Name :-** `{batch_name}`\n\n🍿 **Total Video**: `{v_count}`\n📝 **Total pdf**: `{p_count}`\n⌚️**Time Taken**: `{elapsed}`"
+            with open(file_path, 'a') as f:
                 f.write(f"{vt}")
-            await app.send_document(message.chat.id, document=f"{name1}.txt", caption=cap)
+            await app.send_document(message.chat.id, document=file_path, caption=caption)
             await msg.delete()
-            os.remove(f"{name1}.txt")
-            await message.reply_text("Done")
+            os.remove(file_path)
+            await message.reply_text("✅ Done")
         await session.close()
         
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        await message.reply_text("Please try again later. May be Password Wrong")
+        print(f"Error : {str(e)}")
+        await message.reply_text(f"**Error** : `{e}`")
 
 
 # --------------------------- Appex-V2 --------------------------- #
+
+async def course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg):
+    try:
+        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id={parent_Id}", headers=hdr1)
+        output = await response.json()
+        data_list = output.get('data', [])
+        vj = ""
+        tasks = []
+        for data in data_list:
+            tasks.append(course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data))
+        results = await asyncio.gather(*tasks)
+        for result in results:
+            vj += result
+        return vj
+    except Exception as e:
+        print(f"An error occurred in course_content: {str(e)}")
+        raise
+
 
 async def course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data):
     global v_count, p_count
@@ -238,6 +270,8 @@ async def course_content2(session, scraper, api, message, raw_text2, parent_Id, 
 async def appex_v2_txt(app, message, api, name):
     global counter, v_count, p_count
     user_id = message.from_user.id
+
+
     async with aiohttp.ClientSession() as session:
         raw_url = f"https://{api}/post/userLogin"
         hdr = {
@@ -252,14 +286,19 @@ async def appex_v2_txt(app, message, api, name):
         }
         info = {"email": "", "password": ""}
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
-        input1 = await app.listen(user_id=user_id)
-        raw_text = input1.text
-        if "*" in raw_text:
-          info["email"], info["password"] = raw_text.split("*")
+        try:
+            input1 = await app.listen(user_id, timeout=30)  
+            raw_text = input1.text
+        except:
+            await message.reply_text("⏳ Timeout! Please try again.")
+            return
+            
+        if "*" in raw_text:           
+            info["email"], info["password"] = raw_text.split("*")
         else:
-          await msg.edit_text("")
-          return
-          
+            await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")
+            return
+                  
         await input1.delete(True)
         try:
             async with session.post(raw_url, data=info, headers=hdr) as response:
@@ -267,7 +306,7 @@ async def appex_v2_txt(app, message, api, name):
                 userid = output["data"]["userid"]
                 token = output["data"]["token"]
         except Exception as e:
-            print(f"An error occurred: {str(e)}")
+            print(f"Error : {str(e)}")
             return await msg.edit_text("Please try again later. May be Password Wrong")
 
         hdr1 = {
@@ -303,36 +342,18 @@ async def appex_v2_txt(app, message, api, name):
         duration_seconds = end_time - start_time
         elapsed = get_time(duration_seconds)
         
-        batch_name1 = batch_name.replace("/", "") if '/' in batch_name else batch_name
-      
+        file_name = batch_name.replace("/", "") if '/' in batch_name else batch_name     
         caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
-        file_path = f"{batch_name1}_{user_id}.txt"
+        file_path = f"{file_name}_{user_id}.txt"
         with open(file_path, "a") as f:
             f.write(f"{vj}")
+            
         await app.send_document(message.chat.id, document=file_path, caption=caption)
         await msg.delete()
         os.remove(file_path)
         await message.reply_text("✅ Done")
 
     await session.close()
-
-async def course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg):
-    try:
-        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id={parent_Id}", headers=hdr1)
-        output = await response.json()
-        data_list = output.get('data', [])
-        vj = ""
-        tasks = []
-        for data in data_list:
-            tasks.append(course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data))
-        results = await asyncio.gather(*tasks)
-        for result in results:
-            vj += result
-        return vj
-    except Exception as e:
-        print(f"An error occurred in course_content: {str(e)}")
-        raise
-
 
 
 
