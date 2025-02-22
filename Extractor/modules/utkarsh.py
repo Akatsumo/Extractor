@@ -175,10 +175,10 @@ async def utkarsh_login(_, message):
             "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
         ) as response:
             data = await response.text() 
-            await message.reply_text(data)
-            return
-            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
-            data = json.loads(respon)
+            print(data)
+            
+#            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
+#            data = json.loads(respon)
              
 #        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
 #        for course in data["data"].get("data"):
