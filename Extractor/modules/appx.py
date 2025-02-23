@@ -332,7 +332,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
         
         start_time = time.time()
-        links = await course_content(session, api, headers, message, course_id, parent_id)      
+        links = await course_content(session, api, headers, message, course_id)      
         end_time = time.time()
         duration_seconds = end_time - start_time
         elapsed = get_time(duration_seconds)
