@@ -237,29 +237,32 @@ async def appex_v2_txt(app, message, user_id, api, name):
         login_url = f"https://{api}/post/userLogin"
         headers = {
             "Auth-Key": "appxapi",
-            "User-Id": "-2",
+            "User-Id": "",
             "Authorization": "",
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept-Encoding": "gzip, deflate",
             "User-Agent": "okhttp/4.9.1"
         }
-        
-        msg = await message.reply_text("**🔑 Send your ID & Password as: ID*Password**")
-        
+
+        msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
         try:
             input1 = await app.listen(user_id, timeout=30)
-            email, password = input1.text.split("*")
+            if "*" in input1.text :
+                email, password = input1.text.split("*")
+                response = await session.post(login_url, data={"email": email, "password": password}, headers=headers)
+                if response.status != 200:
+                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+        
+                output = await response.json()
+                userid, token = output["data"]["userid"], output["data"]["token"]
+                headers.update({"User-Id": userid, "Authorization": token})      
+            else:
+                token = input1.text.strip()
         except:
             return await message.reply_text("⏳ Timeout! Please try again.")
-        
+      
         await input1.delete()
-        response = await session.post(login_url, data={"email": email, "password": password}, headers=headers)
-        if response.status != 200:
-            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-        
-        output = await response.json()
-        userid, token = output["data"]["userid"], output["data"]["token"]
-        headers.update({"User-Id": userid, "Authorization": token})
+        headers.update({"Authorization": token})
         await msg.edit_text("✅ **Login Successful**")
         
         response = await session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=headers)
