@@ -62,7 +62,7 @@ async def handle_callback(_, query):
         name, api = task[1].split("#")
         if task[0] == "v2":
             await query.answer("waito...", show_alert=True)
-            await appx.appex_v3_txt(app, query.message, user_id, api, name)
+            await appx.appex_v2_txt(app, query.message, user_id, api, name)
         else:
             await query.answer("waito...", show_alert=True)
             await appx.appex_v3_txt(app, query.message, user_id, api, name)
