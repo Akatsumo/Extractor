@@ -196,7 +196,7 @@ async def utkarsh_login(_, message):
         start_time = time.time()
         links = ""
         
-        tasks = [process_uk(msg, session, raw_text2, token, [item["id"]]) for item in decoded['data']]
+        tasks = [process_uk(session, raw_text2, token, [item["id"]]) for item in decoded['data']]
         results = await asyncio.gather(*tasks)
         links = "".join(results)
 
@@ -212,7 +212,11 @@ async def utkarsh_login(_, message):
         big_file_id = me.photo.big_file_id
         thumb = await asyncio.create_task(app.download_media(big_file_id))
         await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
+        await msg.delete()
         os.remove(file_path)
+        await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+
+        
 
 
 
