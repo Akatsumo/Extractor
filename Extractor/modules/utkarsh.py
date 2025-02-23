@@ -26,7 +26,7 @@ async def process_uk(session, raw_text, token, ids):
                 "course_id": id,
                 "page": 1,
                 "revert_api": "1#0#0#1",
-                "parent_id": raw_text,
+                "parent_id": raw_text2,
                 "tile_id": "0",
                 "layer": 1,
                 "type": "content",
@@ -45,7 +45,7 @@ async def process_uk(session, raw_text, token, ids):
             e_text = json.dumps(
                 {
                     "course_id": id,
-                    "parent_id": raw_text,
+                    "parent_id": raw_text2,
                     "layer": 2,
                     "page": 1,
                     "revert_api": "1#0#0#1",
@@ -68,7 +68,7 @@ async def process_uk(session, raw_text, token, ids):
                 f_text = json.dumps(
                     {
                         "course_id": id,
-                        "parent_id": raw_text,
+                        "parent_id": raw_text2,
                         "layer": 3,
                         "page": 1,
                         "revert_api": "1#0#0#1",
@@ -153,19 +153,23 @@ async def utkarsh_login(_, message):
         await input1.delete()        
         await msg.edit_text("✅ **Login Successfully**")
             
-        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
+#        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
 
-        response = await session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data)
-        data = await response.text() 
-        respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
-        data = json.loads(respon)
+#        async with session.post(
+#            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
+#        ) as response:
+#            data = await response.text() 
+            
+            
+#            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
+#            data = json.loads(respon)
              
-        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
-        for course in data["data"].get("data"):
-            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
+#        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
+#        for course in data["data"].get("data"):
+#            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
 
         
-        await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
+        await msg.edit_text("**📊 Now send the Batch ID to Download**")
         try:
             input2 = await app.listen(user_id, timeout=30)  
             raw_text2 = input2.text
@@ -211,6 +215,7 @@ async def utkarsh_login(_, message):
         await msg.delete()
         os.remove(file_path)
         await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+
 
 
 
