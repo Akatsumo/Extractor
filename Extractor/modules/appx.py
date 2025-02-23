@@ -209,68 +209,6 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
 # --------------------------- Appex-V2 --------------------------- #
 
-async def course_content(session, api, headers, message, course_id, parent_id=-1):
-    try:
-        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
-        output = await response.json()
-        data_list = output.get('data', [])
-        su = ""
-        tasks = []
-        for data in data_list:
-            tasks.append(links_extract(session, api, message, course_id, parent_id, headers, data))
-        results = await asyncio.gather(*tasks)
-        for result in results:
-            su += result
-        return su
-    except Exception as e:
-        print(f"Error In Course Content: {str(e)}")
-        raise
-
-
-async def links_extract(session, api, message, course_id, parent_id, headers, data):
-    global v_count, p_count
-    lectures = ""
-    try:
-        vum = ""
-        if data['material_type'] == 'FOLDER':
-            folder_id = data['id']
-            vum += await course_content(session, api, headers, message, course_id, folder_id)
-
-        elif data['material_type'] == 'VIDEO':
-            tid = data.get("Title")
-            plink = data.get('pdf_link', "").split(':')            
-            if len(plink) == 2:
-                p_count += 1
-                pdf = appx_decrypt(plink[0])
-                               
-            if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
-                v_count += 1
-                dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
-                if dlink:
-                    link = appx_decrypt(dlink.split(':')[0])
-                                                
-            elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0 or data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
-                v_count += 1
-                dlink = data.get('file_link')
-                if dlink:
-                    yt_id = appx_decrypt(dlink.split(':')[0])
-                    link = f"https://youtu.be/{yt_id}"
-                                
-            lectures += f"{tid} : {link}\n{tid} : {pdf}\n" if data.get('pdf_link') else f"{tid} : {link}\n"
-                                    
-
-        elif data['material_type'] == 'PDF':
-            p_count += 1
-            tid = data.get("Title")
-            pdf = appx_decrypt(data.get("pdf_link", "").split(':')[0])
-            lectures += f"{tid} : {pdf}\n"
-
-        return lectures
-    except Exception as e:
-        print(f"Error In Links Extractor: {str(e)}")
-        raise
-
-
 async def appex_v2_txt(app, message, user_id, api, name):
     async with aiohttp.ClientSession() as session:
         raw_url = f"https://{api}/post/userLogin"
@@ -284,76 +222,111 @@ async def appex_v2_txt(app, message, user_id, api, name):
             "Accept-Encoding": "gzip, deflate",
             "User-Agent": "okhttp/4.9.1"
         }
-        info = {"email": "", "password": ""}
-        msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
+        
+        msg = await message.reply_text("**🔑 For access, send your ID & Password as: ID*Password**")
+        
         try:
-            input1 = await app.listen(user_id, timeout=30)  
+            input1 = await app.listen(user_id, timeout=30)
             raw_text = input1.text
         except:
             return await message.reply_text("⏳ Timeout! Please try again.")
-            
-        if "*" in raw_text:           
-            info["email"], info["password"] = raw_text.split("*")
+        
+        if "*" in raw_text:
+            email, password = raw_text.split("*")
         else:
-            return await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")            
-                  
-        await input1.delete(True)
-        async with session.post(raw_url, data=info, headers=headers) as response:
+            return await msg.edit_text("😒 **Incorrect format. Use ID*Password**")
+        
+        await input1.delete()
+        
+        async with session.post(raw_url, data={"email": email, "password": password}, headers=headers) as response:
             if response.status != 200:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-                
             output = await response.json()
-            userid = output["data"]["userid"]
-            token = output["data"]["token"]
-            
-        headers = {
-            "Host": api,
-            "Client-Service": "Appx",
-            "Auth-Key": "appxapi",
-            "User-Id": userid,
-            "Authorization": token
-        }
-        await msg.edit_text("✅ **Login Successfully**")
-
+        
+        userid, token = output["data"]["userid"], output["data"]["token"]
+        headers.update({"User-Id": userid, "Authorization": token})
+        await msg.edit_text("✅ **Login Successful**")
+        
         async with session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=headers) as response:
             b_data = (await response.json()).get('data', [])
-
-        FFF = "**BATCH-ID  -  BATCH NAME**\n\n"
+        
+        batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
+        batch_map = {}
         for data in b_data:
             for cdata in data['coursedt']:
-                FFF += f"`{cdata['id']}`  -   **{cdata['course_name']}**\n\n"
-
-        await msg.edit_text(f"{FFF}\n\n**📊Now send the Batch ID to Download**")
-        input2 = await app.listen(user_id=user_id)
-        course_id = input2.text
-        await input2.delete(True)
-        batch_name = next((cdata['course_name'] for data in b_data for cdata in data['coursedt'] if cdata['id'] == course_id), "")
+                batch_list += f"`{cdata['id']}`  -   **{cdata['course_name']}**\n\n"
+                batch_map[cdata['id']] = cdata['course_name']
         
-        await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
+        await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+        input2 = await app.listen(user_id)
+        course_id = input2.text.strip()
+        await input2.delete()
+        
+        batch_name = batch_map.get(course_id, "Unknown Batch")
+        await msg.edit_text("**Extracting Video Links, Please Wait 📥**")
         
         start_time = time.time()
-        links = await course_content(session, api, headers, message, course_id)      
-        end_time = time.time()
-        duration_seconds = end_time - start_time
-        elapsed = get_time(duration_seconds)
+        links, v_count, p_count = await course_content(session, api, headers, message, course_id)
+        elapsed = round(time.time() - start_time, 2)
         
-        file_name = batch_name.replace("/", "") if '/' in batch_name else batch_name 
+        file_name = batch_name.replace("/", "")
         file_path = f"{file_name}_{user_id}.txt"
-        
-        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
-        with open(file_path, "a") as f:
+        with open(file_path, "w") as f:
             f.write(links)
-            
-        me = await app.get_me()
-        big_file_id = me.photo.big_file_id
-        thumb = await asyncio.create_task(app.download_media(big_file_id))
-        await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
-        await msg.delete()
+        
+        caption = (f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n"
+                   f"🍿 **Total Videos** : `{v_count}`\n📝 **Total PDFs** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed} sec`")
+        
+        await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption)
         os.remove(file_path)
-        await asyncio.sleep(2)
+        await msg.delete()
         await message.reply_text(f"✅ Done\n\n📝**User ID** : `{userid}`\n✏️ **Token** : `{token}`")
 
-    await session.close()
+async def course_content(session, api, headers, message, course_id, parent_id=-1):
+    try:
+        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
+        data_list = (await response.json()).get('data', [])
+        
+        tasks = [links_extract(session, api, message, course_id, parent_id, headers, data) for data in data_list]
+        results = await asyncio.gather(*tasks)
+        
+        links = "".join(results)
+        v_count = sum(result[1] for result in results)
+        p_count = sum(result[2] for result in results)
+        
+        return links, v_count, p_count
+    except Exception as e:
+        print(f"Error in Course Content: {e}")
+        return "", 0, 0
+
+async def links_extract(session, api, message, course_id, parent_id, headers, data):
+    v_count, p_count = 0, 0
+    lectures = ""
+    
+    try:
+        if data['material_type'] == 'FOLDER':
+            folder_id = data['id']
+            sub_links, v_count, p_count = await course_content(session, api, headers, message, course_id, folder_id)
+            return sub_links, v_count, p_count
+        
+        title = data.get("Title", "Unknown Title")
+        link, pdf = "", ""
+        
+        if data['material_type'] == 'VIDEO':
+            v_count += 1
+            dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), "")
+            link = appx_decrypt(dlink.split(':')[0]) if dlink else "Unavailable"
+        
+        if data['material_type'] == 'PDF' or 'pdf_link' in data:
+            p_count += 1
+            pdf = appx_decrypt(data.get("pdf_link", "").split(':')[0]) if data.get("pdf_link") else "Unavailable"
+        
+        lectures = f"{title} : {link}\n{title} : {pdf}\n" if pdf else f"{title} : {link}\n"
+    
+    except Exception as e:
+        print(f"Error in Links Extractor: {e}")
+    
+    return lectures, v_count, p_count
 
 
 
@@ -387,6 +360,8 @@ async def appx_logins(_, message):
     mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
     await asyncio.sleep(10)
     await mm.delete()
+
+
 
 
 
