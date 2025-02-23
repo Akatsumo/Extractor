@@ -16,6 +16,112 @@ v_count = 0
 p_count = 0
 
 
+async def process_uk(session, raw_text2, token, ids):
+    global v_count, p_count
+    lecture = ""
+
+    for id in ids:
+        d_text = json.dumps(
+            {
+                "course_id": id,
+                "page": 1,
+                "revert_api": "1#0#0#1",
+                "parent_id": raw_text2,
+                "tile_id": "0",
+                "layer": 1,
+                "type": "content",
+            }
+        )
+        course_id1 = main_func.utkarsh_encrypt(d_text)
+        data = {"tile_input": course_id1, "csrf_name": token}
+
+        async with session.post(
+            "https://online.utkarsh.com/web/Course/tiles_data",
+            cookies=cookies,
+            data=data,
+        ) as response:
+            ror = await response.text()
+            res = json.loads(ror)
+            x2 = main_func.utkarsh_decrypt(res.get("response"))
+            decoded2 = json_repair.repair_json(x2, return_objects=True)
+            x_ids = [sx["id"] for sx in decoded2["data"]["list"]]
+
+        for i in x_ids:
+            e_text = json.dumps(
+                {
+                    "course_id": id,
+                    "parent_id": raw_text2,
+                    "layer": 2,
+                    "page": 1,
+                    "revert_api": "1#0#0#1",
+                    "subject_id": i,
+                    "tile_id": 0,
+                    "topic_id": i,
+                    "type": "content",
+                }
+            )
+            c = main_func.encode_base64(e_text)
+            data = {"layer_two_input_data": c, "content": "content", "csrf_name": token}
+
+            async with session.post(
+                "https://online.utkarsh.com/web/Course/get_layer_two_data",
+                cookies=cookies,
+                data=data,
+            ) as response:
+                ror = await response.text()
+                res2 = json.loads(ror)
+                data2 = main_func.utkarsh_decrypt(res2.get("response"))
+                decoded3 = json_repair.repair_json(data2, return_objects=True)
+                s_ids = [item["id"] for item in decoded3["data"]["list"]]
+
+            for j in s_ids:
+                f_text = json.dumps(
+                    {
+                        "course_id": id,
+                        "parent_id": raw_text2,
+                        "layer": 3,
+                        "page": 1,
+                        "revert_api": "1#0#0#1",
+                        "subject_id": i,
+                        "tile_id": 0,
+                        "topic_id": j,
+                        "type": "content",
+                    }
+                )
+                d = main_func.encode_base64(f_text)
+                data3 = {"layer_two_input_data": d, "content": "content", "csrf_name": token}
+
+                async with session.post(
+                    "https://online.utkarsh.com/web/Course/get_layer_two_data",
+                    cookies=cookies,
+                    data=data3,
+                ) as response:
+                    ror = await response.text()
+                    res3 = json.loads(ror)
+                    data3 = main_func.utkarsh_decrypt(res3.get("response"))
+                    decoded4 = json_repair.repair_json(data3, return_objects=True)
+
+                for data in decoded4["data"]["list"]:
+                    title = data["title"]
+                    url = None
+                    if data.get("bitrate_urls", []):
+                        for u in data.get("bitrate_urls", []):
+                            if u["title"] == "720x1280.mp4":
+                                url = f"{u['url']}"
+                              
+                    if url:
+                        lecture += f"{title}: {url}\n"
+                        v_count += 1
+
+                    if data.get("file_type") == "1":
+                        pdf = data["file_url"]
+                        lecture += f"{title}: {pdf}\n"
+                        p_count += 1
+
+    return lecture
+
+
+"""
 async def process_uk(session, raw_text, token, ids):
     global v_count, p_count
     lecture = ""
@@ -105,7 +211,7 @@ async def process_uk(session, raw_text, token, ids):
 
     return lecture
 
-
+"""
 
 @app.on_message(filters.command("utkarsh"))
 async def utkarsh_login(_, message):
@@ -184,11 +290,13 @@ async def utkarsh_login(_, message):
         
         combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
         course_id = main_func.utkarsh_encrypt(combo_text)
+        
         data = {'tile_input': course_id, 'csrf_name': token}
         response = await session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data)
         output = json.loads(await response.text())          
         decode_output = main_func.utkarsh_decrypt(output["response"])
         decoded = json_repair.repair_json(decode_output, return_objects=True)
+        
         if decoded["status"] is not True:
             return await msg.edit_text("✏️ **Invalid Course ID**")
                            
