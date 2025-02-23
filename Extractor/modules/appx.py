@@ -223,7 +223,7 @@ async def course_content(session, scraper, api, message, raw_text2, parent_Id, h
             vj += result
         return vj
     except Exception as e:
-        print(f"An error occurred in course_content: {str(e)}")
+        print(f"Error In Course Content: {str(e)}")
         raise
 
 
@@ -266,7 +266,7 @@ async def course_content2(session, scraper, api, message, raw_text2, parent_Id, 
 
         return vj
     except Exception as e:
-        print(f"An error occurred in course_content2: {str(e)}")
+        print(f"Error In Course Content: {str(e)}")
         raise
 
 
