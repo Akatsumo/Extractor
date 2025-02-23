@@ -265,7 +265,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         headers.update({"Authorization": token})
         await msg.edit_text("✅ **Login Successful**")
         
-        response = await session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=headers)
+        response = await session.get(f"https://{api}/get/get_all_purchases?userid=""&item_type=10", headers=headers)
         batch_data = (await response.json()).get("data", [])
         
         batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
@@ -299,7 +299,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
         os.remove(file_name)
         await msg.delete()
-        await message.reply_text(f"✅ Done\n\n📝**User ID** : `{userid}`\n✏️ **Token** : `{token}`")
+        await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
 
 # --------------------------- Appex-Command --------------------------- #
