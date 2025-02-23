@@ -186,7 +186,7 @@ async def utkarsh_login(_, message):
         combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
         course_id = main_func.utkarsh_encrypt(combo_text)
         
-        data = {'tile_input': course_id, 'csrf_name': cookie["csrf_name"]}
+        data = {'tile_input': course_id, 'csrf_name': token}
         response = await session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data)
         output = json.loads(await response.text())          
         decode_output = main_func.utkarsh_decrypt(output["response"])
