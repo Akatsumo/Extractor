@@ -297,7 +297,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
             f.write(links)
         
         
-        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Videos** : `{v_count}`\n📝 **Total PDFs** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`")        
+        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Videos** : `{v_count}`\n📝 **Total PDFs** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"     
         await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption)
         os.remove(file_path)
         await msg.delete()
