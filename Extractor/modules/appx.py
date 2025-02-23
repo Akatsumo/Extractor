@@ -307,6 +307,9 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await input1.delete(True)
         try:
             async with session.post(raw_url, data=info, headers=hdr) as response:
+                if response.status != 200:
+                    await msg.edit_text("Login failed, incorrect credentials.")
+                    return
                 output = await response.json()
                 userid = output["data"]["userid"]
                 token = output["data"]["token"]
