@@ -60,8 +60,8 @@ async def process_uk(session, raw_text, token, ids):
 
             response2 = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
             output2 = json.loads(await response2.text())
-            decide_output2 = main_func.utkarsh_decrypt(output2["response"])
-            decoded2 = json_repair.repair_json(decide_output2, return_objects=True)
+            decode_output2 = main_func.utkarsh_decrypt(output2["response"])
+            decoded2 = json_repair.repair_json(decode_output2, return_objects=True)
             s_ids = [item["id"] for item in decoded2["data"]["list"]]
 
             for j in s_ids:
@@ -78,20 +78,15 @@ async def process_uk(session, raw_text, token, ids):
                         "type": "content",
                     }
                 )
-                d = main_func.encode_base64(f_text)
-                data3 = {"layer_two_input_data": d, "content": "content", "csrf_name": token}
+                course_id3 = main_func.encode_base64(f_text)
+                data = {"layer_two_input_data": course_id3, "content": "content", "csrf_name": token}
 
-                async with session.post(
-                    "https://online.utkarsh.com/web/Course/get_layer_two_data",
-                    cookies=cookies,
-                    data=data3,
-                ) as response:
-                    ror = await response.text()
-                    res3 = json.loads(ror)
-                    data3 = main_func.utkarsh_decrypt(res3.get("response"))
-                    decoded4 = json_repair.repair_json(data3, return_objects=True)
+                response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
+                output3 = json.loads(await response.text())         
+                decode_output3 = main_func.utkarsh_decrypt(output3["response"])
+                decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
 
-                for data in decoded4["data"]["list"]:
+                for data in decoded3["data"]["list"]:
                     title = data["title"]
                     url = None
                     if data.get("bitrate_urls", []):
