@@ -209,70 +209,69 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
 # --------------------------- Appex-V2 --------------------------- #
 
-async def course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg):
+async def course_content(session, api, message, course_id, parent_id, headers):
     try:
-        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id={parent_Id}", headers=hdr1)
+        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
         output = await response.json()
         data_list = output.get('data', [])
-        vj = ""
+        su = ""
         tasks = []
         for data in data_list:
-            tasks.append(course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data))
+            tasks.append(links_extract(session, api, message, course_id, parent_id, headers, data))
         results = await asyncio.gather(*tasks)
         for result in results:
-            vj += result
-        return vj
+            su += result
+        return su
     except Exception as e:
         print(f"Error In Course Content: {str(e)}")
         raise
 
 
-async def course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data):
+async def links_extract(session, api, message, course_id, parent_id, headers, data):
     global v_count, p_count
+    lectures = ""
     try:
-        vj = ""
+        vum = ""
         if data['material_type'] == 'FOLDER':
             folder_id = data['id']
-            vj += await course_content(session, scraper, api, message, raw_text2, folder_id, hdr1, msg)
+            vum += await course_content(session, api, message, course_id, folder_id, headers)
 
-        if data['material_type'] == 'VIDEO':
+        elif data['material_type'] == 'VIDEO':
             tid = data.get("Title")
             plink = data.get('pdf_link', "").split(':')            
             if len(plink) == 2:
                 p_count += 1
-                vs = appx_decrypt(plink[0])
+                pdf = appx_decrypt(plink[0])
                                
             if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
                 v_count += 1
                 dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
                 if dlink:
-                    lec = appx_decrypt(dlink.split(':')[0])
+                    link = appx_decrypt(dlink.split(':')[0])
                                                 
             elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0 or data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
                 v_count += 1
                 dlink = data.get('file_link')
                 if dlink:
-                    b = appx_decrypt(dlink.split(':')[0])
-                    lec = f"https://youtu.be/{b}"
+                    yt_id = appx_decrypt(dlink.split(':')[0])
+                    link = f"https://youtu.be/{yt_id}"
                                 
-            msg = f"{tid} : {lec}\n{tid} : {vs}\n" if data.get('pdf_link') else f"{tid} : {lec}\n"
-            vj += msg                        
+            lectures += f"{tid} : {link}\n{tid} : {pdf}\n" if data.get('pdf_link') else f"{tid} : {link}\n"
+                                    
 
         elif data['material_type'] == 'PDF':
             p_count += 1
             tid = data.get("Title")
-            vs = appx_decrypt(data.get("pdf_link", "").split(':')[0])
-            vj += f"{tid} : {vs}\n"
+            pdf = appx_decrypt(data.get("pdf_link", "").split(':')[0])
+            lectures += f"{tid} : {pdf}\n"
 
-        return vj
+        return lectures
     except Exception as e:
-        print(f"Error In Course Content: {str(e)}")
+        print(f"Error In Links Extractor: {str(e)}")
         raise
 
 
 async def appex_v2_txt(app, message, user_id, api, name):
-    global counter, v_count, p_count
-    
     async with aiohttp.ClientSession() as session:
         raw_url = f"https://{api}/post/userLogin"
         headers = {
@@ -326,17 +325,14 @@ async def appex_v2_txt(app, message, user_id, api, name):
 
         await msg.edit_text(f"{FFF}\n\n**📊Now send the Batch ID to Download**")
         input2 = await app.listen(user_id=user_id)
-        raw_text2 = input2.text
+        course_id = input2.text
         await input2.delete(True)
-        batch_name = next((cdata['course_name'] for data in b_data for cdata in data['coursedt'] if cdata['id'] == raw_text2), "")
-        scraper = cloudscraper.create_scraper()
-        html = scraper.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id=-1", headers=headers).content
-        output0 = json.loads(html)
-        parent_Id = output0['data'][0]['id']
-        await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
-        start_time = time.time()
-        vj = await course_content(session, scraper, api, message, raw_text2, parent_Id, headers, msg)
+        batch_name = next((cdata['course_name'] for data in b_data for cdata in data['coursedt'] if cdata['id'] == course_id), "")
         
+        await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
+        
+        start_time = time.time()
+        links = await course_content(session, api, message, course_id, headers)      
         end_time = time.time()
         duration_seconds = end_time - start_time
         elapsed = get_time(duration_seconds)
@@ -346,7 +342,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         
         caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
         with open(file_path, "a") as f:
-            f.write(f"{vj}")
+            f.write(links)
             
         me = await app.get_me()
         big_file_id = me.photo.big_file_id
