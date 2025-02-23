@@ -223,7 +223,7 @@ async def course_content(session, api, headers, course_id, parent_id=-1):
         if material_type == "FOLDER":
             lectures.extend(await course_content(session, api, headers, course_id, data['id']))
         elif material_type == "PDF" and pdf_link:
-            pdf = pdf_link.split(":")[0]
+            pdf = appx_decrypt(pdf_link.split(":")[0])
             lectures.append(f"{title}: {pdf}")
         else:
             lectures.append(title)
