@@ -110,17 +110,8 @@ async def process_uk(session, raw_text, token, ids):
 @app.on_message(filters.command("utkarsh"))
 async def utkarsh_login(_, message):
     user_id = message.from_user.id
-    async with aiohttp.ClientSession() as session:
-        login_url = "https://online.utkarsh.com/web/Auth/login"
-        url = "https://online.utkarsh.com/" 
-        data = {
-          "csrf_name": cookie["csrf_name"],
-          "mobile": "",
-          "url": "0",
-          "password": "",
-          "submit": "LogIn",
-          "device_token": "null",
-        }
+    async with aiohttp.ClientSession() as session:        
+        url = "https://online.utkarsh.com/"     
         cook = requests.Session()
         try:
             response = cook.get(url)
@@ -133,6 +124,16 @@ async def utkarsh_login(_, message):
         else:
             return await message.reply_text("Failed to get cookies.")
 
+        login_url = "https://online.utkarsh.com/web/Auth/login"
+        data = {
+          "csrf_name": cookie["csrf_name"],
+          "mobile": "",
+          "url": "0",
+          "password": "",
+          "submit": "LogIn",
+          "device_token": "null",
+        }
+        
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
         try:
             input1 = await app.listen(user_id, timeout=30)  
