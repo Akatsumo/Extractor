@@ -209,60 +209,26 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
 # --------------------------- Appex-V2 --------------------------- #
 
-def check_file_size(file_path):
-    if os.path.exists(file_path) and os.path.getsize(file_path) == 0:
-        raise ValueError("File size equals to 0 B")
-        return True
 
-
-async def course_content(session, api, headers, message, course_id, parent_id=-1):
-    try:
-        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
-        data_list = (await response.json()).get('data', [])
-        
-        tasks = [links_extract(session, api, message, course_id, parent_id, headers, data) for data in data_list]
-        results = await asyncio.gather(*tasks)
-        
-        links = "".join(results)
-        v_count = sum(result[1] for result in results)
-        p_count = sum(result[2] for result in results)
-        
-        return links, v_count, p_count
-    except Exception as e:
-        print(f"Error in Course Content: {e}")
-        return "", 0, 0
-
-
-async def links_extract(session, api, message, course_id, parent_id, headers, data):
-    v_count, p_count = 0, 0
+async def course_content(session, api, headers, message, course_id, parent_id=-1, data=None):
     lectures = ""
-    
-    try:
+    response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
+    data_list = await response.json()["data"]       
+    for data in data_list:        
         if data['material_type'] == 'FOLDER':
             folder_id = data['id']
-            sub_links, v_count, p_count = await course_content(session, api, headers, message, course_id, folder_id)
-            return sub_links, v_count, p_count
-        
+            lecutres += await course_content(session, api, headers, message, course_id, folder_id)
+            
         title = data.get("Title", "Unknown Title")
-        link, pdf = "", ""
-        
-        if data['material_type'] == 'VIDEO':
-            v_count += 1
-            dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), "")
-            link = appx_decrypt(dlink.split(':')[0]) if dlink else "Unavailable"
-        
+        pdf = ""
+                
         if data['material_type'] == 'PDF' or 'pdf_link' in data:
-            p_count += 1
-            pdf = appx_decrypt(data.get("pdf_link", "").split(':')[0]) if data.get("pdf_link") else "Unavailable"
-        
-        lectures = f"{title} : {link}\n{title} : {pdf}\n" if pdf else f"{title} : {link}\n"
-    
-    except Exception as e:
-        print(f"Error in Links Extractor: {e}")
-    
-    return lectures, v_count, p_count
-
-
+            pdf = appx_decrypt(data.get("pdf_link", "").split(':')[0]) if data.get("pdf_link") else "None"
+            lectures = f"{title}:{pdf}"
+        else:
+            continue
+            
+    return lectures
 
 
 async def appex_v2_txt(app, message, user_id, api, name):
@@ -330,13 +296,8 @@ async def appex_v2_txt(app, message, user_id, api, name):
         with open(file_path, "w") as f:
             f.write(links)
         
-        check = check_file_size(file_path)
-        if check:
-            await msg.edit_text("File Path Empty!!")
         
-        caption = (f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n"
-                   f"🍿 **Total Videos** : `{v_count}`\n📝 **Total PDFs** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed} sec`")
-        
+        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n🍿 **Total Videos** : `{v_count}`\n📝 **Total PDFs** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`")        
         await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption)
         os.remove(file_path)
         await msg.delete()
