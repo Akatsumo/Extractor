@@ -287,7 +287,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         with open(file_name, "w") as f:
             f.write("\n".join(lectures))
         
-        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n"📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
+        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
         
         await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption)
         os.remove(file_name)
