@@ -27,7 +27,7 @@ async def process_uk(session, raw_text, token, ids):
                 "course_id": id,
                 "page": 1,
                 "revert_api": "1#0#0#1",
-                "parent_id": raw_text2,
+                "parent_id": raw_text,
                 "tile_id": "0",
                 "layer": 1,
                 "type": "content",
@@ -46,7 +46,7 @@ async def process_uk(session, raw_text, token, ids):
             e_text = json.dumps(
                 {
                     "course_id": id,
-                    "parent_id": raw_text2,
+                    "parent_id": raw_text,
                     "layer": 2,
                     "page": 1,
                     "revert_api": "1#0#0#1",
@@ -69,7 +69,7 @@ async def process_uk(session, raw_text, token, ids):
                 f_text = json.dumps(
                     {
                         "course_id": id,
-                        "parent_id": raw_text2,
+                        "parent_id": raw_text,
                         "layer": 3,
                         "page": 1,
                         "revert_api": "1#0#0#1",
