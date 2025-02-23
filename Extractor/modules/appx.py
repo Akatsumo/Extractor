@@ -197,7 +197,8 @@ async def appex_v3_txt(app, message, user_id, api, name):
             await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
             await msg.delete()
             os.remove(file_path)
-            await message.reply_text(f"✅ Done\n\n✏️**User ID** : {userid}\n📝 **Token** : {token}")
+            await asyncio.sleep(2)
+            await message.reply_text(f"✅ Done\n\n📝**User ID** : `{userid}`\n✏️ **Token** : `{token}`")
 
         await session.close()
         
@@ -353,7 +354,8 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
         await msg.delete()
         os.remove(file_path)
-        await message.reply_text(f"✅ Done\n\n✏️**User ID** : {userid}\n📝 **Token** : {token}")
+        await asyncio.sleep(2)
+        await message.reply_text(f"✅ Done\n\n📝**User ID** : `{userid}`\n✏️ **Token** : `{token}`")
 
     await session.close()
 
