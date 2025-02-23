@@ -209,7 +209,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
 # --------------------------- Appex-V2 --------------------------- #
 
-async def course_content(session, api, message, course_id, parent_id, headers):
+async def course_content(session, api, headers, message, course_id, parent_id=-1):
     try:
         response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
         output = await response.json()
@@ -234,7 +234,7 @@ async def links_extract(session, api, message, course_id, parent_id, headers, da
         vum = ""
         if data['material_type'] == 'FOLDER':
             folder_id = data['id']
-            vum += await course_content(session, api, message, course_id, folder_id, headers)
+            vum += await course_content(session, api, headers, message, course_id, folder_id)
 
         elif data['material_type'] == 'VIDEO':
             tid = data.get("Title")
@@ -332,7 +332,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
         
         start_time = time.time()
-        links = await course_content(session, api, message, course_id, headers)      
+        links = await course_content(session, api, headers, message, course_id, parent_id)      
         end_time = time.time()
         duration_seconds = end_time - start_time
         elapsed = get_time(duration_seconds)
