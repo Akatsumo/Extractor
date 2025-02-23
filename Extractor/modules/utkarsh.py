@@ -19,205 +19,135 @@ p_count = 0
 async def process_uk(session, raw_text, token, ids):
     global v_count, p_count
     lecture = ""
-
-    for id in ids:
-        d_text = json.dumps(
-            {
-                "course_id": id,
+    
+    for course_id in ids:
+        request_data = json.dumps({
+            "course_id": course_id,
+            "page": 1,
+            "revert_api": "1#0#0#1",
+            "parent_id": raw_text,
+            "tile_id": "0",
+            "layer": 1,
+            "type": "content",
+        })
+        encrypted_data = main_func.utkarsh_encrypt(request_data)
+        payload = {"tile_input": encrypted_data, "csrf_name": token}
+        
+        try:
+            response = await session.post("https://online.utkarsh.com/web/Course/tiles_data", cookies=cookies, data=payload)
+            response_data = json.loads(await response.text())
+            decrypted_data = main_func.utkarsh_decrypt(response_data["response"])
+            decoded_data = json_repair.repair_json(decrypted_data, return_objects=True)
+        except Exception as e:
+            return f"Error processing course {course_id}: {e}\n"
+        
+        topic_ids = [item["id"] for item in decoded_data["data"]["list"]]
+        
+        for topic_id in topic_ids:
+            e_text = json.dumps({
+                "course_id": course_id,
+                "parent_id": raw_text,
+                "layer": 2,
                 "page": 1,
                 "revert_api": "1#0#0#1",
-                "parent_id": raw_text,
-                "tile_id": "0",
-                "layer": 1,
+                "subject_id": topic_id,
+                "tile_id": 0,
+                "topic_id": topic_id,
                 "type": "content",
-            }
-        )
-        course_id1 = main_func.utkarsh_encrypt(d_text)
-        data = {"tile_input": course_id1, "csrf_name": token}
-
-        response1 = await session.post("https://online.utkarsh.com/web/Course/tiles_data", cookies=cookies, data=data)
-        output1 = json.loads(await response1.text())
-        decode_output1 = main_func.utkarsh_decrypt(output1["response"])
-        decoded1 = json_repair.repair_json(decode_output1, return_objects=True)
-        x_ids = [sx["id"] for sx in decoded1["data"]["list"]]
-
-        for i in x_ids:
-            e_text = json.dumps(
-                {
-                    "course_id": id,
-                    "parent_id": raw_text,
-                    "layer": 2,
-                    "page": 1,
-                    "revert_api": "1#0#0#1",
-                    "subject_id": i,
-                    "tile_id": 0,
-                    "topic_id": i,
-                    "type": "content",
-                }
-            )
-            course_id2 = main_func.encode_base64(e_text)
-            data = {"layer_two_input_data": course_id2, "content": "content", "csrf_name": token}
-
-            response2 = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
-            output2 = json.loads(await response2.text())
-            decode_output2 = main_func.utkarsh_decrypt(output2["response"])
-            decoded2 = json_repair.repair_json(decode_output2, return_objects=True)
-            s_ids = [item["id"] for item in decoded2["data"]["list"]]
-
-            for j in s_ids:
-                f_text = json.dumps(
-                    {
-                        "course_id": id,
-                        "parent_id": raw_text,
-                        "layer": 3,
-                        "page": 1,
-                        "revert_api": "1#0#0#1",
-                        "subject_id": i,
-                        "tile_id": 0,
-                        "topic_id": j,
-                        "type": "content",
-                    }
-                )
-                course_id3 = main_func.encode_base64(f_text)
-                data = {"layer_two_input_data": course_id3, "content": "content", "csrf_name": token}
-
-                response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
-                output3 = json.loads(await response.text())         
-                decode_output3 = main_func.utkarsh_decrypt(output3["response"])
-                decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
-
-                for data in decoded3["data"]["list"]:
-                    title = data["title"]
-                    url = None
-                    if data.get("bitrate_urls", []):
-                        for u in data.get("bitrate_urls", []):
-                            if u["title"] == "720x1280.mp4":
-                                url = f"{u['url']}"
-                              
-                    if url:
-                        lecture += f"{title}: {url}\n"
-                        v_count += 1
-
-                    if data.get("file_type") == "1":
-                        pdf = data["file_url"]
-                        lecture += f"{title}: {pdf}\n"
-                        p_count += 1
-
+            })
+            course_id_encoded = main_func.encode_base64(e_text)
+            payload = {"layer_two_input_data": course_id_encoded, "content": "content", "csrf_name": token}
+            
+            try:
+                response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=payload)
+                response_data = json.loads(await response.text())
+                decrypted_data = main_func.utkarsh_decrypt(response_data["response"])
+                decoded_data = json_repair.repair_json(decrypted_data, return_objects=True)
+            except Exception as e:
+                return f"Error processing topic {topic_id}: {e}\n"
+            
+            for content in decoded_data["data"]["list"]:
+                title = content["title"]
+                url = next((u['url'] for u in content.get("bitrate_urls", []) if u["title"] == "720x1280.mp4"), None)
+                
+                if url:
+                    lecture += f"{title}: {url}\n"
+                    v_count += 1
+                if content.get("file_type") == "1":
+                    lecture += f"{title}: {content['file_url']}\n"
+                    p_count += 1
+    
     return lecture
-
 
 
 @app.on_message(filters.command("utkarsh"))
 async def utkarsh_login(_, message):
     user_id = message.from_user.id
-    async with aiohttp.ClientSession() as session:        
-        url = "https://online.utkarsh.com/"     
-        cook = requests.Session()
+    async with aiohttp.ClientSession() as session:
         try:
-            response = cook.get(url)
-            cookie = cook.cookies.get_dict()
+            response = requests.get("https://online.utkarsh.com/")
+            cookies.update(response.cookies.get_dict())
         except requests.exceptions.RequestException as e:
             return await message.reply_text(f"**Error** : `{e}`")
 
-        if cookie:
-            cookies.update(cookie)
-        else:
-            return await message.reply_text("Failed to get cookies.")
-
         login_url = "https://online.utkarsh.com/web/Auth/login"
-        data = {
-          "csrf_name": cookie["csrf_name"],
-          "mobile": "",
-          "url": "0",
-          "password": "",
-          "submit": "LogIn",
-          "device_token": "null",
-        }
         
-        msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
+        msg = await message.reply_text("🔑 Send ID*Password for login.")
         try:
-            input1 = await app.listen(user_id, timeout=30)  
+            input1 = await app.listen(user_id, timeout=30)
             if "*" in input1.text:
-                data["mobile"], data["password"] = input1.text.split("*")
-                response = await session.post(login_url, cookies=cookies, data=data)
+                mobile, password = input1.text.split("*")
+                login_data = {
+                    "csrf_name": cookies.get("csrf_name", ""),
+                    "mobile": mobile,
+                    "password": password,
+                    "submit": "LogIn",
+                    "device_token": "null",
+                }
+                response = await session.post(login_url, cookies=cookies, data=login_data)
                 if response.status != 200:
                     return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-                output = await response.text()
-                decode_output = main_func.utkarsh_decrypt(json.loads(output)["response"])
-                token = json.loads(decode_output)["token"]                                
+                
+                output = json.loads(await response.text())
+                token = json.loads(main_func.utkarsh_decrypt(output["response"]))["token"]
             else:
                 token = input1.text.strip()
         except:
             return await message.reply_text("⏳ Timeout! Please try again.")
-                     
-        await input1.delete()        
-        await msg.edit_text("✅ **Login Successfully**")
-            
-#        data = {"type": "Paid", "csrf_name": token, "sort": "0"}
-
-#        async with session.post(
-#            "https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data
-#        ) as response:
-#            data = await response.text() 
-            
-            
-#            respon = main_func.utkarsh_decrypt(json.loads(data)["response"])
-#            data = json.loads(respon)
-             
-#        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
-#        for course in data["data"].get("data"):
-#            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
-
         
-        await msg.edit_text("**📊 Now send the Batch ID to Download**")
+        await msg.edit_text("✅ **Login Successfully**")
+        
+        await msg.edit_text("📊 Send the Batch ID to Download")
         try:
-            input2 = await app.listen(user_id, timeout=30)  
-            raw_text2 = input2.text
+            input2 = await app.listen(user_id, timeout=30)
+            batch_id = input2.text
         except:
             return await message.reply_text("⏳ Timeout! Please try again.")
-            
-
-#        batch_name = next(
-#            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
-#        )
-
         
-        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
-        course_id = main_func.utkarsh_encrypt(combo_text)
-        data = {'tile_input': course_id, 'csrf_name': token}
-        response = await session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data)
-        output = json.loads(await response.text())          
-        decode_output = main_func.utkarsh_decrypt(output["response"])
-        decoded = json_repair.repair_json(decode_output, return_objects=True)
-        if decoded["status"] is not True:
+        combo_text = json.dumps({"course_id": batch_id, "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"})
+        encrypted_course_id = main_func.utkarsh_encrypt(combo_text)
+        payload = {"tile_input": encrypted_course_id, "csrf_name": token}
+        response = await session.post("https://online.utkarsh.com/web/Course/tiles_data", cookies=cookies, data=payload)
+        output = json.loads(await response.text())
+        decrypted_output = main_func.utkarsh_decrypt(output["response"])
+        decoded_output = json_repair.repair_json(decrypted_output, return_objects=True)
+        if not decoded_output["status"]:
             return await msg.edit_text("✏️ **Invalid Course ID**")
-                           
+        
         await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
         start_time = time.time()
-        links = ""
+        results = await asyncio.gather(*[process_uk(session, batch_id, token, [item["id"]]) for item in decoded_output['data']])
         
-        tasks = [process_uk(session, raw_text2, token, [item["id"]]) for item in decoded['data']]
-        results = await asyncio.gather(*tasks)
-        links = "".join(results)
-
-        batch_name = "test" 
         elapsed = main_func.get_time(time.time() - start_time)
-        caption = f"**App Name** : `Utkarsh`\n\n**Batch Name** : `{batch_name}`\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
+        caption = f"App: `Utkarsh`\nBatch: `{batch_id}`\n🍿 Videos: `{v_count}`\n📝 PDFs: `{p_count}`\n⌚ Time: `{elapsed}`"
         
-        file_path = f"{batch_name}_{user_id}.txt"
+        file_path = f"{batch_id}_{user_id}.txt"
         with open(file_path, "w") as f:
-            f.write(links)
-
-        me = await app.get_me()
-        big_file_id = me.photo.big_file_id
-        thumb = await asyncio.create_task(app.download_media(big_file_id))
-        await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
-        await msg.delete()
-        os.remove(file_path)
-        await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
-
+            f.write("".join(results))
         
-
-
+        await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, reply_markup=keyboard)
+        os.remove(file_path)
+        await msg.delete()
+        await message.reply_text(f"✅ Done\n\n✏️ Token: `{token}`")
 
 
