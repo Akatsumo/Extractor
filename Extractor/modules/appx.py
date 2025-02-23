@@ -218,7 +218,7 @@ async def course_content(session, api, headers, message, course_id, parent_id=-1
     for data in data_list:        
         if data['material_type'] == 'FOLDER':
             folder_id = data['id']
-            lecutres += await course_content(session, api, headers, message, course_id, folder_id)
+            lectures += await course_content(session, api, headers, message, course_id, folder_id)
             
         title = data.get("Title", "Unknown Title")
         pdf = ""
