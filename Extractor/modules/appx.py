@@ -25,11 +25,7 @@ counter = 0
 async def appex_down(session, message, hdr1, api, raw_text2, f, msg):
     try:
         global v_count, p_count
-        prev_v_count = v_count
-        prev_p_count = p_count
-        vt = ""
-        counter = 0
-        
+        vt = ""                
         async with session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={raw_text2}&subjectid={f}", headers=hdr1) as response:
             respo = await response.read()
             data = json.loads(respo)
@@ -80,10 +76,7 @@ async def appex_down(session, message, hdr1, api, raw_text2, f, msg):
 
             counter += 1
             if counter % 8 == 0 and (prev_v_count != v_count or prev_p_count != p_count):
-                await msg.edit_text(f"**Extracting Videos Links Please Wait  📥**\n\n🍿 **Total Video**  - `{v_count}`\n📝 **Total Pdf**  - `{p_count}`")
-                prev_v_count = v_count
-                prev_p_count = p_count
-
+                await msg.edit_text(f"**Extracting Videos Links Please Wait  📥**\n\n🍿 **Total Video**  - `{v_count}`\n📝 **Total Pdf**  - `{p_count}`")                
     except Exception as e:
         print(str(e))
     
@@ -96,7 +89,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
     
     try:
         raw_url = f"https://{api}/post/userLogin"
-        hdr = {
+        headers = {
             "Auth-Key": "appxapi",
             "User-Id": "-2",
             "Authorization": "",
@@ -113,24 +106,25 @@ async def appex_v3_txt(app, message, user_id, api, name):
             input1 = await app.listen(user_id, timeout=30)  
             raw_text = input1.text
         except:
-            await message.reply_text("⏳ Timeout! Please try again.")
-            return
-            
+            return await message.reply_text("⏳ Timeout! Please try again.")
+                      
         if "*" in raw_text:           
             info["email"], info["password"] = raw_text.split("*")
         else:
-            await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")
-            return
+            return await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")         
             
         await input1.delete(True)        
         async with aiohttp.ClientSession() as session:
-            async with session.post(raw_url, data=info) as response:
+            async with session.post(raw_url, data=info, headers=headers) as response:
+                if response.status != 200:
+                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+                
                 res = await response.read()
                 output = json.loads(res)
                 userid = output["data"]["userid"]
                 token = output["data"]["token"]
                 
-            hdr1 = {
+            headers = {
                 "Host": api,
                 "Client-Service": "Appx",
                 "Auth-Key": "appxapi",
@@ -140,7 +134,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
         
             await msg.edit_text("✅ **Login Successfully**")
         
-            async with session.get(f"https://{api}/get/mycourseweb?userid={userid}", headers=hdr1) as response:
+            async with session.get(f"https://{api}/get/mycourseweb?userid={userid}", headers=headers) as response:
                 respo = await response.read()
                 data = json.loads(respo)
                 b_data = data.get('data', [])
@@ -160,7 +154,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
                     break
         
             scraper = cloudscraper.create_scraper()
-            html = scraper.get(f"https://{api}/get/allsubjectfrmlivecourseclass?courseid={raw_text2}", headers=hdr1).content
+            html = scraper.get(f"https://{api}/get/allsubjectfrmlivecourseclass?courseid={raw_text2}", headers=headers).content
             output0 = json.loads(html)
             subjID = output0["data"]
 
@@ -182,7 +176,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
             vt = ""
         
-            tasks = [appex_down(session, message, hdr1, api, raw_text2, s, msg) for s in ss]
+            tasks = [appex_down(session, message, headers, api, raw_text2, s, msg) for s in ss]
             results = await asyncio.gather(*tasks)
             for result in results:
                 vt += result
@@ -203,7 +197,8 @@ async def appex_v3_txt(app, message, user_id, api, name):
             await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
             await msg.delete()
             os.remove(file_path)
-            await message.reply_text("✅ Done")
+            await message.reply_text(f"✅ Done\n\n✏️**User ID** : {userid}\n📝 **Token** : {token}")
+
         await session.close()
         
     except Exception as e:
@@ -279,7 +274,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
     
     async with aiohttp.ClientSession() as session:
         raw_url = f"https://{api}/post/userLogin"
-        hdr = {
+        headers = {
             "Auth-Key": "appxapi",
             "User-Id": "-2",
             "Authorization": "",
@@ -295,8 +290,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
             input1 = await app.listen(user_id, timeout=30)  
             raw_text = input1.text
         except:
-            await message.reply_text("⏳ Timeout! Please try again.")
-            return
+            return await message.reply_text("⏳ Timeout! Please try again.")
             
         if "*" in raw_text:           
             info["email"], info["password"] = raw_text.split("*")
@@ -304,7 +298,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
             return await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")            
                   
         await input1.delete(True)
-        async with session.post(raw_url, data=info, headers=hdr) as response:
+        async with session.post(raw_url, data=info, headers=headers) as response:
             if response.status != 200:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
                 
@@ -312,7 +306,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
             userid = output["data"]["userid"]
             token = output["data"]["token"]
             
-        hdr1 = {
+        headers = {
             "Host": api,
             "Client-Service": "Appx",
             "Auth-Key": "appxapi",
@@ -321,7 +315,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         }
         await msg.edit_text("✅ **Login Successfully**")
 
-        async with session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=hdr1) as response:
+        async with session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=headers) as response:
             b_data = (await response.json()).get('data', [])
 
         FFF = "**BATCH-ID  -  BATCH NAME**\n\n"
@@ -335,12 +329,12 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await input2.delete(True)
         batch_name = next((cdata['course_name'] for data in b_data for cdata in data['coursedt'] if cdata['id'] == raw_text2), "")
         scraper = cloudscraper.create_scraper()
-        html = scraper.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id=-1", headers=hdr1).content
+        html = scraper.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id=-1", headers=headers).content
         output0 = json.loads(html)
         parent_Id = output0['data'][0]['id']
         await msg.edit_text("**Extracting Videos Links Please Wait  📥 **")
         start_time = time.time()
-        vj = await course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg)
+        vj = await course_content(session, scraper, api, message, raw_text2, parent_Id, headers, msg)
         
         end_time = time.time()
         duration_seconds = end_time - start_time
@@ -359,7 +353,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
         await msg.delete()
         os.remove(file_path)
-        await message.reply_text("✅ Done")
+        await message.reply_text(f"✅ Done\n\n✏️**User ID** : {userid}\n📝 **Token** : {token}")
 
     await session.close()
 
