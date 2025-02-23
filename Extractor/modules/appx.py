@@ -124,7 +124,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             
         await input1.delete(True)        
         async with aiohttp.ClientSession() as session:
-            async with session.post(raw_url, data=info, headers=hdr) as response:
+            async with session.post(raw_url, data=info) as response:
                 res = await response.read()
                 output = json.loads(res)
                 userid = output["data"]["userid"]
@@ -301,22 +301,17 @@ async def appex_v2_txt(app, message, user_id, api, name):
         if "*" in raw_text:           
             info["email"], info["password"] = raw_text.split("*")
         else:
-            await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")
-            return
+            return await msg.edit_text("😒 **Bruh Send ID Pass in Correct Form**")            
                   
         await input1.delete(True)
-        try:
-            async with session.post(raw_url, data=info, headers=hdr) as response:
-                if response.status != 200:
-                    await msg.edit_text("Login failed, incorrect credentials.")
-                    return
-                output = await response.json()
-                userid = output["data"]["userid"]
-                token = output["data"]["token"]
-        except Exception as e:
-            print(f"Error : {str(e)}")
-            return await msg.edit_text("Please try again later. May be Password Wrong")
-
+        async with session.post(raw_url, data=info, headers=hdr) as response:
+            if response.status != 200:
+                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+                
+            output = await response.json()
+            userid = output["data"]["userid"]
+            token = output["data"]["token"]
+            
         hdr1 = {
             "Host": api,
             "Client-Service": "Appx",
@@ -324,7 +319,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
             "User-Id": userid,
             "Authorization": token
         }
-        await msg.edit_text("**✅ Login Successfully**")
+        await msg.edit_text("✅ **Login Successfully**")
 
         async with session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=hdr1) as response:
             b_data = (await response.json()).get('data', [])
