@@ -212,67 +212,66 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
 
 # --------------------------- Appex-V2 --------------------------- #
-"""
+
 async def course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg):
     try:
         response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id={parent_Id}", headers=hdr1)
         output = await response.json()
         data_list = output.get('data', [])
-        
-        tasks = [course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data) for data in data_list]
+        vj = ""
+        tasks = []
+        for data in data_list:
+            tasks.append(course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data))
         results = await asyncio.gather(*tasks)
-        
-        return "".join(results)
+        for result in results:
+            vj += result
+        return vj
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"An error occurred in course_content: {str(e)}")
         raise
+
 
 async def course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data):
     global v_count, p_count
     try:
         vj = ""
-        tid = data.get("Title", "Unknown Title")
-        lec, vs = "", ""
-        
         if data['material_type'] == 'FOLDER':
             folder_id = data['id']
             vj += await course_content(session, scraper, api, message, raw_text2, folder_id, hdr1, msg)
-        
-        elif data['material_type'] == 'VIDEO':
-            if 'pdf_link' in data and data['pdf_link']:
-                plink = data['pdf_link'].split(':')
-                if len(plink) >= 2:
-                    p_count += 1
-                    vs = appx_decrypt(plink[0])
-            
+
+        if data['material_type'] == 'VIDEO':
+            tid = data.get("Title")
+            plink = data.get('pdf_link', "").split(':')            
+            if len(plink) == 2:
+                p_count += 1
+                vs = appx_decrypt(plink[0])
+                               
             if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
                 v_count += 1
                 dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
                 if dlink:
                     lec = appx_decrypt(dlink.split(':')[0])
-                
-            elif data.get('ytFlag') == 1:
+                                                
+            elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0 or data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
                 v_count += 1
                 dlink = data.get('file_link')
                 if dlink:
                     b = appx_decrypt(dlink.split(':')[0])
                     lec = f"https://youtu.be/{b}"
-            
-            if lec or vs:
-                vj += f"{tid} : {lec}\n" if lec else ""
-                vj += f"{tid} : {vs}\n" if vs else ""
-                
+                                
+            msg = f"{tid} : {lec}\n{tid} : {vs}\n" if data.get('pdf_link') else f"{tid} : {lec}\n"
+            vj += msg                        
+
         elif data['material_type'] == 'PDF':
             p_count += 1
+            tid = data.get("Title")
             vs = appx_decrypt(data.get("pdf_link", "").split(':')[0])
             vj += f"{tid} : {vs}\n"
-        
+
         return vj
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"An error occurred in course_content2: {str(e)}")
         raise
-
-
 
 
 async def appex_v2_txt(app, message, user_id, api, name):
@@ -365,150 +364,6 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await message.reply_text("✅ Done")
 
     await session.close()
-"""
-
-
-async def course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg):
-    try:
-        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id={parent_Id}", headers=hdr1)
-        if response.status != 200:
-            raise Exception(f"Failed to fetch course content, status code: {response.status}")
-        output = await response.json()
-        data_list = output.get('data', [])
-        
-        tasks = [course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data) for data in data_list]
-        results = await asyncio.gather(*tasks)
-        
-        return "".join(results)
-    except Exception as e:
-        print(f"An error occurred in course_content: {str(e)}")
-        raise
-
-
-async def course_content2(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg, data):
-    global v_count, p_count
-    try:
-        vj = ""
-        tid = data.get("Title", "Unknown Title")
-        lec, vs = "", ""
-        
-        if data['material_type'] == 'FOLDER':
-            folder_id = data['id']
-            vj += await course_content(session, scraper, api, message, raw_text2, folder_id, hdr1, msg)
-        
-        elif data['material_type'] == 'VIDEO':
-            if 'pdf_link' in data and data['pdf_link']:
-                plink = data['pdf_link'].split(':')
-                if len(plink) >= 2:
-                    p_count += 1
-                    vs = appx_decrypt(plink[0])
-            
-            if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
-                v_count += 1
-                dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
-                if dlink:
-                    lec = appx_decrypt(dlink.split(':')[0])
-                
-            elif data.get('ytFlag') == 1:
-                v_count += 1
-                dlink = data.get('file_link')
-                if dlink:
-                    b = appx_decrypt(dlink.split(':')[0])
-                    lec = f"https://youtu.be/{b}"
-            
-            if lec or vs:
-                vj += f"{tid} : {lec}\n" if lec else ""
-                vj += f"{tid} : {vs}\n" if vs else ""
-                
-        elif data['material_type'] == 'PDF':
-            p_count += 1
-            vs = appx_decrypt(data.get("pdf_link", "").split(':')[0])
-            vj += f"{tid} : {vs}\n"
-        
-        return vj
-    except Exception as e:
-        print(f"An error occurred in course_content2: {str(e)}")
-        raise
-
-
-async def appex_v2_txt(app, message, user_id, api, name):
-    global v_count, p_count
-    async with aiohttp.ClientSession() as session:
-        raw_url = f"https://{api}/post/userLogin"
-        hdr = {
-            "Auth-Key": "appxapi",
-            "User-Id": "-2",
-            "Authorization": "",
-            "User_app_category": "",
-            "Language": "en",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept-Encoding": "gzip, deflate",
-            "User-Agent": "okhttp/4.9.1"
-        }
-        info = {"email": "", "password": ""}
-        msg = await message.reply_text("🔑 Send your ID & Password in format: ID*Password")
-        
-        try:
-            input1 = await app.listen(user_id, timeout=30)  
-            raw_text = input1.text
-        except:
-            await message.reply_text("⏳ Timeout! Please try again.")
-            return
-        
-        if "*" in raw_text:           
-            info["email"], info["password"] = raw_text.split("*")
-        else:
-            await msg.edit_text("😒 Send ID & Password in correct format")
-            return
-        
-        await input1.delete(True)
-        try:
-            async with session.post(raw_url, data=info, headers=hdr) as response:
-                if response.status != 200:
-                    raise Exception("Login failed, incorrect credentials.")
-                output = await response.json()
-                userid = output["data"]["userid"]
-                token = output["data"]["token"]
-        except Exception as e:
-            print(f"Error : {str(e)}")
-            return await msg.edit_text("Please try again later. Maybe password is wrong")
-
-        hdr1 = {
-            "Host": api,
-            "Client-Service": "Appx",
-            "Auth-Key": "appxapi",
-            "User-Id": userid,
-            "Authorization": token
-        }
-        await msg.edit_text("✅ Login Successfully")
-
-        scraper = cloudscraper.create_scraper()
-        response = await session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=hdr1)
-        b_data = (await response.json()).get('data', [])
-
-        await msg.edit_text("📊 Send the Batch ID to Download")
-        input2 = await app.listen(user_id=user_id)
-        raw_text2 = input2.text
-        await input2.delete(True)
-
-        output0 = await session.get(f"https://{api}/get/folder_contentsv2?course_id={raw_text2}&parent_id=-1", headers=hdr1)
-        parent_Id = (await output0.json())["data"][0]["id"]
-        
-        vj = await course_content(session, scraper, api, message, raw_text2, parent_Id, hdr1, msg)
-        file_path = f"batch_{user_id}.txt"
-        
-        with open(file_path, "w") as f:
-            f.write(vj)
-        
-        await app.send_document(chat_id=message.chat.id, document=file_path, caption="Here is your file.")
-        os.remove(file_path)
-        await msg.delete()
-
-
-        
-
-
-
 
 
 
@@ -540,6 +395,8 @@ async def appx_logins(_, message):
          InlineKeyboardButton("🌴 Appx V3", callback_data=f"appx_v3*{name}#{api}")]
     ])    
     mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
-    await asyncio.sleep(5)
+    await asyncio.sleep(10)
     await mm.delete()
+
+
 
