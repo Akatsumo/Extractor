@@ -213,7 +213,8 @@ async def appex_v3_txt(app, message, user_id, api, name):
 async def course_content(session, api, headers, message, course_id, parent_id=-1, data=None):
     lectures = ""
     response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
-    data_list = await response.json()["data"]       
+    data_list = await response.json()["data"]     
+    print(data_list)
     for data in data_list:        
         if data['material_type'] == 'FOLDER':
             folder_id = data['id']
