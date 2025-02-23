@@ -213,7 +213,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
 async def course_content(session, api, headers, message, course_id, parent_id=-1, data=None):
     lectures = ""
     response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
-    data_list = await response.json()["data"]     
+    data_list = (await response.json())["data"]     
     print(data_list)
     for data in data_list:        
         if data['material_type'] == 'FOLDER':
@@ -261,17 +261,17 @@ async def appex_v2_txt(app, message, user_id, api, name):
         
         await input1.delete()
         
-        async with session.post(raw_url, data={"email": email, "password": password}, headers=headers) as response:
-            if response.status != 200:
-                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-            output = await response.json()
-        
+        response = await session.post(raw_url, data={"email": email, "password": password}, headers=headers)
+        if response.status != 200:
+            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            
+        output = await response.json()     
         userid, token = output["data"]["userid"], output["data"]["token"]
         headers.update({"User-Id": userid, "Authorization": token})
         await msg.edit_text("✅ **Login Successful**")
         
-        async with session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=headers) as response:
-            b_data = (await response.json()).get('data', [])
+        response = await session.get(f"https://{api}/get/get_all_purchases?userid={userid}&item_type=10", headers=headers)
+        b_data = (await response.json()).get('data', [])
         
         batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
         batch_map = {}
