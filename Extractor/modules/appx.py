@@ -144,7 +144,8 @@ async def appex_v3_txt(app, message, user_id, api, name):
             await msg.edit_text("✅ **Login Successful**")
 
             response = await session.get(f"https://{api}/get/mycourseweb?userid=144944", headers=headers)
-            batch_data = json.loads(await response.json()).get("data", [])
+            batch_data = json.loads(await response.read()).get("data", [])
+            print(batch_data)
 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
