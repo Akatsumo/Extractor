@@ -23,12 +23,12 @@ async def course_extract(session, api, headers, token, course_id, subject_id):
     try:        
         lectures = ""                
         response = session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject_id}", headers=headers)
-        output_data = (await response.json()).get("data", [])
+        output_data = json.loads(await response.read()).get("data", [])
                             
         for data in output_data:
             topic_id = data.get("topicid")
             response = await session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={topic_id}&start=-1&courseid={course_id}&subjectid={subject_id}", headers=headers)
-            output_topic = (await response.json()).get("data", [])
+            output_topic = json.loads(await response.read()).get("data", [])
                                          
             for data in output_topic:
                 try:
@@ -145,7 +145,6 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
             response = await session.get(f"https://{api}/get/mycourseweb?userid=144944", headers=headers)
             batch_data = json.loads(await response.read()).get("data", [])
-            print(batch_data)
 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
@@ -160,7 +159,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
             batch_name = batch_map.get(course_id, "Unknown Batch")
             response = await session.get(f"https://{api}/get/allsubjectfrmlivecourseclass?courseid={course_id}", headers=headers)
-            subject_output = (await response.json()).get("data", [])
+            subject_output = json.loads(await response.read()).get("data", [])
             for subject in subject_output:
                 lectures = await course_extract(session, api, headers, token, course_id, subject["subjectid"])
                 
