@@ -23,60 +23,89 @@ async def course_extract(session, api, headers, token, course_id, subject_id):
     try:        
         lectures = ""                
         response = session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject_id}", headers=headers)
-            respo = await response.read()
-            data = json.loads(respo)
-            b_data2 = data.get('data', [])
-                
-        for data in b_data2:
-            tid = data.get("topicid")
+        output_data = (await response.json()).get("data", [])
+                            
+        for data in output_data:
+            topic_id = data.get("topicid")
+            response = await session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={topic_id}&start=-1&courseid={course_id}&subjectid={subject_id}", headers=headers)
+            output_topic = (await response.json()).get("data", [])
+                                         
+            for data in output_topic:
+                try:
+                    title = data.get("Title", "Unknown Title")
+                    material_type = data.get("material_type", "")
+                    pdf_link = data.get("pdf_link", "")
+                    pdf_key = data.get("pdf_encryption_key", "")
                     
-            if tid:
-                async with session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={tid}&start=-1&courseid={raw_text2}&subjectid={f}", headers=hdr1) as response:
-                    res4 = await response.json()
-                    topicid = res4.get("data", [])
-                        
-            for data in topicid:
-                type = data.get('material_type')
-                tid = data.get("Title")
-                if type == 'VIDEO':
-                    if data.get('pdf_link'):
-                        p_count += 1
-                        plink = data.get('pdf_link').split(':')
-                        if len(plink) == 2:
-                            bp = appx_decrypt(plink[0])
-                            vs = f"{bp}"
-                    if data.get('ytFlag') == 0 and data.get('ytFlagWeb') == 0:
-                        v_count += 1
-                        dlink = next((link['path'] for link in data.get('download_links', []) if link.get('quality') == "720p"), None)
-                        if dlink:
-                            b = appx_decrypt(dlink.split(':')[0])
-                            cool2 = f"{b}"
-                    elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 0:
-                        v_count += 1
-                        dlink = data.get('file_link')
-                        if dlink:
-                            b = appx_decrypt(dlink.split(':')[0])
-                            cool2 = f"https://youtu.be/{b}"
-                    elif data.get('ytFlag') == 1 and data.get('ytFlagWeb') == 1:
-                        v_count += 1
-                        dlink = data.get('file_link')
-                        if dlink:
-                            b = appx_decrypt(dlink.split(':')[0])
-                            cool2 = f"https://youtu.be/{b}"
-                    vt += f"{tid} : {cool2}\n{tid} : {vs}\n" if data.get('pdf_link') else f"{tid} : {cool2}\n"
-    
-                elif type == 'PDF':
-                    p_count += 1
-                    bp = appx_decrypt(data.get("pdf_link", "").split(':')[0])
-                    vt += f"{tid} : {bp}\n"
-
-            counter += 1
-            if counter % 8 == 0 and (prev_v_count != v_count or prev_p_count != p_count):
-                await msg.edit_text(f"**Extracting Videos Links Please Wait  📥**\n\n🍿 **Total Video**  - `{v_count}`\n📝 **Total Pdf**  - `{p_count}`")                
+                    if material_type == "PDF" and pdf_link:
+                        try:
+                            pdf = appx_decrypt(pdf_link.split(":")[0])
+                            if pdf_key:
+                                pdf_key = appx_decrypt(pdf_key.split(":")[0])
+                                lectures.append(f"{title}: {pdf}*{pdf_key}")
+                            else:
+                                lectures.append(f"{title}: {pdf}")
+                        except Exception as decrypt_error:
+                            print(f"Error decrypting PDF for {title}: {decrypt_error}")
+                
+                    elif material_type == "VIDEO":
+                        url = f"https://{api}/get/fetchVideoDetailsById"
+                        params = {"course_id": course_id, "video_id": data.get("id"), "ytflag": data.get("ytFlag"), "folder_wise_course": data.get("folder_wise_course")}
+                        headers = {
+                          "Host": api,
+                          "Authorization": token,
+                          "Auth-Key": "appxapi",
+                          "User-ID": "",
+                          "User-Agent": "Mozilla/5.0 (Linux; Android 15; CPH2585) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.135 Mobile Safari/537.36"
+                        }
+                        response = await session.get(url, headers=headers, params=params)
+                        output = (await response.json()).get("data", {})
+                    
+                        if not output:
+                            continue
+                    
+                        title = output.get("Title", "Unknown Video")
+                        encrypted_links = output.get("encrypted_links", [])
+                        video_path, video_key = None, None
+                    
+                        for link in encrypted_links:
+                            if link.get("quality") == "720p":
+                                try:
+                                    video_path = appx_decrypt(link.get("path", "").split(":")[0])
+                                    video_key = appx_decrypt(link.get("key", "").split(":")[0])
+                                    break
+                                except Exception as decrypt_error:
+                                    print(f"Error decrypting video for {title}: {decrypt_error}")
+                    
+                        pdf_link = output.get("pdf_link", "")
+                        pdf_key = output.get("pdf_encryption_key", "")
+                    
+                        try:
+                            pdf_link = appx_decrypt(pdf_link.split(":")[0]) if pdf_link else None
+                            pdf_key = appx_decrypt(pdf_key.split(":")[0]) if pdf_key else None
+                        except Exception as decrypt_error:
+                            print(f"Error decrypting PDF for {title}: {decrypt_error}")
+                            pdf_link, pdf_key = None, None
+                    
+                        video_info = f"{title}: {video_path}*{video_key}" if video_path and video_key else f"{title}: {video_path}" if video_path else ""
+                        pdf_info = f"{title}: {pdf_link}*{pdf_key}" if pdf_link and pdf_key else f"{title}: {pdf_link}" if pdf_link else ""
+                    
+                        if video_info and pdf_info:
+                            lectures.append(f"{video_info}\n{pdf_info}")
+                        elif video_info:
+                            lectures.append(video_info)
+                        elif pdf_info:
+                            lectures.append(pdf_info)
+                    else:
+                        lectures.append(title)
+                except Exception as e:
+                    print(f"Error processing item {data}: {e}")
+                    continue
+                           
+        return lectures
     except Exception as e:
-        print(str(e))
-    
-    return vt
+        print(f"Error in course content function: {e}")
+        return []
 
 
 
