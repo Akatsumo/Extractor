@@ -237,9 +237,9 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
               "User-Agent": "Mozilla/5.0 (Linux; Android 15; CPH2585) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.135 Mobile Safari/537.36"
             }
             response = await session.get(url, headers=headers, params=params)
-            output = await response.json()
-            title = output["data"]["Title"]
-            encrypted_links = output["data"].get("encrypted_links", [])
+            output =  (await response.json()).get("data", [])
+            title = output["Title"]
+            encrypted_links = output.get("encrypted_links", [])
             video_path, video_key = None, None
             for link in encrypted_links:
                 if link.get("quality") == "360p":
@@ -247,8 +247,8 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                     video_key = appx_decrypt(link.get("key", "").split(":")[0])
                     break
         
-            pdf_link = appx_decrypt(output["data"].get("pdf_link", "").split(":")[0]) if output["data"].get("pdf_link", "") else None
-            pdf_key = appx_decrypt(output["data"].get("pdf_encryption_key", "").split(":")[0]) if output["data"].get("pdf_encryption_key", "") else None
+            pdf_link = appx_decrypt(output.get("pdf_link", "").split(":")[0]) if output.get("pdf_link", "") else None
+            pdf_key = appx_decrypt(output.get("pdf_encryption_key", "").split(":")[0]) if output.get("pdf_encryption_key", "") else None
             
             if pdf_link and video_key and pdf_key:
                 lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}*{pdf_key}")
