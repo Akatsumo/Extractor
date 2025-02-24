@@ -347,7 +347,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
             start_time = time.time()
-            lectures = await asymcio.create_task(course_content(session, api, headers, token, course_id))
+            lectures = await asyncio.create_task(course_content(session, api, headers, token, course_id))
             end_time = time.time()
             duration_seconds = end_time - start_time
             elapsed = get_time(duration_seconds)
