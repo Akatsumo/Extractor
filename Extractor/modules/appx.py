@@ -226,7 +226,7 @@ async def course_content(session, api, headers, course_id, parent_id=-1):
         elif material_type == "PDF" and pdf_link:
             pdf = appx_decrypt(pdf_link.split(":")[0])
             lectures.append(f"{title}: {pdf}")
-        elif material_type = "VIDEO":
+        elif material_type == "VIDEO":
             url = f"https://{api}/get/fetchVideoDetailsById"
             params = {"course_id": course_id, "video_id": data["id"], "ytflag": "0", "folder_wise_course": "0"}
             response = await session.get(url, headers=headers, params=params)
