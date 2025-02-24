@@ -238,6 +238,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
             }
             response = await session.get(url, headers=headers, params=params)
             output =  (await response.json()).get("data", [])
+            print(output)
             title = output["Title"]
             encrypted_links = output.get("encrypted_links", [])
             video_path, video_key = None, None
