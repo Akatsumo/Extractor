@@ -16,9 +16,7 @@ keyboard = InlineKeyboardMarkup([
         InlineKeyboardButton("📢 Channel", url="https://t.me/DevsLaboratory")
     ]])
 
-v_count = 0
-p_count = 0
-counter = 0
+
 
 # --------------------------- Appex-V3 --------------------------- #
 
@@ -296,79 +294,80 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
 
 
 
-
-
-
 async def appex_v2_txt(app, message, user_id, api, name):
-    async with aiohttp.ClientSession() as session:
-        login_url = f"https://{api}/post/userLogin"
-        headers = {
-            "Auth-Key": "appxapi",
-            "User-Id": "",
-            "Authorization": "",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept-Encoding": "gzip, deflate",
-            "User-Agent": "okhttp/4.9.1"
-        }
+    try:
+        async with aiohttp.ClientSession() as session:
+            login_url = f"https://{api}/post/userLogin"
+            headers = {
+                "Auth-Key": "appxapi",
+                "User-Id": "",
+                "Authorization": "",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept-Encoding": "gzip, deflate",
+                "User-Agent": "okhttp/4.9.1"
+            }
 
-        msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
-        try:
-            input1 = await app.listen(user_id, timeout=30)
-            if "*" in input1.text :
-                email, password = input1.text.split("*")
-                response = await session.post(login_url, data={"email": email, "password": password}, headers=headers)
-                if response.status != 200:
-                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-        
-                output = await response.json()
-                userid, token = output["data"]["userid"], output["data"]["token"]
-                headers.update({"User-Id": userid, "Authorization": token})      
-            else:
-                token = input1.text.strip()
-        except:
-            return await message.reply_text("⏳ Timeout! Please try again.")
-      
-        await input1.delete()
-        headers.update({"Authorization": token})
-        await msg.edit_text("✅ **Login Successful**")
-        
-        response = await session.get(f"https://{api}/get/get_all_purchases?userid=""&item_type=10", headers=headers)
-        batch_data = (await response.json()).get("data", [])
-        
-        batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
-        batch_map = {}
-        for data in batch_data:
-            for cdata in data['coursedt']:
-                batch_list += f"`{cdata['id']}`  -   **{cdata['course_name']}**\n\n"
-                batch_map[cdata['id']] = cdata['course_name']
-        
-        await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
-        input2 = await app.listen(user_id)
-        course_id = input2.text.strip()
-        await input2.delete()
-        
-        batch_name = batch_map.get(course_id, "Unknown Batch")
-        await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
-        
-        start_time = time.time()
-        lectures = await course_content(session, api, headers, token, course_id)
-        end_time = time.time()
-        duration_seconds = end_time - start_time
-        elapsed = get_time(duration_seconds)
+            msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
+            try:
+                input1 = await app.listen(user_id, timeout=30)
+                if "*" in input1.text:
+                    email, password = input1.text.split("*")
+                    response = await session.post(login_url, data={"email": email, "password": password}, headers=headers)
+                    if response.status != 200:
+                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-        file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
-        with open(file_name, "w") as f:
-            f.write("\n".join(lectures))
-        
-        caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
-        me = await app.get_me()
-        big_file_id = me.photo.big_file_id
-        thumb = await asyncio.create_task(app.download_media(big_file_id))
-           
-        await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-        os.remove(file_name)
-        await msg.delete()
-        await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+                    output = await response.json()
+                    userid, token = output["data"]["userid"], output["data"]["token"]
+                    headers.update({"User-Id": userid, "Authorization": token})      
+                else:
+                    token = input1.text.strip()
+            except:
+                return await message.reply_text("⏳ Timeout! Please try again.")
+
+            await input1.delete()
+            headers.update({"Authorization": token})
+            await msg.edit_text("✅ **Login Successful**")
+
+            response = await session.get(f"https://{api}/get/get_all_purchases?userid=""&item_type=10", headers=headers)
+            batch_data = (await response.json()).get("data", [])
+
+            batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
+            batch_map = {}
+            for data in batch_data:
+                for cdata in data['coursedt']:
+                    batch_list += f"`{cdata['id']}`  -   **{cdata['course_name']}**\n\n"
+                    batch_map[cdata['id']] = cdata['course_name']
+
+            await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+            input2 = await app.listen(user_id)
+            course_id = input2.text.strip()
+            await input2.delete()
+
+            batch_name = batch_map.get(course_id, "Unknown Batch")
+            await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+
+            start_time = time.time()
+            lectures = await asymcio.create_task(course_content(session, api, headers, token, course_id))
+            end_time = time.time()
+            duration_seconds = end_time - start_time
+            elapsed = get_time(duration_seconds)
+
+            file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            with open(file_name, "w") as f:
+                f.write("\n".join(lectures))
+
+            caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
+            me = await app.get_me()
+            big_file_id = me.photo.big_file_id
+            thumb = await asyncio.create_task(app.download_media(big_file_id))
+
+            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
+            os.remove(file_name)
+            await msg.delete()
+            await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+
+    except Exception as e:
+        await message.reply_text(f"Error: `{str(e)}`")
 
 
 # --------------------------- Appex-Command --------------------------- #
