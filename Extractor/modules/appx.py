@@ -226,7 +226,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
         elif material_type == "PDF" and pdf_link:
             pdf = appx_decrypt(pdf_link.split(":")[0])
             lectures.append(f"{title}: {pdf}")
-        elif material_type = "VIDEO":
+        elif material_type == "VIDEO":
             url = f"https://{api}/get/fetchVideoDetailsById"
             params = {"course_id": course_id, "video_id": data["id"], "ytflag": "0", "folder_wise_course": "0"}
             headers = {
@@ -244,26 +244,25 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
             for link in encrypted_links:
                 if link.get("quality") == "360p":
                     video_path = appx_decrypt(link.get("path", "").split(":")[0])
-                    key = link.get("key", "")
-                    if key:
-                        video_key = appx_decrypt(key.split(":")[0])
+                    video_key = appx_decrypt(link.get("key", "").split(":")[0])
                     break
         
-            pdf_link = appx_decrypt(output["data"].get("pdf_link", "").split(":")[0])
-            pdf_key = appx_decrypt(output["data"].get("pdf_encryption_key", "")
-            if pdf_key:                                
-                pdf_encryption_key = appx_decrypt(pdf_key.split(":")[0])
-
+            pdf_link = appx_decrypt(output["data"].get("pdf_link", "").split(":")[0]) if output["data"].get("pdf_link", "") else None
+            pdf_key = appx_decrypt(output["data"].get("pdf_encryption_key", "").split(":")[0]) if output["data"].get("pdf_encryption_key", "") else None
+            
             if pdf_link and video_key and pdf_key:
-                lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}*{pdf_encryption_key}")
+                lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}*{pdf_key}")
             elif pdf_link and video_key:
                 lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}")   
             elif pdf_link and pdf_key:
-                lectures.append(f"{title}: {video_path}\n{title}: {pdf_link}*{pdf_encryption_key}")
+                lectures.append(f"{title}: {video_path}\n{title}: {pdf_link}*{pdf_key}")
             elif pdf_link:
                 lectures.append(f"{title}: {video_path}\n{title}: {pdf_link}")
-            else:
+            elif video_path and video_key:
                 lectures.append(f"{title}: {video_path}*{video_key}")
+            else:
+                lectures.append(f"{title}: {video_path}")
+                
                 
         else:
             lectures.append(title)
