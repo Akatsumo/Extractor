@@ -29,12 +29,12 @@ async def course_extract(session, api, headers, token, course_id):
         subject_output = json.loads(await response.read()).get("data", [])
         
         for subject in subject_output: 
-            response = await session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject['id']}", headers=headers)
+            response = await session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject['subjectid']}", headers=headers)
             output_data = json.loads(await response.read()).get("data", [])
                             
             for data in output_data:
                 topic_id = data.get("topicid")
-                response = await session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={topic_id}&start=-1&courseid={course_id}&subjectid={subject['id']}", headers=headers)
+                response = await session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={topic_id}&start=-1&courseid={course_id}&subjectid={subject['subjectid']}", headers=headers)
                 output_topic = json.loads(await response.read()).get("data", [])
                                          
                 for data in output_topic:
