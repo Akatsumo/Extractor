@@ -218,7 +218,6 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
         
         for data in data_list:
             try:
-                print(data)
                 title = data.get("Title", "Unknown Title")
                 material_type = data.get("material_type", "")
                 pdf_link = data.get("pdf_link", "")
@@ -236,7 +235,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                         
                 elif material_type == "VIDEO":
                     url = f"https://{api}/get/fetchVideoDetailsById"
-                    params = {"course_id": course_id, "video_id": data["id"], "ytflag": "0", "folder_wise_course": "0"}
+                    params = {"course_id": course_id, "video_id": data["id"], "ytflag": data["ytFlag"], "folder_wise_course": data["folder_wise_course"]}
                     headers = {
                       "Host": api,
                       "Authorization": token,
