@@ -227,7 +227,13 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                     lectures.extend(await course_content(session, api, headers, token, course_id, data['id']))
                 elif material_type == "PDF" and pdf_link:
                     pdf = appx_decrypt(pdf_link.split(":")[0])
-                    lectures.append(f"{title}: {pdf}")
+                    pdf_key = output.get("pdf_encryption_key", "")
+                    if pdf_key:
+                        pdf_key = appx_decrypt(pdf_key.split(":")[0])
+                        lectures.append(f"{title}: {pdf}*{pdf_key}")
+                    else:
+                        lectures.append(f"{title}: {pdf}")
+                        
                 elif material_type == "VIDEO":
                     url = f"https://{api}/get/fetchVideoDetailsById"
                     params = {"course_id": course_id, "video_id": data["id"], "ytflag": "0", "folder_wise_course": "0"}
@@ -242,7 +248,8 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                     output = (await response.json()).get("data", {})
                     
                     if not output:
-                        continue
+                        print(output)
+                        return
                     
                     title = output.get("Title", "Unknown Video")
                     encrypted_links = output.get("encrypted_links", [])
