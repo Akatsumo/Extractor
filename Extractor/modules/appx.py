@@ -210,7 +210,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
 # --------------------------- Appex-V2 --------------------------- #
 
 
-async def course_content(session, api, headers, course_id, parent_id=-1):
+async def course_content(session, api, headers, token, course_id, parent_id=-1):
     lectures = []
     response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
     data_list = (await response.json()).get("data", [])
@@ -222,13 +222,20 @@ async def course_content(session, api, headers, course_id, parent_id=-1):
         pdf_link = data.get("pdf_link", "")
         
         if material_type == "FOLDER":
-            lectures.extend(await course_content(session, api, headers, course_id, data['id']))
+            lectures.extend(await course_content(session, api, headers, token, course_id, data['id']))
         elif material_type == "PDF" and pdf_link:
             pdf = appx_decrypt(pdf_link.split(":")[0])
             lectures.append(f"{title}: {pdf}")
-        elif material_type == "VIDEO":
+        elif material_type = "VIDEO":
             url = f"https://{api}/get/fetchVideoDetailsById"
             params = {"course_id": course_id, "video_id": data["id"], "ytflag": "0", "folder_wise_course": "0"}
+            headers = {
+              "Host": api,
+              "Authorization": token,
+              "Auth-Key": "appxapi",
+              "User-ID": "",
+              "User-Agent": "Mozilla/5.0 (Linux; Android 15; CPH2585) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.135 Mobile Safari/537.36"
+            }
             response = await session.get(url, headers=headers, params=params)
             output = await response.json()
             title = output["data"]["Title"]
@@ -237,16 +244,27 @@ async def course_content(session, api, headers, course_id, parent_id=-1):
             for link in encrypted_links:
                 if link.get("quality") == "360p":
                     video_path = appx_decrypt(link.get("path", "").split(":")[0])
-                    video_key = appx_decrypt(link.get("key", "").split(":")[0])
+                    key = link.get("key", "")
+                    if key:
+                        video_key = appx_decrypt(key.split(":")[0])
                     break
         
             pdf_link = appx_decrypt(output["data"].get("pdf_link", "").split(":")[0])
-            pdf_encryption_key = appx_decrypt(output["data"].get("pdf_encryption_key", "").split(":")[0])
+            pdf_key = appx_decrypt(output["data"].get("pdf_encryption_key", "")
+            if pdf_key:                                
+                pdf_encryption_key = appx_decrypt(pdf_key.split(":")[0])
 
-            if pdf_link:
+            if pdf_link and video_key and pdf_key:
                 lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}*{pdf_encryption_key}")
+            elif pdf_link and video_key:
+                lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}")   
+            elif pdf_link and pdf_key:
+                lectures.append(f"{title}: {video_path}\n{title}: {pdf_link}*{pdf_encryption_key}")
+            elif pdf_link:
+                lectures.append(f"{title}: {video_path}\n{title}: {pdf_link}")
             else:
                 lectures.append(f"{title}: {video_path}*{video_key}")
+                
         else:
             lectures.append(title)
             
@@ -305,7 +323,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
         
         start_time = time.time()
-        lectures = await course_content(session, api, headers, course_id)
+        lectures = await course_content(session, api, headers, token, course_id)
         elapsed = round(time.time() - start_time, 2)
         
         file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
@@ -353,6 +371,9 @@ async def appx_logins(_, message):
     mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
     await asyncio.sleep(10)
     await mm.delete()
+
+
+
 
 
 
