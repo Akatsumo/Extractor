@@ -19,11 +19,10 @@ keyboard = InlineKeyboardMarkup([
 
 # --------------------------- Appex-V3 --------------------------- #
 
-async def appex_down(session, message, hdr1, api, raw_text2, f, msg):
-    try:
-        global v_count, p_count
-        vt = ""                
-        async with session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={raw_text2}&subjectid={f}", headers=hdr1) as response:
+async def course_extract(session, api, headers, token, course_id, subject_id):
+    try:        
+        lectures = ""                
+        response = session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject_id}", headers=headers)
             respo = await response.read()
             data = json.loads(respo)
             b_data2 = data.get('data', [])
@@ -131,6 +130,11 @@ async def appex_v3_txt(app, message, user_id, api, name):
             await input2.delete()
 
             batch_name = batch_map.get(course_id, "Unknown Batch")
+            response = await session.get(f"https://{api}/get/allsubjectfrmlivecourseclass?courseid={course_id}", headers=headers)
+            subject_output = (await response.json()).get("data", [])
+            for subject in subject_output:
+                lectures = await course_extract(session, api, headers, token, course_id, subject["subjectid"])
+                
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
             start_time = time.time()
