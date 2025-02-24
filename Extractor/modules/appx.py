@@ -193,6 +193,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             await msg.delete()
             await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
+        await session.close()
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)}`")
 
@@ -363,6 +364,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
             await msg.delete()
             await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
+        await session.close()
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)}`")
 
