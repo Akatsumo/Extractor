@@ -149,9 +149,8 @@ async def appex_v3_txt(app, message, user_id, api, name):
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
             for data in batch_data:
-                for cdata in data['coursedt']:
-                    batch_list += f"`{cdata['id']}`  -   **{cdata['course_name']}**\n\n"
-                    batch_map[cdata['id']] = cdata['course_name']
+                batch_list += f"`{data['id']}`  -   **{data['course_name']}**\n\n"
+                batch_map[data['id']] = data['course_name']
 
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
             input2 = await app.listen(user_id)
