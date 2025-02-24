@@ -226,6 +226,27 @@ async def course_content(session, api, headers, course_id, parent_id=-1):
         elif material_type == "PDF" and pdf_link:
             pdf = appx_decrypt(pdf_link.split(":")[0])
             lectures.append(f"{title}: {pdf}")
+        elif material_type = "VIDEO":
+            url = f"https://{api}/get/fetchVideoDetailsById"
+            params = {"course_id": course_id, "video_id": data["id"], "ytflag": "0", "folder_wise_course": "0"}
+            response = await session.get(url, headers=headers, params=params)
+            output = await response.json()
+            title = output["data"]["Title"]
+            encrypted_links = output["data"].get("encrypted_links", [])
+            video_path, video_key = None, None
+            for link in encrypted_links:
+                if link.get("quality") == "360p":
+                    video_path = appx_decrypt(link.get("path", "").split(":")[0])
+                    video_key = appx_decrypt(link.get("key", "").split(":")[0])
+                    break
+        
+            pdf_link = appx_decrypt(output["data"].get("pdf_link", "").split(":")[0])
+            pdf_encryption_key = appx_decrypt(output["data"].get("pdf_encryption_key", "").split(":")[0])
+
+            if pdf_link:
+                lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}*{pdf_encryption_key}")
+            else:
+                lectures.append(f"{title}: {video_path}*{video_key}")
         else:
             lectures.append(title)
             
