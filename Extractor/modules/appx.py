@@ -297,85 +297,6 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
 
 
 
-"""
-async def course_content(session, api, headers, token, course_id, parent_id=-1):
-    try:
-        lectures = []
-        response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
-        data_list = (await response.json()).get("data", [])
-        
-        for data in data_list:
-            try:
-                title = data.get("Title", "Unknown Title")
-                material_type = data.get("material_type", "")
-                pdf_link = data.get("pdf_link", "")
-                
-                if material_type == "FOLDER":
-                    lectures.extend(await course_content(session, api, headers, token, course_id, data['id']))
-                elif material_type == "PDF" and pdf_link:
-                    pdf = appx_decrypt(pdf_link.split(":")[0])
-                    pdf_key = output.get("pdf_encryption_key", "")
-                    if pdf_key:
-                        pdf_key = appx_decrypt(pdf_key.split(":")[0])
-                        lectures.append(f"{title}: {pdf}*{pdf_key}")
-                    else:
-                        lectures.append(f"{title}: {pdf}")
-                        
-                elif material_type == "VIDEO":
-                    url = f"https://{api}/get/fetchVideoDetailsById"
-                    params = {"course_id": course_id, "video_id": data["id"], "ytflag": data["ytFlag"], "folder_wise_course": data["folder_wise_course"]}
-                    headers = {
-                      "Host": api,
-                      "Authorization": token,
-                      "Auth-Key": "appxapi",
-                      "User-ID": "",
-                      "User-Agent": "Mozilla/5.0 (Linux; Android 15; CPH2585) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.135 Mobile Safari/537.36"
-                    }
-                    response = await session.get(url, headers=headers, params=params)
-                    output = (await response.json()).get("data", {})
-                    
-                    if not output:
-                        continue
-                    
-                    title = output.get("Title", "Unknown Video")
-                    encrypted_links = output.get("encrypted_links", [])
-                    video_path, video_key = None, None
-                    
-                    for link in encrypted_links:
-                        if link.get("quality") == "360p":
-                            video_path = appx_decrypt(link.get("path", "").split(":")[0])
-                            video_key = appx_decrypt(link.get("key", "").split(":")[0])
-                            break
-                    
-                    pdf_link = output.get("pdf_link", "")
-                    pdf_key = output.get("pdf_encryption_key", "")
-                    pdf_link = appx_decrypt(pdf_link.split(":")[0]) if pdf_link else None
-                    pdf_key = appx_decrypt(pdf_key.split(":")[0]) if pdf_key else None
-                    
-                    if pdf_link and video_key and pdf_key:
-                        lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}*{pdf_key}")
-                    elif pdf_link and video_key:
-                        lectures.append(f"{title}: {video_path}*{video_key}\n{title}: {pdf_link}")   
-                    elif pdf_link and pdf_key:
-                        lectures.append(f"{title}: {video_path}\n{title}: {pdf_link}*{pdf_key}")
-                    elif pdf_link:
-                        lectures.append(f"{title}: {video_path}\n{title}: {pdf_link}")
-                    elif video_path and video_key:
-                        lectures.append(f"{title}: {video_path}*{video_key}")
-                    else:
-                        lectures.append(f"{title}: {video_path}")
-                else:
-                    lectures.append(title)
-            except Exception as e:
-                print(f"Error processing item {data}: {e}")
-                continue
-        
-        return lectures
-    except Exception as e:
-        print(f"Error in course content function: {e}")
-        return []
-
-"""
 
 
 async def appex_v2_txt(app, message, user_id, api, name):
@@ -431,13 +352,15 @@ async def appex_v2_txt(app, message, user_id, api, name):
         
         start_time = time.time()
         lectures = await course_content(session, api, headers, token, course_id)
-        elapsed = round(time.time() - start_time, 2)
-        
+        end_time = time.time()
+        duration_seconds = end_time - start_time
+        elapsed = get_time(duration_seconds)
+
         file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
         with open(file_name, "w") as f:
             f.write("\n".join(lectures))
         
-        caption = f"**App Name** : `{name}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
+        caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
         me = await app.get_me()
         big_file_id = me.photo.big_file_id
         thumb = await asyncio.create_task(app.download_media(big_file_id))
