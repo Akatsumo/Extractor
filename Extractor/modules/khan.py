@@ -111,7 +111,7 @@ async def khan_login(_, message):
             await msg.edit_text(f"**Extracting Course Content for `{batch_name}` Please Wait 📥**")
 
             start_time = time.time()
-            lectures = await khan_extract(session, headers, slug)
+            lectures = await asyncio.create_task(khan_extract(session, headers, slug))
             end_time = time.time()
             elapsed = get_time(end_time - start_time)
 
