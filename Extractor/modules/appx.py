@@ -20,7 +20,6 @@ keyboard = InlineKeyboardMarkup([
 # --------------------------- Appex-V3 --------------------------- #
 
 
-import json
 
 async def course_extract(session, api, headers, token, course_id):
     try:        
