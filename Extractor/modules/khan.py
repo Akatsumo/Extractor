@@ -7,13 +7,10 @@ from pyrogram import filters
 from Extractor.core.main_func import get_time
 
 
-
-
-
-
 async def khan_extract(session, headers, slug):
     lesson_url = f"https://api.khanglobalstudies.com/cms/user/courses/{slug}/lessons"
     response = await session.get(lesson_url, headers=headers)
+    
     try:
         output = await response.json()
         lessons = output.get("lessons", [])
@@ -21,25 +18,30 @@ async def khan_extract(session, headers, slug):
         if not lessons:
             print("No lessons found.")
             return []
-        else:
-            lecutres = []
-            for lesson in lessons:
-                lesson_name = lesson.get("name", "No Lesson Name")
-                for video in lesson.get("videos", []):
-                    video_title = video.get("name", "No Title")
-                    video_url = video.get("video_url", "No URL")
-                    lectures.append(f"{video_title}: {video_url}\n")
+        
+        lectures = []
+        
+        for lesson in lessons:
+            lesson_name = lesson.get("name", "No Lesson Name") 
+            
+            for video in lesson.get("videos", []):
+                video_title = video.get("name", "No Title")
+                video_url = video.get("video_url", "No URL")
+                lectures.append(f"{video_title}: {video_url}\n")
 
-                    pdfs = video.get("pdfs") or []
-                    pdf_list = [{"title": pdf.get("title", "No Title"), "url": pdf.get("url", "No URL")} for pdf in pdfs]
-                    for pdf in pdf_list:
-                       lectures.append(f"{pdf['title']}: {pdf['url']}\n")
-            return lectures
+                pdfs = video.get("pdfs") or []
+                for pdf in pdfs:
+                    title = pdf.get("title", "No Title")
+                    url = pdf.get("url", "No URL")
+                    lectures.append(f"{title}: {url}\n")
+        
+        return lectures
+    
     except Exception as e:
         print(f"Error: {e}")
         return []
-        
-                    
+
+
 
 
 @app.on_message(filters.command("khan"))
@@ -105,7 +107,7 @@ async def khan_login(_, message):
             slug = batch_info["slug"]
             batch_name = batch_info["name"]
 
-            await msg.edit_text(f"**Extracting Course Content for `{batch_name}` (Slug: `{slug}`), Please Wait 📥**")
+            await msg.edit_text(f"**Extracting Course Content for `{batch_name}` Please Wait 📥**")
 
             start_time = time.time()
             lectures = await khan_extract(session, headers, slug)
