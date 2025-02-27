@@ -8,6 +8,7 @@ from Extractor.core.main_func import get_time
 
 
 async def khan_extract(session, headers, slug):
+    # https://api.khanglobalstudies.com/cms/lessons/lession_id
     lesson_url = f"https://api.khanglobalstudies.com/cms/user/courses/{slug}/lessons"
     response = await session.get(lesson_url, headers=headers)
     
