@@ -4,6 +4,7 @@ import aiohttp
 import time
 from Extractor import app
 from pyrogram import filters
+from Extractor.core.main_func import get_time
 
 
 
