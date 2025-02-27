@@ -158,8 +158,8 @@ async def utkarsh_login(_, message):
         data = {"type": "Paid", "csrf_name": token, "sort": "0"}
 
         scraper = cloudscraper.create_scraper()
-        response = scraper.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data)            data = await response.text() 
-        respon = main_func.utkarsh_decrypt(json.loads(response)["response"])
+        response = scraper.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data)            
+        respon = main_func.utkarsh_decrypt(json.loads(response.text)["response"])
             
         FFF = "**BATCH ID   -   BATCH NAME**\n\n"
         for course in data["data"].get("data"):
