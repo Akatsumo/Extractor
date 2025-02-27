@@ -162,8 +162,8 @@ async def utkarsh_login(_, message):
         respon = main_func.utkarsh_decrypt(json.loads(response.text)["response"])
             
         FFF = "**BATCH ID   -   BATCH NAME**\n\n"
-        for course in data["data"].get("data"):
-            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
+        for course in respon["data"].get("data"):
+            FFF += f"**`{respon['id']}`   -   {respon['title']}**\n\n"
 
         
         await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
@@ -174,7 +174,7 @@ async def utkarsh_login(_, message):
             return await message.reply_text("⏳ Timeout! Please try again.")
             
         batch_name = next(
-            (course["title"].replace("/", "") for course in data["data"]["data"] if course["id"] == raw_text2), ""
+            (course["title"].replace("/", "") for course in respon["data"]["data"] if course["id"] == raw_text2), ""
         )
         
         combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
