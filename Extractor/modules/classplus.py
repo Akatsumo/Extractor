@@ -1,5 +1,7 @@
 import os
 import aiohttp
+from Extractor import app
+from pyrogram import filters 
 
 
 
@@ -31,10 +33,9 @@ async def otp_login(session, org_code, org_id, phone):
     
     if output.get("status") == "success":  
         sessionId = output["data"]["sessionId"]
-        return True, sessionId  
+        return sessionId  
     else:
-        return False, None  
-
+        return None  
 
 
 
@@ -53,13 +54,66 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
     output = await response.json()
 
     if output.get("status") == "success":  
-        return True, output.get("token")  
+        return output.get("token")  
     else:
-        return False, None
+        return None
 
 
 
 
+@app.on_message(filters.command("cp"))
+async def classplus_login(_, message):
+    user_id = message.from_user.id
+    async with aiohttp.ClientSession() as session:
+        msg = await message.reply_text("**🔑 For access, please transmit your OrgID & Phone in the correct sequence:\n\n🔒 Send like this: OrgID*Phone**")                                     
+        try:
+            input1 = await app.listen(user_id, timeout=30)
+            if "*" in input1.text:
+                org_code, phone_no = input1.text.split("*") 
+                if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
+                    org_id, name = await classplus_org_id(org_code, session)
+                    sessionID = await otp_login(session, org_code, org_id, phone)
+                    await msg.edit_text("**📝 Now send you classplus otp**")
+                    input2 = await app.listen(user_id, timeout=30)
+                    otp_code = input2.text.strip()
+                    token = await verify_otp(session, otp_code, org_id, phone_no, sessionID)
+                else:
+                    token = phone                              
+                if not token:
+                    return await msg.edit_text("Failed Token!!")
+                                                                            
+            else:
+                return await message.reply_text("😒 **Login failed, incorrect credentials.**")
+        except:
+            return await message.reply_text("⏳ Timeout! Please try again.")
+
+        course_url = "https://api.classplusapp.com/v2/courses?tabCategoryId=1&categoryId=[]&"
+        headers = {
+          "accept": "application/json, text/plain, */*",
+          "accept-language": "en",
+          "api-version": "52",
+          "x-access-token": token
+        }
+        response = await session.get(url, headers=headers)
+        if response.status_code != 200:
+            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+ 
+        data = await response.json()
+        courses = data.get("data", {}).get("courses", [])
+
+        batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
+        batch_map = {}
+        for course in courses:
+            batch_list += f"`{course.get("id")}`  -   **{course.get("name")}**\n\n"
+            batch_map[course.get("id")] = course.get("name")
+
+        await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+        input2 = await app.listen(user_id)
+        course_id = input2.text.strip()
+        await input2.delete()
+
+        batch_name = batch_map.get(course_id, "Unknown Batch")
+        await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
 
 
