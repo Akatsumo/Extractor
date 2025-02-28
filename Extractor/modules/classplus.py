@@ -1,7 +1,9 @@
 import os
+import time
+import asyncio
 import aiohttp
-from Extractor import app
-from pyrogram import filters 
+from pyrogram import Client, filters
+
 
 
 # ------------------------- Requirements ------------------------- #
@@ -63,36 +65,30 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 # ------------------------- Extracts-Login-Links ------------------------- #
 
 async def extract_links(session, headers, course_id, folder_id=0):
-    lectures = []
-    url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
-    response1 = await session.post(url, headers)
-    output1 = await response1.json()
-    for content in output1.get("data", {}).get("courseContent", []):
-        if content["contentType"] == 1:
-            lectures.extend(await extract_links(session, headers, course_id, content["id"]))
-        elif content["contentType"] == 2:
-            continue
-        elif content["contentType"] == 3:
-            lectures.append("{content['name']}: {content['url']}")
+    try:
+        lectures = []
+        url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
+        response1 = await session.post(url, headers)
+        output1 = await response1.json()
+        for content in output1.get("data", {}).get("courseContent", []):
+            if content["contentType"] == 1:
+                lectures.extend(await extract_links(session, headers, course_id, content["id"]))
+            elif content["contentType"] == 2:
+                continue
+            elif content["contentType"] == 3:
+                lectures.append("{content['name']}: {content['url']}")
             
-    return lectures
+        return lectures
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
     
 
 
-
-
-
-    
-import os
-import time
-import asyncio
-import aiohttp
-from pyrogram import Client, filters
 
 @app.on_message(filters.command("cp"))
 async def classplus_login(_, message):
     user_id = message.from_user.id
-
     async with aiohttp.ClientSession() as session:
         try:
             msg = await message.reply_text("**🔑 For access, please transmit your OrgID & Phone in the correct sequence:**\n\n🔒 **Send like this:** `OrgID*Phone`")
@@ -153,7 +149,7 @@ async def classplus_login(_, message):
 
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
             start_time = time.time()
-            lectures = await asyncio.create_task(course_extract(session, url, headers, token, course_id))
+            lectures = await asyncio.create_task(extract_links(session, headers, course_id))
             end_time = time.time()
             elapsed = round(end_time - start_time, 2)
 
