@@ -99,9 +99,9 @@ async def classplus_login(_, message):
                 return await message.reply_text("😒 **Login failed, incorrect credentials.**")
 
             org_code, phone_no = input1.text.split("*")
+            org_id, name = await classplus_org_id(org_code, session)
 
             if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
-                org_id, name = await classplus_org_id(org_code, session)
                 sessionID = await otp_login(session, org_code, org_id, phone_no)
 
                 await msg.edit_text("**📝 Now send your ClassPlus OTP**")
