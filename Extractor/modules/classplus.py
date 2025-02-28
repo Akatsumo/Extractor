@@ -83,88 +83,101 @@ async def extract_links(session, headers, course_id, folder_id=0):
 
 
     
+import os
+import time
+import asyncio
+import aiohttp
+from pyrogram import Client, filters
+
 @app.on_message(filters.command("cp"))
 async def classplus_login(_, message):
     user_id = message.from_user.id
+
     async with aiohttp.ClientSession() as session:
-        msg = await message.reply_text("**🔑 For access, please transmit your OrgID & Phone in the correct sequence:\n\n🔒 Send like this: OrgID*Phone**")                                     
         try:
+            msg = await message.reply_text("**🔑 For access, please transmit your OrgID & Phone in the correct sequence:**\n\n🔒 **Send like this:** `OrgID*Phone`")
             input1 = await app.listen(user_id, timeout=30)
-            if "*" in input1.text:
-                org_code, phone_no = input1.text.split("*") 
-                if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
-                    org_id, name = await classplus_org_id(org_code, session)
-                    sessionID = await otp_login(session, org_code, org_id, phone)
-                    await msg.edit_text("**📝 Now send you classplus otp**")
-                    input2 = await app.listen(user_id, timeout=30)
-                    otp_code = input2.text.strip()
-                    token = await verify_otp(session, otp_code, org_id, phone_no, sessionID)
-                else:
-                    token = phone                              
-                if not token:
-                    return await msg.edit_text("Failed Token!!")
-                                                                            
-            else:
+
+            if "*" not in input1.text:
                 return await message.reply_text("😒 **Login failed, incorrect credentials.**")
-        except:
-            return await message.reply_text("⏳ Timeout! Please try again.")
 
-        course_url = "https://api.classplusapp.com/v2/courses?tabCategoryId=1&categoryId=[]&"
-        headers = {
-          "accept": "application/json, text/plain, */*",
-          "accept-language": "en",
-          "api-version": "52",
-          "x-access-token": token
-        }
-        response = await session.get(url, headers=headers)
-        if response.status_code != 200:
-            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
- 
-        data = await response.json()
-        courses = data.get("data", {}).get("courses", [])
+            org_code, phone_no = input1.text.split("*")
 
-        batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
-        batch_map = {}
-        for course in courses:
-            batch_list += f"`{course.get("id")}`  -   **{course.get("name")}**\n\n"
-            batch_map[course.get("id")] = course.get("name")
+            if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
+                org_id, name = await classplus_org_id(org_code, session)
+                sessionID = await otp_login(session, org_code, org_id, phone_no)
 
-        await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
-        input2 = await app.listen(user_id)
-        course_id = input2.text.strip()
-        await input2.delete()
+                await msg.edit_text("**📝 Now send your ClassPlus OTP**")
+                input2 = await app.listen(user_id, timeout=30)
+                otp_code = input2.text.strip()
+                token = await verify_otp(session, otp_code, org_id, phone_no, sessionID)
+            else:
+                token = phone_no
 
-        batch_name = batch_map.get(course_id, "Unknown Batch")
-        await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
-        start_time = time.time()
-        lectures = await asyncio.create_task(course_extract(session, api, headers, token, course_id))                                   
-        end_time = time.time()
-        duration_seconds = end_time - start_time
-        elapsed = get_time(duration_seconds)
+            if not token:
+                return await msg.edit_text("Failed Token!!")
 
-        file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
-        with open(file_name, "w") as f:
-            f.write("\n".join(lectures))
+            
+            url = "https://api.classplusapp.com/v2/courses?tabCategoryId=1&categoryId=[]&"
+            headers = {
+                "accept": "application/json, text/plain, */*",
+                "accept-language": "en",
+                "api-version": "52",
+                "x-access-token": token
+            }
 
-        caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
-        me = await app.get_me()
-        big_file_id = me.photo.big_file_id
-        thumb = await asyncio.create_task(app.download_media(big_file_id))
+            response = await session.get(url, headers=headers)
 
-        await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-        os.remove(file_name)
-        await msg.delete()
-        await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+            if response.status != 200:
+                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-    await session.close()
+            data = await response.json()
+            courses = data.get("data", {}).get("courses", [])
 
+            if not courses:
+                return await msg.edit_text("📭 **No courses found for your account.**")
 
+            batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
+            batch_map = {}
 
+            for course in courses:
+                batch_list += f"`{course.get('id')}`  -   **{course.get('name')}**\n\n"
+                batch_map[course.get("id")] = course.get("name")
 
+            await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+            input3 = await app.listen(user_id)
+            course_id = input3.text.strip()
+            await input3.delete()
 
+            batch_name = batch_map.get(course_id, "Unknown Batch")
 
-    
+            await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+            start_time = time.time()
+            lectures = await asyncio.create_task(course_extract(session, url, headers, token, course_id))
+            end_time = time.time()
+            elapsed = round(end_time - start_time, 2)
 
+            
+            file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            with open(file_name, "w") as f:
+                f.write("\n".join(lectures))
 
+            caption = (f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`")
+            
+            me = await app.get_me()
+            big_file_id = me.photo.big_file_id
+            thumb = await asyncio.create_task(app.download_media(big_file_id))
+
+            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
+            os.remove(file_name)
+            await msg.delete()
+            await message.reply_text(f"✅ **Done**\n\n✏️ **Token** : `{token}`")
+
+        except asyncio.TimeoutError:
+            await message.reply_text("⏳ Timeout! Please try again.")
+        except Exception as e:
+            await message.reply_text(f"**Error:** `{str(e)}`")
+        finally:
+            await session.close()
 
 
