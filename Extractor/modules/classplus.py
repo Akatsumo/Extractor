@@ -114,6 +114,27 @@ async def classplus_login(_, message):
 
         batch_name = batch_map.get(course_id, "Unknown Batch")
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+        start_time = time.time()
+        lectures = await asyncio.create_task(course_extract(session, api, headers, token, course_id))                                   
+        end_time = time.time()
+        duration_seconds = end_time - start_time
+        elapsed = get_time(duration_seconds)
+
+        file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+        with open(file_name, "w") as f:
+            f.write("\n".join(lectures))
+
+        caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
+        me = await app.get_me()
+        big_file_id = me.photo.big_file_id
+        thumb = await asyncio.create_task(app.download_media(big_file_id))
+
+        await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
+        os.remove(file_name)
+        await msg.delete()
+        await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+
+    await session.close()
 
 
 
