@@ -71,16 +71,17 @@ async def extract_links(session, headers, course_id, folder_id=0):
     try:
         lectures = []
         url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
-        response1 = await session.post(url, headers)
+        response1 = await session.post(url, headers=headers)
         output1 = await response1.json()
+        
         for content in output1.get("data", {}).get("courseContent", []):
             if content["contentType"] == 1:
                 lectures.extend(await extract_links(session, headers, course_id, content["id"]))
             elif content["contentType"] == 2:
                 continue
             elif content["contentType"] == 3:
-                lectures.append("{content['name']}: {content['url']}")
-            
+                lectures.append(f"{content['name']}: {content['url']}\n")
+        
         return lectures
     except Exception as e:
         print(f"Error: {e}")
