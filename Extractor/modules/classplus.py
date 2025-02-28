@@ -4,6 +4,7 @@ from Extractor import app
 from pyrogram import filters 
 
 
+# ------------------------- Requirements ------------------------- #
 
 async def classplus_org_id(org_id, session):
     async with session.get(f"https://{org_id}.courses.store") as response:
@@ -59,8 +60,22 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
         return None
 
 
+# ------------------------- Extracts-Login-Links ------------------------- #
+
+async def extract_links(session, headers, course_id):
+    url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId=0&storeContentEvent=false"
+    response = await session.post(url, headers)
+    output = await response.json()
+    for content in data.get("data", {}).get("courseContent", []):
+        url = f""
+    
+    
 
 
+
+
+
+    
 @app.on_message(filters.command("cp"))
 async def classplus_login(_, message):
     user_id = message.from_user.id
