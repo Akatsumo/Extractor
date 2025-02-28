@@ -21,8 +21,26 @@ async def otp_login(session, org_code, org_id, phone):
      sessionId = output["data"]["sessionId"]
      return True, sessionID
   else:
-    retrun False, None
+    return False, None
 
+
+async def verify_otp(session, otp_num, org_id, phone, sessionID):
+  url = "https://api.classplusapp.com/v2/users/verify"
+  data = {
+    "otp": otp_num,
+    "countryExt": "91",
+    "sessionId": sessionID,
+    "orgId": org_id,
+    "fingerprintId": "",
+    "mobile": phone
+  }
+  response = await session.post(url, json=data)
+  output = await response.json()
+  if "success" == output["status"]:
+     return True, output["token"]
+  else:
+    return False, None
+    
 
 
 
