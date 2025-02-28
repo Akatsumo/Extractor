@@ -85,7 +85,28 @@ async def extract_links(session, headers, course_id, folder_id=0):
                 
             elif content["contentType"] == 3:
                 lectures.append(f"{content['name']}: {content['url']}")
-            
+                
+        live_class= "https://api.classplusapp.com/v2/course/live/list/videos"
+        params = {
+          "type": "2",
+          "entityId": course_id,
+          "limit": "",
+          "offset": "0"
+        }
+        response = await session.post(live_class, headers=headers, params=params)
+        data = josn.loads(await response.read())
+    
+        if "data" in data and "list" in data["data"]:
+            for item in data["data"]["list"]:
+                video_id = item.get("id", "N/A")
+                name = item.get("name", "N/A")
+                content_hash_id = item.get("contentHashId", "N/A")
+                response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': content_hash_id})
+                output_video = json.loads(await response.read())
+                lectures.append(f"{name}: {output_video['url']}")                                           
+        else:
+            pass
+                  
         return lectures
     except Exception as e:
         print(f"Error: {e}")
