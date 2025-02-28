@@ -72,7 +72,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
     try:
         lectures = []
         url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
-        response1 = await session.post(url, headers=headers)
+        response1 = await session.get(url, headers=headers)
         output1 = json.loads(await response1.read())
         for content in output1.get("data", {}).get("courseContent", []):
             if content["contentType"] == 1:
@@ -80,7 +80,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
             elif content["contentType"] == 2:
                 id = content.get('contentHashId', '')
                 response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
-                output_video = json.loads(await response.read())
+                output_video = await response.json()
                 lectures.append(f"{content['name']}: {output_video['url']}")               
                 
             elif content["contentType"] == 3:
@@ -93,8 +93,8 @@ async def extract_links(session, headers, course_id, folder_id=0):
           "limit": "",
           "offset": "0"
         }
-        response = await session.post(live_class, headers=headers, params=params)
-        data = josn.loads(await response.read())
+        response = await session.get(live_class, headers=headers, params=params)
+        data = await response.json()
     
         if "data" in data and "list" in data["data"]:
             for item in data["data"]["list"]:
