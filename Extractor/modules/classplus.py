@@ -79,6 +79,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
                 lectures.extend(await extract_links(session, headers, course_id, content["id"]))
             elif content["contentType"] == 2:
                 id = content.get('contentHashId', '')
+                print(f"hash ID: {id}")
                 response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
                 output_video = await response.json()
                 lectures.append(f"{content['name']}: {output_video['url']}")               
@@ -109,7 +110,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
                   
         return lectures
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error In Extract Links: {e}")
         return []
     
 
