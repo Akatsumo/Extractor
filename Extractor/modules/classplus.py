@@ -68,6 +68,59 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 
 # ------------------------- Extracts-Login-Links ------------------------- #
 
+async def fetch_json(session, url, headers, params=None):
+    async with session.get(url, headers=headers, params=params) as response:
+        data = await response.read()
+        return json.loads(data)
+
+async def fetch_video_url(session, headers, content_id):
+    url = 'https://api.classplusapp.com/cams/uploader/video/jw-signed-url'
+    output_video = await fetch_json(session, url, headers, {'contentId': content_id})
+    return output_video.get('url', 'URL Not Found')
+
+async def extract_links(session, headers, course_id, folder_id=0):
+    try:
+        lectures = []
+        url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
+        output1 = await fetch_json(session, url, headers)
+        
+        tasks = []
+        for content in output1.get("data", {}).get("courseContent", []):
+            if content["contentType"] == 1:
+                tasks.append(extract_links(session, headers, course_id, content["id"]))
+            elif content["contentType"] == 2:
+                tasks.append(fetch_video_url(session, headers, content.get('contentHashId', '')))
+            elif content["contentType"] == 3:
+                lectures.append(f"{content['name']}: {content.get('url', 'URL Not Found')}")
+        
+        results = await asyncio.gather(*tasks)
+        for content, result in zip(output1.get("data", {}).get("courseContent", []), results):
+            if content["contentType"] == 2:
+                lectures.append(f"{content['name']}: {result}")
+            elif content["contentType"] == 1:
+                lectures.extend(result)
+
+        live_class_url = "https://api.classplusapp.com/v2/course/live/list/videos"
+        live_data = await fetch_json(session, live_class_url, headers, {"type": "2", "entityId": course_id, "limit": "", "offset": "0"})
+        
+        live_tasks = []
+        if "data" in live_data and "list" in live_data["data"]:
+            for item in live_data["data"]["list"]:
+                live_tasks.append(fetch_video_url(session, headers, item.get("contentHashId", "N/A")))
+
+            live_results = await asyncio.gather(*live_tasks)
+            for item, result in zip(live_data["data"]["list"], live_results):
+                lectures.append(f"{item.get('name', 'N/A')}: {result}")
+
+        return lectures
+    except Exception as e:
+        print(f"Error In Extract Links: {e}")
+        return []
+
+
+
+
+"""
 async def extract_links(session, headers, course_id, folder_id=0):
     try:
         lectures = []
@@ -125,7 +178,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
         print(f"Error In Extract Links: {e}")
         return []
     
-
+"""
 
 
 @app.on_message(filters.command("cp"))
