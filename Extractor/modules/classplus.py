@@ -68,7 +68,6 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 
 # ------------------------- Extracts-Login-Links ------------------------- #
 
-
 async def extract_links(session, headers, course_id, folder_id=0):
     try:
         lectures = []
@@ -84,20 +83,25 @@ async def extract_links(session, headers, course_id, folder_id=0):
             elif content["contentType"] == 2:
                 id = content.get('contentHashId', '')
                 print(f"hash ID: {id}")
-                response = await session.get(url='https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
+                response = await session.get(
+                    url='https://api.classplusapp.com/cams/uploader/video/jw-signed-url',
+                    headers=headers,
+                    params={'contentId': id}
+                )
                 output_video = await response.json()
-                lectures.append(f"{content['name']}: {output_video['url']}")               
+                video_url = output_video.get('url', 'URL Not Found')
+                lectures.append(f"{content['name']}: {video_url}")               
                 
             elif content["contentType"] == 3:
-                lectures.append(f"{content['name']}: {content['url']}")
-                print(f"{content['name']}: {content['url']}")
+                lectures.append(f"{content['name']}: {content.get('url', 'URL Not Found')}")
+                print(f"{content['name']}: {content.get('url', 'URL Not Found')}")
                 
-        live_class= "https://api.classplusapp.com/v2/course/live/list/videos"
+        live_class = "https://api.classplusapp.com/v2/course/live/list/videos"
         params = {
-          "type": "2",
-          "entityId": course_id,
-          "limit": "",
-          "offset": "0"
+            "type": "2",
+            "entityId": course_id,
+            "limit": "",
+            "offset": "0"
         }
         response = await session.get(live_class, headers=headers, params=params)
         data = await response.json()
@@ -107,11 +111,14 @@ async def extract_links(session, headers, course_id, folder_id=0):
                 video_id = item.get("id", "N/A")
                 name = item.get("name", "N/A")
                 content_hash_id = item.get("contentHashId", "N/A")
-                response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': content_hash_id})
+                response = await session.get(
+                    'https://api.classplusapp.com/cams/uploader/video/jw-signed-url',
+                    headers=headers,
+                    params={'contentId': content_hash_id}
+                )
                 output_video = await response.json()
-                lectures.append(f"{name}: {output_video['url']}")                                           
-        else:
-            pass
+                video_url = output_video.get('url', 'URL Not Found')
+                lectures.append(f"{name}: {video_url}")                                           
                   
         return lectures
     except Exception as e:
