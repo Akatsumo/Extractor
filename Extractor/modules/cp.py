@@ -8,7 +8,7 @@ from Extractor import app
 from pyrogram import filters, idle
 from subprocess import getstatusoutput
 import time
-from Extractor.core.more_func import get_time
+from Extractor.core.main_func import get_time
 
 
 api = 'https://api.classplusapp.com/v2'
