@@ -126,10 +126,7 @@ async def classplus_login(_, message):
     user_id = message.from_user.id
     async with aiohttp.ClientSession() as session:
         try:
-            msg = await message.reply_text(
-                "**🔑 For access, please transmit your OrgID & Phone in the correct sequence:**\n\n"
-                "🔒 **Send like this:** `OrgID*Phone`"
-            )
+            msg = await message.reply_text("**🔑 For access, please transmit your OrgID & Phone in the correct sequence:**\n\n🔒 **Send like this:** `OrgID*Phone`")
             input1 = await app.listen(user_id, timeout=30)
         except:
             return await message.reply_text("⏳ Timeout! Please try again.")
