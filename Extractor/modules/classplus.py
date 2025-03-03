@@ -81,8 +81,12 @@ async def fetch_video_url(session, headers, content_id):
 async def extract_links(session, headers, course_id, folder_id=0):
     try:
         lectures = []
-        url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
-        output1 = await fetch_json(session, url, headers)
+        params = {
+            "courseId": course_id,
+            "folderId": folder_id
+        }
+        url = "https://api.classplusapp.com/v2/course/content/get"
+        output1 = await fetch_json(session, url, headers, params)
         
         tasks = []
         for content in output1.get("data", {}).get("courseContent", []):
@@ -192,7 +196,7 @@ async def classplus_login(_, message):
             with open(file_name, "w") as f:
                 f.write("\n".join(lectures))
 
-            caption = (f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`")
+            caption = (f"**App Name** : `unknown`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`")
             me = await app.get_me()
             big_file_id = me.photo.big_file_id
             thumb = await asyncio.create_task(app.download_media(big_file_id))
