@@ -67,71 +67,6 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 
 
 # ------------------------- Extracts-Login-Links ------------------------- #
-"""
-def get_course_content(session, course_id, folder_id=0):
-        fetched_contents = ""
-
-        params = {
-            'courseId': course_id,
-            'folderId': folder_id,
-        }
-
-        res = session.get(f'{api}/course/content/get', params=params)
-
-        if res.status_code == 200:
-            res_json = res.json() 
-
-            contents = res_json.get('data', {}).get('courseContent', [])
-
-            for content in contents:
-                if content['contentType'] == 1:
-                    resources = content.get('resources', {})
-
-                    if resources.get('videos') or resources.get('files'):
-                        sub_contents = get_course_content(session, course_id, content['id'])
-                        fetched_contents += sub_contents
-                
-                elif content['contentType'] == 2:
-                    name = content.get('name', '')
-                    id = content.get('contentHashId', '')
-
-                    headers = {
-                        "Host": "api.classplusapp.com",
-                        "x-access-token": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJpZCI6OTIzNDIwMDUsIm9yZ0lkIjo1NDI0MjEsInR5cGUiOjEsIm1vYmlsZSI6IjkxODI5ODczMDAzNiIsIm5hbWUiOiJTdWRoYW5zaHUgSmhhIiwiZW1haWwiOiJzdWRoYW5zaHVqaGExNTFAZ21haWwuY29tIiwiaXNJbnRlcm5hdGlvbmFsIjowLCJkZWZhdWx0TGFuZ3VhZ2UiOiJFTiIsImNvdW50cnlDb2RlIjoiSU4iLCJjb3VudHJ5SVNPIjoiOTEiLCJ0aW1lem9uZSI6IkdNVCs1OjMwIiwiaXNEaXkiOnRydWUsIm9yZ0NvZGUiOiJ1Y3Z2YW8iLCJpc0RpeVN1YmFkbWluIjowLCJmaW5nZXJwcmludElkIjoiOGE5NTlhMGQ1Y2UyNjBkNzJhMDVhMzcxYTBhYzk5YmUiLCJpYXQiOjE3MDc0OTc2OTAsImV4cCI6MTcwODEwMjQ5MH0.68JhYbWAjf1B0a6hD4OGSmVhhH2WF97DX8DMJAfo5CkIwIVWABMugHN0Mz43LUoY",
-                        "User-Agent": "Mobile-Android",
-                        "Accept": "application/json, text/plain, */*",
-                        "Accept-Encoding": "gzip, deflate, br",
-                        "Accept-Language": "en",
-                        "Origin": "https://web.classplusapp.com",
-                        "Referer": "https://web.classplusapp.com/",
-                        "Region": "IN",
-                        "Sec-Ch-Ua": "\"Not A(Brand\";v=\"99\", \"Microsoft Edge\";v=\"121\", \"Chromium\";v=\"121\"",
-                        "Sec-Ch-Ua-Mobile": "?0",
-                        "Sec-Ch-Ua-Platform": "\"Windows\"",
-                        "Sec-Fetch-Dest": "empty",
-                        "Sec-Fetch-Mode": "cors",
-                        "Sec-Fetch-Site": "same-site",
-                    }
-
-                    params = {
-                        'contentId': id
-                    }
-
-                    r = requests.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params=params)
-                    url = r.json()['url']
-
-                    content = f'{name}:{url}\n'
-                    fetched_contents += content
-
-                else:
-                    name = content.get('name', '')
-                    url = content.get('url', '')
-                    content = f'{name}:{url}\n'
-                    fetched_contents += content
-
-        return fetched_contents
-
-"""
 
 
 async def extract_links(session, headers, course_id, folder_id=0):
@@ -140,22 +75,23 @@ async def extract_links(session, headers, course_id, folder_id=0):
         url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
         response1 = await session.get(url, headers=headers)
         output1 = json.loads(await response1.read())
-        print(f"output1: {output1}")
-        await asyncio.sleep(10)
+        
         for content in output1.get("data", {}).get("courseContent", []):
             print(f"content: {content}")
             await asyncio.sleep(10)
             if content["contentType"] == 1:
                 lectures.extend(await extract_links(session, headers, course_id, content["id"]))
+                
             elif content["contentType"] == 2:
                 id = content.get('contentHashId', '')
                 print(f"hash ID: {id}")
-                response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
+                response = await session.get(url='https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
                 output_video = await response.json()
                 lectures.append(f"{content['name']}: {output_video['url']}")               
                 
             elif content["contentType"] == 3:
                 lectures.append(f"{content['name']}: {content['url']}")
+                print(f"{content['name']}: {content['url']}")
                 
         live_class= "https://api.classplusapp.com/v2/course/live/list/videos"
         params = {
