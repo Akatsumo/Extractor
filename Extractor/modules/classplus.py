@@ -151,7 +151,7 @@ async def classplus_login(_, message):
             else:
                 token = input1.text.strip()
                 
-            await input.delete()
+            await input1.delete()
             url = "https://api.classplusapp.com/v2/courses?tabCategoryId=1&categoryId=[]&"
             headers = {
                 "accept": "application/json, text/plain, */*",
