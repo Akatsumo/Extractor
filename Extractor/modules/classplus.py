@@ -75,7 +75,8 @@ async def fetch_json(session, url, headers, params=None):
 
 async def fetch_video_url(session, headers, content_id):
     url = 'https://api.classplusapp.com/cams/uploader/video/jw-signed-url'
-    output_video = await fetch_json(session, url, headers, {'contentId': content_id})
+    output = await session.get(url, headers=headers, params={'contentId': content_id})
+    output_video = await output.json()
     return output_video.get('url', 'URL Not Found')
 
 async def extract_links(session, headers, course_id, folder_id=0):
