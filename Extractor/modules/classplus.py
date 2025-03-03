@@ -78,7 +78,6 @@ async def extract_links(session, headers, course_id, folder_id=0):
         
         for content in output1.get("data", {}).get("courseContent", []):
             print(f"content: {content}")
-            await asyncio.sleep(10)
             if content["contentType"] == 1:
                 lectures.extend(await extract_links(session, headers, course_id, content["id"]))
                 
