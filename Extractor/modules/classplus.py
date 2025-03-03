@@ -150,7 +150,8 @@ async def classplus_login(_, message):
                     return await msg.edit_text("bruh, i think you are dumped 🤔 ")
             else:
                 token = input1.text.strip()
-
+                
+            await input.delete()
             url = "https://api.classplusapp.com/v2/courses?tabCategoryId=1&categoryId=[]&"
             headers = {
                 "accept": "application/json, text/plain, */*",
@@ -194,15 +195,12 @@ async def classplus_login(_, message):
             with open(file_name, "w") as f:
                 f.write("\n".join(lectures))
 
-            caption = ("**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`")
+            caption = (f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`")
             me = await app.get_me()
             big_file_id = me.photo.big_file_id
             thumb = await asyncio.create_task(app.download_media(big_file_id))
 
-            await app.send_document(
-                chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb
-            )
-
+            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)           
             os.remove(file_name)
             await msg.delete()
             await message.reply_text(f"✅ **Done**\n\n✏️ **Token** : `{token}`")
