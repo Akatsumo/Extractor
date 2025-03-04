@@ -107,8 +107,8 @@ async def course_extract(session, api, headers, token, course_id):
                                 lectures.append(video_info)
                             elif pdf_info:
                                 lectures.append(pdf_info)
-                        else:
-                            lectures.append(title)
+                   #     else:
+                   #         lectures.append(title)
                     except Exception as e:
                         print(f"Error processing item {data}: {e}")
                         continue
@@ -279,8 +279,8 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                         lectures.append(video_info)
                     elif pdf_info:
                         lectures.append(pdf_info)
-                else:
-                    lectures.append(title)
+              #  else:
+              #      lectures.append(title)
             except Exception as e:
                 print(f"Error processing item {data}: {e}")
                 continue
