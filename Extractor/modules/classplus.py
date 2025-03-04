@@ -110,7 +110,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
                 response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': content_hash_id})
                 output_video = await response.json()
                 v_url = output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else "Not Found"          
-                lectures.append(f"name}: {v_url}")               
+                lectures.append(f"{name}: {v_url}")               
                                                            
         else:
             pass
