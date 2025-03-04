@@ -70,53 +70,48 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 
 async def fetch_json(session, url, headers, params=None):
     async with session.get(url, headers=headers, params=params) as response:
-        data = await response.read()
-        return json.loads(data)
+        return json.loads(await response.read())
+
 
 async def fetch_video_url(session, headers, content_id):
     url = 'https://api.classplusapp.com/cams/uploader/video/jw-signed-url'
-    output = await session.get(url, headers=headers, params={'contentId': content_id})
-    output_video = await output.json()
-    print(output_video)
-    if output_video.get('url', ''):
-        return output_video.get('url', '').split("m3u8")[0]
-    else:
-        return "Not Found"
+    async with session.get(url, headers=headers, params={'contentId': content_id}) as output:
+        output_video = await output.json()
+        return output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else "Not Found"
 
 async def extract_links(session, headers, course_id, folder_id=0):
     try:
         lectures = []
-        params = {
-            "courseId": course_id,
-            "folderId": folder_id
-        }
+        params = {"courseId": course_id, "folderId": folder_id}
         url = "https://api.classplusapp.com/v2/course/content/get"
         output1 = await fetch_json(session, url, headers, params)
         
-        tasks = []
+        folder_tasks = []
+        video_tasks = []
+        
         for content in output1.get("data", {}).get("courseContent", []):
             if content["contentType"] == 1:
-                tasks.append(extract_links(session, headers, course_id, content["id"]))
+                folder_tasks.append(extract_links(session, headers, course_id, content["id"]))
             elif content["contentType"] == 2:
-                tasks.append(fetch_video_url(session, headers, content.get('contentHashId', '')))
+                video_tasks.append(fetch_video_url(session, headers, content.get('contentHashId', '')))
             elif content["contentType"] == 3:
                 lectures.append(f"{content['name']}: {content.get('url', 'URL Not Found')}")
-        
-        results = await asyncio.gather(*tasks)
-        for content, result in zip(output1.get("data", {}).get("courseContent", []), results):
+
+        subfolders = await asyncio.gather(*folder_tasks) if folder_tasks else []
+        videos = await asyncio.gather(*video_tasks) if video_tasks else []
+
+        for content, video_url in zip(output1.get("data", {}).get("courseContent", []), videos):
             if content["contentType"] == 2:
-                lectures.append(f"{content['name']}: {result}")
-            elif content["contentType"] == 1:
-                lectures.extend(result)
+                lectures.append(f"{content['name']}: {video_url}")
+
+        for sublist in subfolders:
+            lectures.extend(sublist)
 
         live_class_url = "https://api.classplusapp.com/v2/course/live/list/videos"
         live_data = await fetch_json(session, live_class_url, headers, {"type": "2", "entityId": course_id, "limit": "", "offset": "0"})
-        
-        live_tasks = []
-        if "data" in live_data and "list" in live_data["data"]:
-            for item in live_data["data"]["list"]:
-                live_tasks.append(fetch_video_url(session, headers, item.get("contentHashId", "N/A")))
 
+        if "data" in live_data and "list" in live_data["data"]:
+            live_tasks = [fetch_video_url(session, headers, item.get("contentHashId", "N/A")) for item in live_data["data"]["list"]]
             live_results = await asyncio.gather(*live_tasks)
             for item, result in zip(live_data["data"]["list"], live_results):
                 lectures.append(f"{item.get('name', 'N/A')}: {result}")
