@@ -20,7 +20,7 @@ keyboard = InlineKeyboardMarkup([
 # --------------------------- Appex-V3 --------------------------- #
 
 
-"""
+
 async def course_extract(session, api, headers, token, course_id):
     try:        
         lectures = []  
@@ -113,100 +113,6 @@ async def course_extract(session, api, headers, token, course_id):
                         print(f"Error processing item {data}: {e}")
                         continue
                            
-        return lectures
-    except Exception as e:
-        print(f"Error in course content function: {e}")
-        return []
-"""
-
-
-async def fetch_json(session, url, headers):
-    async with session.get(url, headers=headers) as response:
-        return json.loads(await response.read())
-
-async def decrypt_value(value):
-    try:
-        return appx_decrypt(value.split(":")[0]) if value else None
-    except Exception as e:
-        print(f"Decryption error: {e}")
-        return None
-
-async def process_video(session, api, token, course_id, data):
-    url = f"https://{api}/get/fetchVideoDetailsById"
-    params = {
-        "course_id": course_id,
-        "video_id": data.get("id"),
-        "ytflag": data.get("ytFlag"),
-        "folder_wise_course": data.get("folder_wise_course")
-    }
-    video_headers = {
-        "Host": api,
-        "Authorization": token,
-        "Auth-Key": "appxapi",
-        "User-ID": "",
-        "User-Agent": "Mozilla/5.0 (Linux; Android 15; CPH2585) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.135 Mobile Safari/537.36"
-    }
-
-    output = await fetch_json(session, url, video_headers)
-    output_data = output.get("data", {})
-
-    if not output_data:
-        return None
-
-    title = output_data.get("Title", "Unknown Video")
-    encrypted_links = output_data.get("encrypted_links", [])
-
-    video_path, video_key = None, None
-    for link in encrypted_links:
-        if link.get("quality") == "720p":
-            video_path = await decrypt_value(link.get("path", ""))
-            video_key = await decrypt_value(link.get("key", ""))
-            break
-
-    pdf_link = await decrypt_value(output_data.get("pdf_link", ""))
-    pdf_key = await decrypt_value(output_data.get("pdf_encryption_key", ""))
-
-    video_info = f"{title}: {video_path}*{video_key}" if video_path and video_key else f"{title}: {video_path}" if video_path else ""
-    pdf_info = f"{title}: {pdf_link}*{pdf_key}" if pdf_link and pdf_key else f"{title}: {pdf_link}" if pdf_link else ""
-
-    return f"{video_info}\n{pdf_info}" if video_info and pdf_info else video_info or pdf_info
-
-
-
-
-async def course_extract(session, api, headers, token, course_id):
-    try:
-        lectures = []
-
-        subject_url = f"https://{api}/get/allsubjectfrmlivecourseclass?courseid={course_id}"
-        subject_output = (await fetch_json(session, subject_url, headers)).get("data", [])
-
-        tasks = []
-        for subject in subject_output:
-            topic_url = f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject['subjectid']}"
-            output_data = (await fetch_json(session, topic_url, headers)).get("data", [])
-
-            for data in output_data:
-                topic_id = data.get("topicid")
-                content_url = f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={topic_id}&start=-1&courseid={course_id}&subjectid={subject['subjectid']}"
-                output_topic = (await fetch_json(session, content_url, headers)).get("data", [])
-
-                for data in output_topic:
-                    title = data.get("Title", "Unknown Title")
-                    material_type = data.get("material_type", "")
-                    pdf_link = await decrypt_value(data.get("pdf_link", ""))
-                    pdf_key = await decrypt_value(data.get("pdf_encryption_key", ""))
-
-                    if material_type == "PDF" and pdf_link:
-                        lectures.append(f"{title}: {pdf_link}*{pdf_key}" if pdf_key else f"{title}: {pdf_link}")
-                    elif material_type == "VIDEO":
-                        tasks.append(process_video(session, api, token, course_id, data))
-                    else:
-                        lectures.append(title)
-
-        video_results = await asyncio.gather(*tasks)
-        lectures.extend(filter(None, video_results))
-
         return lectures
     except Exception as e:
         print(f"Error in course content function: {e}")
