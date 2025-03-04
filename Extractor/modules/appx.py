@@ -209,7 +209,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
     try:
         lectures = []
         response = await session.get(f"https://{api}/get/folder_contentsv2?course_id={course_id}&parent_id={parent_id}", headers=headers)
-        data_list = (await response.json()).get("data", [])
+        data_list = json.loads(await response.read()).get("data", [])
         
         for data in data_list:
             try:
