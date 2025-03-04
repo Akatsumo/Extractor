@@ -19,9 +19,7 @@ HELP_TEXT = """
 📝 <u>Notice : Most people won't be able to use certain commands because they are premium-only.</u>
 
 `/appx` : For Appx apps [Multi Purpose] [Free]
-`/cp` : For Classplus apps [Multi Purpose] [Free]
-`/utkarsh` : Single Purpose [Paid]
-`/khan` : Single Purpose [Paid]
+`/khan` : Single Purpose [Free]
 """
 
 
