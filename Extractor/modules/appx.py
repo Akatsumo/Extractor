@@ -380,13 +380,14 @@ async def appx_logins(_, message):
     input_msg = await app.listen(user_id=user_id)
     raw_text = input_msg.text
     await input_msg.delete(True)
+    
     def extract_parts(url):
-        match = re.search(r'(\w+?)(api)?\.classx\.co\.in', url)
-        if match:
-            name = match.group(1)
-            original_subdomain = match.group(0)
-            return name, original_subdomain
-        return None, None
+       match = re.search(r'(\w+?)(api)?\.(.+)$', url)
+       if match:
+           name = match.group(1)
+           original_subdomain = match.group(1) + (match.group(2) or '') + '.' + match.group(3)
+           return name, original_subdomain
+       return None, None
 
     name, api = extract_parts(raw_text)
     if not name or not api:
