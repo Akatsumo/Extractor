@@ -20,9 +20,8 @@ HELP_TEXT = """
 
 `/appx` : For Appx apps [Multi Purpose] [Free]
 `/cp` : For Classplus apps [Multi Purpose] [Free]
-`/pw` : Single Purpose [Paid]
-`/vision` : Single Purpose [Paid]
 `/utkarsh` : Single Purpose [Paid]
+`/khan` : Single Purpose [Paid]
 """
 
 
