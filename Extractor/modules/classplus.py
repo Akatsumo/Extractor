@@ -147,6 +147,8 @@ async def classplus_login(_, message):
                     input2 = await app.listen(user_id, timeout=30)
                     otp_code = input2.text.strip()
                     token = await verify_otp(session, otp_code, org_id, phone_no, sessionID)
+                    if not token:
+                        return await msg.edit_text("bruh are you stupid why you give me invalid otp.")                                           
                 else:
                     return await msg.edit_text("bruh, i think you are dumped 🤔 ")
             else:
