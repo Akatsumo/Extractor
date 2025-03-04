@@ -59,7 +59,7 @@ async def khan_login(_, message):
 
             msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
             try:
-                input1 = await app.listen(user_id, timeout=30)
+                input1 = await app.listen(user_id=user_id, timeout=30)
                 if "*" in input1.text:
                     phone, password = input1.text.split("*")
                     async with session.post(login_url, json={"phone": phone, "password": password}) as response:
@@ -97,7 +97,7 @@ async def khan_login(_, message):
 
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
 
-            input2 = await app.listen(user_id)
+            input2 = await app.listen(user_id=user_id)
             course_id = input2.text.strip()
             await input2.delete()
 
