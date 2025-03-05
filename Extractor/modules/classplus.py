@@ -37,7 +37,7 @@ async def otp_login(session, org_code, org_id, phone):
     
     response = await session.post(url, json=data)
     output = await response.json()
-    
+    print(output)
     if output.get("status") == "success":  
         sessionId = output["data"]["sessionId"]
         return sessionId  
