@@ -96,7 +96,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
             elif content["contentType"] == 2:
                 video_tasks.append(fetch_video_url(session, headers, content.get('contentHashId', '')))
             elif content["contentType"] == 3:
-                lectures.append(f"{content['name']}: {content.get('url', 'Pdf Not Found'}")
+                lectures.append(f"{content['name']}: {content.get('url', 'Pdf Not Found')}")
 
         subfolders = await asyncio.gather(*folder_tasks) if folder_tasks else []
         videos = await asyncio.gather(*video_tasks) if video_tasks else []
