@@ -381,21 +381,10 @@ async def appx_logins(_, message):
     raw_text = input_msg.text
     await input_msg.delete()
 
-    def extract_parts(url):
-        match = re.search(r'([\w\d]+?)(api)?\.(.+)$', url)
-        if match:
-            name = match.group(1)
-            original_subdomain = match.group(1) + (match.group(2) or '') + '.' + match.group(3)
-            return name, original_subdomain
-        return None, None
-
-    name, api = extract_parts(raw_text)
-    if not name or not api:
-        return await msg.edit_text("❌ **Invalid API URL! Please try again.**")
-
+    
     buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🌿 Appx V2", callback_data=f"appx_v2*{name}#{api}"), 
-         InlineKeyboardButton("🌴 Appx V3", callback_data=f"appx_v3*{name}#{api}")]
+        [InlineKeyboardButton("🌿 Appx V2", callback_data=f"appx_v2*{raw_text}"), 
+         InlineKeyboardButton("🌴 Appx V3", callback_data=f"appx_v3*{raw_text}")]
     ])    
 
     mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
