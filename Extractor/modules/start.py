@@ -1,3 +1,4 @@
+import re
 from Extractor import app
 from pyrogram import filters, enums
 from Extractor.core import script
@@ -59,7 +60,18 @@ async def handle_callback(_, query):
     elif query.data.startswith("appx"):
         data = query.data.split("_")[1]
         task = data.split("*")
-        name, api = task[1].split("#")
+        def extract_parts(url):
+            match = re.search(r'([\w\d]+?)(api)?\.(.+)$', url)
+            if match:
+                name = match.group(1)
+                original_subdomain = match.group(1) + (match.group(2) or '') + '.' + match.group(3)
+                return name, original_subdomain
+            return None, None
+
+        name, api = extract_parts(task[1])
+        if not name or not api:
+            return await query.message.edit_text("❌ **Invalid API URL! Please try again.**")
+
         if task[0] == "v2":
             await query.answer("waito...", show_alert=True)
             await appx.appex_v2_txt(app, query.message, user_id, api, name)
