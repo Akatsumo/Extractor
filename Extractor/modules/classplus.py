@@ -78,7 +78,7 @@ async def fetch_video_url(session, headers, content_id):
     url = 'https://api.classplusapp.com/cams/uploader/video/jw-signed-url'
     async with session.get(url, headers=headers, params={'contentId': content_id}) as output:
         output_video = await output.json()
-        return output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else "Not Found"
+        return output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else content_id
 
 async def extract_links(session, headers, course_id, folder_id=0):
     try:
@@ -96,7 +96,7 @@ async def extract_links(session, headers, course_id, folder_id=0):
             elif content["contentType"] == 2:
                 video_tasks.append(fetch_video_url(session, headers, content.get('contentHashId', '')))
             elif content["contentType"] == 3:
-                lectures.append(f"{content['name']}: {content.get('url', content["id"])}")
+                lectures.append(f"{content['name']}: {content.get('url', 'Pdf Not Found'}")
 
         subfolders = await asyncio.gather(*folder_tasks) if folder_tasks else []
         videos = await asyncio.gather(*video_tasks) if video_tasks else []
