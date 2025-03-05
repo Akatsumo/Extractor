@@ -68,7 +68,7 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 
 # ------------------------- Extracts-Login-Links ------------------------- #
 
-
+"""
 async def fetch_json(session, url, headers, params=None):
     async with session.get(url, headers=headers, params=params) as response:
         return json.loads(await response.read())
@@ -121,6 +121,36 @@ async def extract_links(session, headers, course_id, folder_id=0):
     except Exception as e:
         print(f"Error In Extract Links: {e}")
         return []
+
+"""
+
+async def extract_links(session, headers, course_id, folder_id=0):
+    try:
+        lectures = []
+        url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
+        response1 = await session.get(url, headers=headers)
+        output1 = json.loads(await response1.read())
+    
+        for content in output1.get("data", {}).get("courseContent", []):
+            print(f"content: {content}")
+            if content["contentType"] == 1:
+                lectures.extend(await extract_links(session, headers, course_id, content["id"]))
+            elif content["contentType"] == 2:
+                id = content.get('contentHashId', '')
+                print(f"hash ID: {id}")
+                response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
+                output_video = await response.json()
+                v_url = output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else "Not Found"          
+                lectures.append(f"{content['name']}: {v_url}")               
+                
+            elif content["contentType"] == 3:
+                lectures.append(f"{content['name']}: {content['url']}")
+                                          
+        return lectures
+    except Exception as e:
+        print(f"Error In Extract Links: {e}")
+        return []
+
 
 
 # ------------------------- Classplus-Command ------------------------- #
