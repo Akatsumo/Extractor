@@ -42,7 +42,7 @@ async def otp_login(session, org_code, org_id, phone):
         "mobile": phone
     }
     
-    response = await session.post(url, headers=headers json=data)
+    response = await session.post(url, headers=headers, json=data)
     output = await response.json()
   
     if output.get("status") == "success":  
