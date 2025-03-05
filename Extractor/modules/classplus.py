@@ -8,7 +8,22 @@ from Extractor import app
 from pyrogram import filters
 from Extractor.core.main_func import get_time
 
-
+headers = {
+    "Host": "api.classplusapp.com",
+    "User-Agent": "Mobile-Android",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en",
+    "Origin": "https://web.classplusapp.com",
+    "Referer": "https://web.classplusapp.com/",
+    "Region": "IN",
+    "Sec-Ch-Ua": "\"Not A(Brand\";v=\"99\", \"Microsoft Edge\";v=\"121\", \"Chromium\";v=\"121\"",
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": "\"Windows\"",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-site",
+}
 
 # ------------------------- Requirements ------------------------- #
 
@@ -35,7 +50,7 @@ async def otp_login(session, org_code, org_id, phone):
         "mobile": phone
     }
     
-    response = await session.post(url, json=data)
+    response = await session.post(url, json=data, headers=headers)
     output = await response.json()
     print(output)
     if output.get("status") == "success":  
@@ -57,7 +72,7 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
         "mobile": phone
     }
 
-    response = await session.post(url, json=data)
+    response = await session.post(url, json=data, headers=headers)
     output = await response.json()
     print(output)
     if output.get("status") == "success":  
