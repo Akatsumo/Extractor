@@ -9,20 +9,12 @@ from pyrogram import filters
 from Extractor.core.main_func import get_time
 
 headers = {
-    "Host": "api.classplusapp.com",
-    "User-Agent": "Mobile-Android",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en",
-    "Origin": "https://web.classplusapp.com",
-    "Referer": "https://web.classplusapp.com/",
-    "Region": "IN",
-    "Sec-Ch-Ua": "\"Not A(Brand\";v=\"99\", \"Microsoft Edge\";v=\"121\", \"Chromium\";v=\"121\"",
-    "Sec-Ch-Ua-Mobile": "?0",
-    "Sec-Ch-Ua-Platform": "\"Windows\"",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-site",
+    "authority": "api.classplusapp.com",
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en",
+    "api-version": "52",
+    "content-type": "application/json;charset=UTF-8",
+    "device-id": "1741200113343",
 }
 
 # ------------------------- Requirements ------------------------- #
@@ -50,9 +42,9 @@ async def otp_login(session, org_code, org_id, phone):
         "mobile": phone
     }
     
-    response = await session.post(url, json=data, headers=headers)
+    response = await session.post(url, headers=headers json=data)
     output = await response.json()
-    print(output)
+  
     if output.get("status") == "success":  
         sessionId = output["data"]["sessionId"]
         return sessionId  
@@ -72,9 +64,9 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
         "mobile": phone
     }
 
-    response = await session.post(url, json=data, headers=headers)
+    response = await session.post(url, headers=headers, json=data)
     output = await response.json()
-    print(output)
+ 
     if output.get("status") == "success":  
         return output.get("token")  
     else:
@@ -185,11 +177,10 @@ async def classplus_login(_, message):
                 org_code, phone_no = input1.text.split("*")
                 org_id, name = await classplus_org_id(org_code, session)
 
-                print(f"org id {org_id}")
+                
                 if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
                     sessionID = await otp_login(session, org_code, org_id, phone_no)
-                    print(sessionID)
-
+                    
                     await msg.edit_text("**📝 Now send your ClassPlus OTP**")
                     input2 = await app.listen(user_id, timeout=50)
                     otp_code = input2.text.strip()
