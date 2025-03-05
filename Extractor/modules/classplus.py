@@ -59,7 +59,7 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 
     response = await session.post(url, json=data)
     output = await response.json()
-
+    print(output)
     if output.get("status") == "success":  
         return output.get("token")  
     else:
@@ -172,6 +172,7 @@ async def classplus_login(_, message):
 
                 if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
                     sessionID = await otp_login(session, org_code, org_id, phone_no)
+                    print(sessionID)
 
                     await msg.edit_text("**📝 Now send your ClassPlus OTP**")
                     input2 = await app.listen(user_id, timeout=30)
