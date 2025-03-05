@@ -170,12 +170,13 @@ async def classplus_login(_, message):
                 org_code, phone_no = input1.text.split("*")
                 org_id, name = await classplus_org_id(org_code, session)
 
+                print(f"org id {org_id}")
                 if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
                     sessionID = await otp_login(session, org_code, org_id, phone_no)
                     print(sessionID)
 
                     await msg.edit_text("**📝 Now send your ClassPlus OTP**")
-                    input2 = await app.listen(user_id, timeout=30)
+                    input2 = await app.listen(user_id, timeout=50)
                     otp_code = input2.text.strip()
                     token = await verify_otp(session, otp_code, org_id, phone_no, sessionID)
                     if not token:
