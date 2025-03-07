@@ -179,14 +179,15 @@ async def utkarsh_login(_, message):
 
         headers['Referer'] = 'https://online.utkarsh.com/web/Profile/my_course'
     
-        response = await session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, headers=headers, data=data)            
-        respon = main_func.utkarsh_decrypt(json.loads(await response.text)["response"])
+        response = await session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, headers=headers, data=data) 
+        output = await response.text()
+        respon = main_func.utkarsh_decrypt(json.loads(output)["response"])
             
         FFF = "**BATCH ID   -   BATCH NAME**\n\n"
         for course in respon["data"].get("data"):
             FFF += f"**`{respon['id']}`   -   {respon['title']}**\n\n"
 
-        print(FFF)
+        print(respon)
         await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
         try:
             input2 = await app.listen(user_id, timeout=30)  
