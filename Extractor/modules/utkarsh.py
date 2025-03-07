@@ -195,7 +195,7 @@ async def utkarsh_login(_, message):
             return await message.reply_text("⏳ Timeout! Please try again.")
             
         batch_name = next(
-            (course["title"].replace("/", "") for course in respon["data"]["data"] if course["id"] == raw_text2), ""
+            (course["title"].replace("/", "") for course in decode_response["data"]["data"] if course["id"] == raw_text2), ""
         )
         
         combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
@@ -218,7 +218,6 @@ async def utkarsh_login(_, message):
         results = await asyncio.gather(*tasks)
         links = "".join(results)
 
-        batch_name = "test" 
         elapsed = main_func.get_time(time.time() - start_time)
         caption = f"**App Name** : `Utkarsh`\n\n**Batch Name** : `{batch_name}`\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
         
