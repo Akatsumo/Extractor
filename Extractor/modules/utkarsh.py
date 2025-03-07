@@ -108,6 +108,7 @@ async def process_uk(session, raw_text, token, ids):
                 decode_output3 = main_func.utkarsh_decrypt(output3["response"])
                 decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
 
+                print(decoded3)
                 for data in decoded3["data"]["list"]:
                     title = data["title"]
                     url = None
