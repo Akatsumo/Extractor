@@ -4,6 +4,7 @@ import time
 import json
 import asyncio
 import aiohttp
+import cloudscraper
 from Extractor import app
 from pyrogram import filters
 from Extractor.core.main_func import get_time
@@ -16,6 +17,8 @@ headers = {
     "content-type": "application/json;charset=UTF-8",
     "device-id": "1741200113343",
 }
+
+scraper = cloudscraper.create_scraper()
 
 # ------------------------- Requirements ------------------------- #
 
@@ -145,8 +148,8 @@ async def extract_links(session, headers, course_id, folder_id=0):
             elif content["contentType"] == 2:
                 id = content.get('contentHashId', '')
                 print(f"hash ID: {id}")
-                response = await session.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
-                output_video = await response.json()
+                response = scraper.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
+                output_video = response.json()
                 v_url = output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else "Not Found"          
                 lectures.append(f"{content['name']}: {v_url}")               
                 
