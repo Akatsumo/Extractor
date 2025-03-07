@@ -186,7 +186,7 @@ async def utkarsh_login(_, message):
         for course in respon["data"].get("data"):
             FFF += f"**`{respon['id']}`   -   {respon['title']}**\n\n"
 
-        
+        print(FFF)
         await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
         try:
             input2 = await app.listen(user_id, timeout=30)  
