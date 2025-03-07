@@ -179,7 +179,7 @@ async def utkarsh_login(_, message):
 
         headers['Referer'] = 'https://online.utkarsh.com/web/Profile/my_course'
     
-        response = session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, headers=headers, data=data)            
+        response = await session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, headers=headers, data=data)            
         respon = main_func.utkarsh_decrypt(json.loads(await response.text)["response"])
             
         FFF = "**BATCH ID   -   BATCH NAME**\n\n"
