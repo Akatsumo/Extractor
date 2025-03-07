@@ -17,6 +17,26 @@ v_count = 0
 p_count = 0
 
 
+headers = {
+    'Accept': 'application/json, text/javascript, */*; q=0.01',
+    'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    'Origin': 'https://online.utkarsh.com',
+    'Pragma': 'no-cache',
+    'Referer': '',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-origin',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'X-Requested-With': 'XMLHttpRequest',
+    'sec-ch-ua': '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+}
+
+
 
 async def process_uk(session, raw_text, token, ids):
     global v_count, p_count
@@ -157,9 +177,10 @@ async def utkarsh_login(_, message):
             
         data = {"type": "Paid", "csrf_name": token, "sort": "0"}
 
-        scraper = cloudscraper.create_scraper()
-        response = scraper.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, data=data)            
-        respon = main_func.utkarsh_decrypt(json.loads(response.text)["response"])
+        headers['Referer'] = 'https://online.utkarsh.com/web/Profile/my_course'
+    
+        response = session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, headers=headers, data=data)            
+        respon = main_func.utkarsh_decrypt(json.loads(await response.text)["response"])
             
         FFF = "**BATCH ID   -   BATCH NAME**\n\n"
         for course in respon["data"].get("data"):
