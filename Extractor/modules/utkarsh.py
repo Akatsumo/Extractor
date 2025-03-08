@@ -120,8 +120,8 @@ async def process_uk(session, raw_text, token, ids):
                           "layer": 4,
                           "page": 1,
                           "revert_api": "1#0#0#1",
-                          "subject_id": i,
-                          "tile_id": vid,
+                          "subject_id": vid,
+                          "tile_id": 0,
                           "topic_id": j,
                           "type": "content",
                          })
