@@ -199,7 +199,7 @@ async def adda_txt(_, message):
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
             for data in batch_data:
-                batch_list += f"`{data['id']}`  -   **{data['title']}**\n\n"
+                batch_list += f"`{data['packageId']}`  -   **{data['title']}**\n\n"
                 batch_map[data['id']] = data['title']
 
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
