@@ -108,7 +108,6 @@ async def process_uk(session, raw_text, token, ids):
                 decode_output3 = main_func.utkarsh_decrypt(output3["response"])
                 decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
 
-                print(decoded3)
                 for data in decoded3["data"]["list"]:
                     title = data["title"]
                     vid = data["id"]
@@ -121,8 +120,8 @@ async def process_uk(session, raw_text, token, ids):
                           "layer": 4,
                           "page": 1,
                           "revert_api": "1#0#0#1",
-                          "subject_id": vid,
-                          "tile_id": 0,
+                          "subject_id": i,
+                          "tile_id": vid,
                           "topic_id": j,
                           "type": "content",
                          })
