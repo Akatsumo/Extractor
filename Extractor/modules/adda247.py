@@ -105,7 +105,7 @@ async def course_extract(session, headers, course_id):
 
             print(f"2 {syllabus_output}")
             for syllabus in syllabus_output:
-                syllabus_id = syllabus.get('packageId')
+                syllabus_id = syllabus.get('id')
                 syllabus_level = syllabus.get('level')
 
                 params = {
@@ -123,11 +123,10 @@ async def course_extract(session, headers, course_id):
                     params=params
                 )
                 response_json = await response.json()
-                print(response_json)
                 subject_output = response_json.get('data', {}).get('syllabus', [])
                 print(f"3 {subject_output}")
                 for subject in subject_output:
-                    subject_id = subject.get('packageId')
+                    subject_id = subject.get('id')
                     subject_level = subject.get('level')
 
                     params = {
