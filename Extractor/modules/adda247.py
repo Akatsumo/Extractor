@@ -76,7 +76,7 @@ async def course_extract(session, headers, course_id):
             'src': 'aweb'
         }
 
-        response = await session.post(
+        response = await session.get(
             "https://store.adda247.com/api/v1/ppc/package/bookmark",
             headers=headers,
             params=params
@@ -95,7 +95,7 @@ async def course_extract(session, headers, course_id):
                 'src': 'aweb'
             }
 
-            response = await session.post(
+            response = await session.get(
                 "https://store.adda247.com/api/v1/syllabus/ppc/subjects",
                 headers=headers,
                 params=params
@@ -116,7 +116,7 @@ async def course_extract(session, headers, course_id):
                     'src': 'aweb'
                 }
 
-                response = await session.post(
+                response = await session.get(
                     "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter",
                     headers=headers,
                     params=params
@@ -139,7 +139,7 @@ async def course_extract(session, headers, course_id):
                         'src': 'aweb'
                     }
 
-                    response = await session.post(
+                    response = await session.get(
                         "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
                         headers=headers,
                         params=params
