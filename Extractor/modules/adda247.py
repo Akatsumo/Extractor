@@ -9,6 +9,9 @@ from pyrogram import filters
 from Extractor.core.main_func import get_time
 
 
+
+# ----------------------- CSRF Token ----------------------- #
+
 async def csrf_token(session):
   url = "https://userapi.adda247.com/csrf/token?src=aweb"
   response = await session.get(url)
@@ -106,6 +109,7 @@ async def course_extract(session, headers, course_id):
     
 
 
+# ----------------------- Course Extractor ----------------------- #
 
 async def course_extract(session, headers, course_id):
     lectures = []
@@ -208,9 +212,9 @@ async def course_extract(session, headers, course_id):
 
 
 
+# ----------------------- Adda-Command ----------------------- #
 
-
-@app.on_message(filters.command("/adda"))
+@app.on_message(filters.command("adda"))
 async def adda_txt(_, message):
     user_id = message.from_user.id
     try:
