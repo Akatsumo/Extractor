@@ -132,12 +132,12 @@ async def process_uk(session, raw_text, token, ids):
 
                        response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
                        output3 = json.loads(await response.text())         
-                      decode_output3 = main_func.utkarsh_decrypt(output3["response"])
-                      decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
-                      print(decoded3)
-                        for item in data.get("bitrate_urls", []):             
-                            if item["title"] == "720x1280.mp4" and item["url"]:
-                                lecture += f"{title}: {url}\n"
+                       decode_output3 = main_func.utkarsh_decrypt(output3["response"])
+                       decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
+                       print(decoded3)
+ #                       for item in data.get("bitrate_urls", []):             
+  #                          if item["title"] == "720x1280.mp4" and item["url"]:
+ #                               lecture += f"{title}: {url}\n"
                                 v_count += 1
                                                               
 
