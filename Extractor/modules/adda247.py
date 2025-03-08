@@ -46,30 +46,9 @@ headers = {
 
   
 # ----------------------- Course Extractor ----------------------- #
-
+"""
 async def course_extract(session, headers, course_id):
     lectures = []
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'content-type': 'application/json',
-        'cp-origin': '11',
-        'dname': 'Chrome on Windows Desktop',
-        'login_type': '1',
-        'origin': 'https://www.adda247.com',
-        'priority': 'u=1, i',
-        'referer': 'https://www.adda247.com/',
-        'sec-ch-ua': '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133")',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
-        'x-auth-token': 'fpoa43edty5',
-        'x-jwt-token': 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrdW1hcmFiaGlzaGVra3VtYXI0NTRAZ21haWwuY29tIiwiYXVkIjoiMjEyNzc5NDEiLCJpYXQiOjE3NDE0MjY0MjcsImlzcyI6ImFkZGEyNDcuY29tIiwibmFtZSI6IkFCSElTSEVLIEtVTUFSICIsImVtYWlsIjoia3VtYXJhYmhpc2hla2t1bWFyNDU0QGdtYWlsLmNvbSIsInBob25lIjoiOTE0MjY3ODA5OSIsInVzZXJJZCI6ImFkZGEudjEuMzQ3Zjk5ZmRlNTE5ZmVjOTNmZTFhZWIyZmEwNTc3ZjUiLCJpc01hc3RlckxvZ0luIjpmYWxzZSwibG9naW5BcGlWZXJzaW9uIjoyfQ.mOw-oAV4W9RpfhmkFgMXGWjNrqvhnLqbYb7JUWM7DhtiiSO_Ehu9FmnDaGRHSYUos0AbhmnJR_f-K_HanUA0pQ'  # Truncated for security
-    }
-
     try:
         params = {
             'purchasedPackage': course_id,
@@ -164,7 +143,99 @@ async def course_extract(session, headers, course_id):
 
     return lectures
 
+"""
+import asyncio
 
+async def fetch(session, url, headers, params):
+    try:
+        async with session.get(url, headers=headers, params=params) as response:
+            return await response.json()
+    except Exception as e:
+        print(f"Request failed for {url}: {e}")
+        return {}
+
+async def course_extract(session, headers, course_id):
+    lectures = []
+    try:
+        package_url = "https://store.adda247.com/api/v1/ppc/package/bookmark"
+        package_params = {'purchasedPackage': course_id, 'src': 'aweb'}
+        package_response = await fetch(session, package_url, headers, package_params)
+        packages = package_response.get("data", {}).get("bookmarkedPackages", [])
+
+        tasks = []
+        for package in packages:
+            package_id = package.get('packageId')
+            syllabus_url = "https://store.adda247.com/api/v1/syllabus/ppc/subjects"
+            syllabus_params = {
+                'packageId': package_id,
+                'contentType': 'ONLINE_LIVE_CLASSES',
+                'pageNo': 0,
+                'src': 'aweb'
+            }
+            tasks.append(fetch(session, syllabus_url, headers, syllabus_params))
+
+        syllabus_results = await asyncio.gather(*tasks)
+
+        tasks = []
+        for package, syllabus_response in zip(packages, syllabus_results):
+            package_id = package.get('packageId')
+            syllabus_list = syllabus_response.get('data', {}).get('syllabus', [])
+
+            for syllabus in syllabus_list:
+                syllabus_id = syllabus.get('id')
+                syllabus_level = syllabus.get('level')
+                subject_url = "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter"
+                subject_params = {
+                    'packageId': package_id,
+                    'contentType': 'ONLINE_LIVE_CLASSES',
+                    'syllabusId': syllabus_id,
+                    'level': syllabus_level,
+                    'pageNo': 0,
+                    'src': 'aweb'
+                }
+                tasks.append(fetch(session, subject_url, headers, subject_params))
+
+        subject_results = await asyncio.gather(*tasks)
+
+        tasks = []
+        for package, subject_response in zip(packages, subject_results):
+            package_id = package.get('packageId')
+            subjects_list = subject_response.get('data', {}).get('syllabus', [])
+
+            for subject in subjects_list:
+                subject_id = subject.get('id')
+                subject_level = subject.get('level')
+                lecture_url = "https://liveclasses.adda247.com/api/v1/ppc/OLC/content"
+                lecture_params = {
+                    'contentType': 'ONLINE_LIVE_CLASSES',
+                    'packageId': package_id,
+                    'level': subject_level,
+                    'syllabusId': subject_id,
+                    'pageNo': 0,
+                    'pageSize': 20,
+                    'status': 1,
+                    'src': 'aweb'
+                }
+                tasks.append(fetch(session, lecture_url, headers, lecture_params))
+
+        lecture_results = await asyncio.gather(*tasks)
+
+        for lecture_response in lecture_results:
+            contents = lecture_response.get('data', {}).get('content', [])
+            for content in contents:
+                name = content.get('name', 'Unknown')
+                url = content.get('url', 'No URL')
+                lectures.append(f"{name}: {url}")
+
+                pdf_file_id = content.get('pdfFileName')
+                if pdf_file_id:
+                    lectures.append(f"{name}: https://store.adda247.com/{pdf_file_id}")
+
+    except Exception as e:
+        print(f"Error In Course Extract: {e}")
+
+    return lectures
+  
 
 
 
