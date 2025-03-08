@@ -220,7 +220,7 @@ async def adda_txt(_, message):
             with open(file_name, "w") as f:
                 f.write("\n".join(lectures))
 
-            caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
+            caption = f"**App Name** : `ADDA 247`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
             me = await app.get_me()
             big_file_id = me.photo.big_file_id
             thumb = await asyncio.create_task(app.download_media(big_file_id))
