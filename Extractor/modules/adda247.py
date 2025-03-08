@@ -123,6 +123,7 @@ async def course_extract(session, headers, course_id):
                     params=params
                 )
                 response_json = await response.json()
+                print(response_json)
                 subject_output = response_json.get('data', {}).get('syllabus', [])
                 print(f"3 {subject_output}")
                 for subject in subject_output:
