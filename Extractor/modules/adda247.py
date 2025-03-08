@@ -44,71 +44,7 @@ headers = {
     "x-jwt-token": ""
 }
 
-"""
-async def course_extract(session, headers, course_id):
-  lectures []
   
-  params = {
-    'purchasedPackage': course_id,
-    'src': 'aweb'
-  })
-  response = await session.post("https://store.adda247.com/api/v1/ppc/package/bookmark", headers=headers, params=params) 
-  package_output = await response.json()['data']['bookmarkedPackages']
-  for package in package_output:
-    package_id = package.get('packageId')
-    title = package.get('title')
-    
-    params = {
-     'packageId': package_id,
-     'contentType': 'ONLINE_LIVE_CLASSES',
-     'pageNo': 0,
-     'src': 'aweb'
-    }
-    response = await session.post("https://store.adda247.com/api/v1/syllabus/ppc/subjects", headers=headers, params=params) 
-    syallbus_output = await response.json()['data']['syllabus']
-    for syallbus in syallbus_output:
-      syallbus_id = syallbus.get('packageId')
-      syallbus_level = syallbus.get('level')
-
-      params = {
-       'packageId': package_id,
-       'contentType': 'ONLINE_LIVE_CLASSES',
-       'syllabusId': syallbus_id,
-       'level': syallbus_level,
-       'pageNo': 0,
-       'src': 'aweb'
-      }
-      response = await session.post("https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter", headers=headers, params=params) 
-      subject_output = await response.json()['data']['syllabus']
-      for subject in subject_output:
-        subject_id = subject.get('packageId')
-        subject_level = subject.get('level')
-        
-        params = {
-          'contentType': 'ONLINE_LIVE_CLASSES',
-          'packageId': package_id,
-          'level': subject_level,
-          'syllabusId': subject_id,
-          'pageNo': 0,
-          'pageSize': 20,
-          'status': 1,
-          'src': 'aweb'
-        }
-        response = await session.post("https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers=headers, params=params) 
-        content_output = await response.json()['data']['content']
-        for content in content_output:
-          name = content.get('name')
-          url = content.get('url')
-          pdf_file_id = content.get('pdfFileName')
-          lectures += f"{name}: {url}\n"
-          if pdf_file_id:
-            lectures += f"{name}: https://store.adda247.com/{pdf_file_id[0]}\n"
-  return lectures
-    
- """   
-    
-
-
 # ----------------------- Course Extractor ----------------------- #
 
 async def course_extract(session, headers, course_id):
@@ -221,6 +157,7 @@ async def adda_txt(_, message):
         async with aiohttp.ClientSession() as session:
             login_url = "https://userapi.adda247.com/v2/login?src=aweb"
             crf_token = await csrf_token(session)
+            print(crf_token)
             headers.update({"x-csrf-token": crf_token})
             
             msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
@@ -229,6 +166,7 @@ async def adda_txt(_, message):
                 if "*" in input1.text:
                     email, password = input1.text.split("*")
                     response = await session.post(login_url, data = {"email": email, "providerName": "email", "sec": password}, headers=headers)
+                    print(response.json())
                     if response.status != 200:
                         return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
