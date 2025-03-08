@@ -49,6 +49,26 @@ headers = {
 
 async def course_extract(session, headers, course_id):
     lectures = []
+    headers = {
+        'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9',
+        'content-type': 'application/json',
+        'cp-origin': '11',
+        'dname': 'Chrome on Windows Desktop',
+        'login_type': '1',
+        'origin': 'https://www.adda247.com',
+        'priority': 'u=1, i',
+        'referer': 'https://www.adda247.com/',
+        'sec-ch-ua': '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133")',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+        'x-auth-token': 'fpoa43edty5',
+        'x-jwt-token': 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrdW1hcmFiaGlzaGVra3VtYXI0NTRAZ21haWwuY29tIiwiYXVkIjoiMjEyNzc5NDEiLCJpYXQiOjE3NDE0MjY0MjcsImlzcyI6ImFkZGEyNDcuY29tIiwibmFtZSI6IkFCSElTSEVLIEtVTUFSICIsImVtYWlsIjoia3VtYXJhYmhpc2hla2t1bWFyNDU0QGdtYWlsLmNvbSIsInBob25lIjoiOTE0MjY3ODA5OSIsInVzZXJJZCI6ImFkZGEudjEuMzQ3Zjk5ZmRlNTE5ZmVjOTNmZTFhZWIyZmEwNTc3ZjUiLCJpc01hc3RlckxvZ0luIjpmYWxzZSwibG9naW5BcGlWZXJzaW9uIjoyfQ.mOw-oAV4W9RpfhmkFgMXGWjNrqvhnLqbYb7JUWM7DhtiiSO_Ehu9FmnDaGRHSYUos0AbhmnJR_f-K_HanUA0pQ'  # Truncated for security
+    }
 
     try:
         params = {
@@ -61,7 +81,7 @@ async def course_extract(session, headers, course_id):
             headers=headers,
             params=params
         )
-        package_output = await response.json() #["data"]["bookmarkedPackages"]
+        package_output = (await response.json())["data"]["bookmarkedPackages"]
 
         print(package_output)
         for package in package_output:
