@@ -61,10 +61,9 @@ async def course_extract(session, headers, course_id):
             headers=headers,
             params=params
         )
-        response_json = await response.json()
+        package_output = (await response.json())["data"]["bookmarkedPackages"]
 
-        package_output = response_json.get('data', {}).get('bookmarkedPackages', [])
-        
+        print(package_output)
         for package in package_output:
             package_id = package.get('packageId')
             title = package.get('title')
