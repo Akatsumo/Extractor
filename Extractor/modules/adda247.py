@@ -145,8 +145,6 @@ async def course_extract(session, headers, course_id):
 
 """
 
-import asyncio
-
 async def fetch_data(session, url, headers, params):
     try:
         async with session.get(url, headers=headers, params=params) as response:
@@ -168,12 +166,12 @@ async def course_extract(session, headers, course_id):
 
         packages = package_response.get("data", {}).get("bookmarkedPackages", [])
 
-        tasks = [fetch_data(session, "https://store.adda247.com/api/v1/syllabus/ppc/subjects", headers, {
+        tasks = [asyncio.create_task(fetch_data(session, "https://store.adda247.com/api/v1/syllabus/ppc/subjects", headers, {
             'packageId': package.get('packageId'),
             'contentType': 'ONLINE_LIVE_CLASSES',
             'pageNo': 0,
             'src': 'aweb'
-        }) for package in packages]
+        })) for package in packages]
 
         syllabus_results = await asyncio.gather(*tasks)
 
@@ -186,14 +184,14 @@ async def course_extract(session, headers, course_id):
             syllabus_list = syllabus_response.get('data', {}).get('syllabus', [])
 
             for syllabus in syllabus_list:
-                tasks.append(fetch_data(session, "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter", headers, {
+                tasks.append(asyncio.create_task(fetch_data(session, "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter", headers, {
                     'packageId': package_id,
                     'contentType': 'ONLINE_LIVE_CLASSES',
                     'syllabusId': syllabus.get('id'),
                     'level': syllabus.get('level'),
                     'pageNo': 0,
                     'src': 'aweb'
-                }))
+                })))
 
         subject_results = await asyncio.gather(*tasks)
 
@@ -206,7 +204,7 @@ async def course_extract(session, headers, course_id):
             subjects_list = subject_response.get('data', {}).get('syllabus', [])
 
             for subject in subjects_list:
-                tasks.append(fetch_data(session, "https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers, {
+                tasks.append(asyncio.create_task(fetch_data(session, "https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers, {
                     'contentType': 'ONLINE_LIVE_CLASSES',
                     'packageId': package_id,
                     'level': subject.get('level'),
@@ -215,7 +213,7 @@ async def course_extract(session, headers, course_id):
                     'pageSize': 20,
                     'status': 1,
                     'src': 'aweb'
-                }))
+                })))
 
         lecture_results = await asyncio.gather(*tasks)
 
@@ -237,7 +235,6 @@ async def course_extract(session, headers, course_id):
         print(f"Error In Course Extract: {e}")
 
     return lectures
-  
 
 
 
