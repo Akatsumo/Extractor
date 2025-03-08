@@ -115,7 +115,7 @@ async def process_uk(session, raw_text, token, ids):
                     url = None
                     if data.get("bitrate_urls", []):
                          f_text = json.dumps(
-                        {
+                         {
                           "course_id": id,
                           "parent_id": raw_text,
                           "layer": 4,
@@ -125,16 +125,16 @@ async def process_uk(session, raw_text, token, ids):
                           "tile_id": 0,
                           "topic_id": j,
                           "type": "content",
-                        })
+                         })
                 
-                       course_id3 = main_func.encode_base64(f_text)
-                       data = {"layer_two_input_data": course_id3, "content": "content", "csrf_name": token}
+                         course_id3 = main_func.encode_base64(f_text)
+                         data = {"layer_two_input_data": course_id3, "content": "content", "csrf_name": token}
 
-                       response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
-                       output3 = json.loads(await response.text())         
-                       decode_output3 = main_func.utkarsh_decrypt(output3["response"])
-                       decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
-                       print(decoded3)
+                         response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
+                         output3 = json.loads(await response.text())         
+                         decode_output3 = main_func.utkarsh_decrypt(output3["response"])
+                         decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
+                         print(decoded3)
  #                       for item in data.get("bitrate_urls", []):             
   #                          if item["title"] == "720x1280.mp4" and item["url"]:
  #                               lecture += f"{title}: {url}\n"
