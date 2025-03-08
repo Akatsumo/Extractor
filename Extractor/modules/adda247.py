@@ -165,11 +165,10 @@ async def adda_txt(_, message):
                 input1 = await app.listen(user_id=user_id, timeout=30)
                 if "*" in input1.text:
                     email, password = input1.text.split("*")
-                    print(email)
                     response = await session.post(login_url, data = {"email": email, "providerName": "email", "sec": password}, headers=headers)
                     
-                    if response.status != 200:
-                       return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+                    #if response.status != 200:
+                    #   return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
                     output = await response.json()
                     print(output)
