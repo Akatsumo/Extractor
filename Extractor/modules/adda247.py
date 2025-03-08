@@ -166,11 +166,12 @@ async def adda_txt(_, message):
                 if "*" in input1.text:
                     email, password = input1.text.split("*")
                     response = await session.post(login_url, data = {"email": email, "providerName": "email", "sec": password}, headers=headers)
-                    print(response.json())
-                    if response.status != 200:
-                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+                    
+            #        if response.status != 200:
+           #            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
                     output = await response.json()
+                    print(output)
                     login_token = output["data"]
                     token = output["jwtToken"] if output["jwtToken"] else "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrdW1hcmFiaGlzaGVra3VtYXI0NTRAZ21haWwuY29tIiwiYXVkIjoiMjEyNzc5NDEiLCJpYXQiOjE3NDE0MjY0MjcsImlzcyI6ImFkZGEyNDcuY29tIiwibmFtZSI6IkFCSElTSEVLIEtVTUFSICIsImVtYWlsIjoia3VtYXJhYmhpc2hla2t1bWFyNDU0QGdtYWlsLmNvbSIsInBob25lIjoiOTE0MjY3ODA5OSIsInVzZXJJZCI6ImFkZGEudjEuMzQ3Zjk5ZmRlNTE5ZmVjOTNmZTFhZWIyZmEwNTc3ZjUiLCJpc01hc3RlckxvZ0luIjpmYWxzZSwibG9naW5BcGlWZXJzaW9uIjoyfQ.mOw-oAV4W9RpfhmkFgMXGWjNrqvhnLqbYb7JUWM7DhtiiSO_Ehu9FmnDaGRHSYUos0AbhmnJR_f-K_HanUA0pQ"
                     headers.update({"login_token": login_token})      
