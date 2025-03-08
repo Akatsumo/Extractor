@@ -98,7 +98,7 @@ async def course_extract(session, headers, course_id):
           pdf_file_id = content.get('pdfFileName')
           lectures += f"{name}: {url}\n"
           if pdf_file_id:
-            lectures += f"{name}: {pdf_file_id[0]}\n"
+            lectures += f"{name}: https://store.adda247.com/{pdf_file_id[0]}\n"
   return lectures
     
     
