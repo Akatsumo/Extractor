@@ -61,7 +61,7 @@ async def course_extract(session, headers, course_id):
             headers=headers,
             params=params
         )
-        package_output = (await response.json())["data"]["bookmarkedPackages"]
+        package_output = await response.json() #["data"]["bookmarkedPackages"]
 
         print(package_output)
         for package in package_output:
