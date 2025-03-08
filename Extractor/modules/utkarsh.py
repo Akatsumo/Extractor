@@ -138,7 +138,7 @@ async def process_uk(session, raw_text, token, ids):
  #                       for item in data.get("bitrate_urls", []):             
   #                          if item["title"] == "720x1280.mp4" and item["url"]:
  #                               lecture += f"{title}: {url}\n"
-                                v_count += 1
+#                                v_count += 1
                                                               
 
                     if data.get("file_type") == "1":
