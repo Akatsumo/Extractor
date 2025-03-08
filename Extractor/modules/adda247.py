@@ -200,7 +200,7 @@ async def adda_txt(_, message):
             batch_map = {}
             for data in batch_data:
                 batch_list += f"`{data['packageId']}`  -   **{data['title']}**\n\n"
-                batch_map[data['id']] = data['title']
+                batch_map[data['packageId']] = data['title']
 
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
             input2 = await app.listen(user_id=user_id)
