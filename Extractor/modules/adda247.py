@@ -46,7 +46,7 @@ headers = {
 
   
 # ----------------------- Course Extractor ----------------------- #
-"""
+
 async def course_extract(session, headers, course_id):
     lectures = []
     try:
@@ -142,100 +142,6 @@ async def course_extract(session, headers, course_id):
         print(f"Error In Course Extract: {e}")
 
     return lectures
-
-"""
-
-async def fetch_data(session, url, headers, params):
-    try:
-        async with session.get(url, headers=headers, params=params) as response:
-            return await response.json()
-    except Exception as e:
-        print(f"Request failed for {url}: {e}")
-        return None
-
-async def course_extract(session, headers, course_id):
-    lectures = []
-    try:
-        package_url = "https://store.adda247.com/api/v1/ppc/package/bookmark"
-        package_params = {'purchasedPackage': course_id, 'src': 'aweb'}
-        package_response = await fetch_data(session, package_url, headers, package_params)
-
-        if not package_response or "data" not in package_response:
-            print("No package data found.")
-            return lectures
-
-        packages = package_response.get("data", {}).get("bookmarkedPackages", [])
-
-        tasks = [asyncio.create_task(fetch_data(session, "https://store.adda247.com/api/v1/syllabus/ppc/subjects", headers, {
-            'packageId': package.get('packageId'),
-            'contentType': 'ONLINE_LIVE_CLASSES',
-            'pageNo': 0,
-            'src': 'aweb'
-        })) for package in packages]
-
-        syllabus_results = await asyncio.gather(*tasks)
-
-        tasks = []
-        for package, syllabus_response in zip(packages, syllabus_results):
-            if not syllabus_response or "data" not in syllabus_response:
-                continue
-
-            package_id = package.get('packageId')
-            syllabus_list = syllabus_response.get('data', {}).get('syllabus', [])
-
-            for syllabus in syllabus_list:
-                tasks.append(asyncio.create_task(fetch_data(session, "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter", headers, {
-                    'packageId': package_id,
-                    'contentType': 'ONLINE_LIVE_CLASSES',
-                    'syllabusId': syllabus.get('id'),
-                    'level': syllabus.get('level'),
-                    'pageNo': 0,
-                    'src': 'aweb'
-                })))
-
-        subject_results = await asyncio.gather(*tasks)
-
-        tasks = []
-        for package, subject_response in zip(packages, subject_results):
-            if not subject_response or "data" not in subject_response:
-                continue
-
-            package_id = package.get('packageId')
-            subjects_list = subject_response.get('data', {}).get('syllabus', [])
-
-            for subject in subjects_list:
-                tasks.append(asyncio.create_task(fetch_data(session, "https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers, {
-                    'contentType': 'ONLINE_LIVE_CLASSES',
-                    'packageId': package_id,
-                    'level': subject.get('level'),
-                    'syllabusId': subject.get('id'),
-                    'pageNo': 0,
-                    'pageSize': 20,
-                    'status': 1,
-                    'src': 'aweb'
-                })))
-
-        lecture_results = await asyncio.gather(*tasks)
-
-        for lecture_response in lecture_results:
-            if not lecture_response or "data" not in lecture_response:
-                continue
-
-            contents = lecture_response.get('data', {}).get('content', [])
-            for content in contents:
-                name = content.get('name', 'Unknown')
-                url = content.get('url', 'No URL')
-                lectures.append(f"{name}: {url}")
-
-                pdf_file_id = content.get('pdfFileName')
-                if pdf_file_id:
-                    lectures.append(f"{name}: https://store.adda247.com/{pdf_file_id[0]}")
-
-    except Exception as e:
-        print(f"Error In Course Extract: {e}")
-
-    return lectures
-
 
 
 
