@@ -41,6 +41,7 @@ headers = {
     "x-jwt-token": ""
 }
 
+"""
 async def course_extract(session, headers, course_id):
   lectures []
   
@@ -101,10 +102,110 @@ async def course_extract(session, headers, course_id):
             lectures += f"{name}: https://store.adda247.com/{pdf_file_id[0]}\n"
   return lectures
     
-    
+ """   
     
 
-            
+
+
+async def course_extract(session, headers, course_id):
+    lectures = []
+
+    try:
+        params = {
+            'purchasedPackage': course_id,
+            'src': 'aweb'
+        }
+
+        response = await session.post(
+            "https://store.adda247.com/api/v1/ppc/package/bookmark",
+            headers=headers,
+            params=params
+        )
+        response_json = await response.json()
+
+        package_output = response_json.get('data', {}).get('bookmarkedPackages', [])
+        
+        for package in package_output:
+            package_id = package.get('packageId')
+            title = package.get('title')
+
+            params = {
+                'packageId': package_id,
+                'contentType': 'ONLINE_LIVE_CLASSES',
+                'pageNo': 0,
+                'src': 'aweb'
+            }
+
+            response = await session.post(
+                "https://store.adda247.com/api/v1/syllabus/ppc/subjects",
+                headers=headers,
+                params=params
+            )
+            response_json = await response.json()
+            syllabus_output = response_json.get('data', {}).get('syllabus', [])
+
+            for syllabus in syllabus_output:
+                syllabus_id = syllabus.get('packageId')
+                syllabus_level = syllabus.get('level')
+
+                params = {
+                    'packageId': package_id,
+                    'contentType': 'ONLINE_LIVE_CLASSES',
+                    'syllabusId': syllabus_id,
+                    'level': syllabus_level,
+                    'pageNo': 0,
+                    'src': 'aweb'
+                }
+
+                response = await session.post(
+                    "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter",
+                    headers=headers,
+                    params=params
+                )
+                response_json = await response.json()
+                subject_output = response_json.get('data', {}).get('syllabus', [])
+
+                for subject in subject_output:
+                    subject_id = subject.get('packageId')
+                    subject_level = subject.get('level')
+
+                    params = {
+                        'contentType': 'ONLINE_LIVE_CLASSES',
+                        'packageId': package_id,
+                        'level': subject_level,
+                        'syllabusId': subject_id,
+                        'pageNo': 0,
+                        'pageSize': 20,
+                        'status': 1,
+                        'src': 'aweb'
+                    }
+
+                    response = await session.post(
+                        "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
+                        headers=headers,
+                        params=params
+                    )
+                    response_json = await response.json()
+                    content_output = response_json.get('data', {}).get('content', [])
+
+                    for content in content_output:
+                        name = content.get('name', 'Unknown')
+                        url = content.get('url', 'No URL')
+
+                        lectures.append(f"{name}: {url}")
+
+                        pdf_file_id = content.get('pdfFileName')
+                        if pdf_file_id:
+                            lectures.append(f"{name}: https://store.adda247.com/{pdf_file_id[0]}")
+
+    except Exception as e:
+        print(f"Error In Course Extract: {e}")
+
+    return lectures
+
+
+
+
 
 
 
