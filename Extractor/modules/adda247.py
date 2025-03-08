@@ -83,7 +83,7 @@ async def course_extract(session, headers, course_id):
         )
         package_output = (await response.json())["data"]["bookmarkedPackages"]
 
-        print(package_output)
+        print(f"1 {package_output}")
         for package in package_output:
             package_id = package.get('packageId')
             title = package.get('title')
@@ -103,6 +103,7 @@ async def course_extract(session, headers, course_id):
             response_json = await response.json()
             syllabus_output = response_json.get('data', {}).get('syllabus', [])
 
+            print(f"2 {syllabus_output}")
             for syllabus in syllabus_output:
                 syllabus_id = syllabus.get('packageId')
                 syllabus_level = syllabus.get('level')
@@ -123,7 +124,7 @@ async def course_extract(session, headers, course_id):
                 )
                 response_json = await response.json()
                 subject_output = response_json.get('data', {}).get('syllabus', [])
-
+                print(f"3 {subject_output}")
                 for subject in subject_output:
                     subject_id = subject.get('packageId')
                     subject_level = subject.get('level')
@@ -147,6 +148,7 @@ async def course_extract(session, headers, course_id):
                     response_json = await response.json()
                     content_output = response_json.get('data', {}).get('content', [])
 
+                    print(f"4 {content_output}")
                     for content in content_output:
                         name = content.get('name', 'Unknown')
                         url = content.get('url', 'No URL')
