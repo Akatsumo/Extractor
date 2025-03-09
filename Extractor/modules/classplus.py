@@ -8,6 +8,28 @@ import cloudscraper
 from Extractor import app
 from pyrogram import filters
 from Extractor.core.main_func import get_time
+import hashlib
+import platform
+import uuid
+
+
+def get_system_fingerprint():
+    system_info = {
+        "system": platform.system(),
+        "node": platform.node(),
+        "release": platform.release(),
+        "version": platform.version(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "uuid": str(uuid.getnode())  # Unique hardware-based ID
+    }
+    
+    fingerprint_string = "_".join(system_info.values())
+    fingerprint_hash = hashlib.sha256(fingerprint_string.encode()).hexdigest()
+    
+    return fingerprint_hash
+
+
 
 headers = {
     "authority": "api.classplusapp.com",
@@ -63,7 +85,7 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
         "countryExt": "91",
         "sessionId": sessionID,
         "orgId": org_id,
-        "fingerprintId": "",
+        "fingerprintId": get_system_fingerprint(),
         "mobile": phone
     }
 
