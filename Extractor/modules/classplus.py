@@ -91,6 +91,7 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
 
     response = await session.post(url, headers=headers, json=data)
     output = await response.json()
+    print(output)
  
     if output.get("status") == "success":  
         return output.get("token")  
