@@ -264,7 +264,7 @@ async def adda_txt(_, message):
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
             start_time = time.time()
-            lectures = await asyncio.create_task(course_extract(session, headers, course_id))                                   
+            lectures = await asyncio.create_task(course_extract(session, headers, course_id) if batch_data["mahaPack"] else direct_links(session, headers, course_id))                                   
             end_time = time.time()
             duration_seconds = end_time - start_time
             elapsed = get_time(duration_seconds)
