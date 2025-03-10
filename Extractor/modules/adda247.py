@@ -251,17 +251,16 @@ async def adda_txt(_, message):
             batch_data = (await response.json())["data"]
             
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
-            batch_map = {}
             for data in batch_data:
                 batch_list += f"`{data['packageId']}`  -   **{data['title']}**\n\n"
-                batch_map[data['packageId']] = data['title']
+                
 
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
             input2 = await app.listen(user_id=user_id)
             course_id = input2.text.strip()
             await input2.delete()
-
-            batch_name = batch_map.get(course_id, "Unknown Batch")
+            
+            batch_name = next((course["title"].replace("/", "") for course in batch_data if course["packageId"] == course_id), "")            
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
             start_time = time.time()
