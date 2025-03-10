@@ -169,9 +169,8 @@ async def adda_txt(_, message):
 
                     output = await response.json()
                     print(output)
-                    login_token = output["loginToken"]
-                    # output["jwtToken"] if output["jwtToken"] else
-                    token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrdW1hcmFiaGlzaGVra3VtYXI0NTRAZ21haWwuY29tIiwiYXVkIjoiMjEyNzc5NDEiLCJpYXQiOjE3NDE0MjY0MjcsImlzcyI6ImFkZGEyNDcuY29tIiwibmFtZSI6IkFCSElTSEVLIEtVTUFSICIsImVtYWlsIjoia3VtYXJhYmhpc2hla2t1bWFyNDU0QGdtYWlsLmNvbSIsInBob25lIjoiOTE0MjY3ODA5OSIsInVzZXJJZCI6ImFkZGEudjEuMzQ3Zjk5ZmRlNTE5ZmVjOTNmZTFhZWIyZmEwNTc3ZjUiLCJpc01hc3RlckxvZ0luIjpmYWxzZSwibG9naW5BcGlWZXJzaW9uIjoyfQ.mOw-oAV4W9RpfhmkFgMXGWjNrqvhnLqbYb7JUWM7DhtiiSO_Ehu9FmnDaGRHSYUos0AbhmnJR_f-K_HanUA0pQ"
+                    login_token = output["loginToken"] 
+                    token = output["jwtToken"] if output["jwtToken"] else "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrdW1hcmFiaGlzaGVra3VtYXI0NTRAZ21haWwuY29tIiwiYXVkIjoiMjEyNzc5NDEiLCJpYXQiOjE3NDE0MjY0MjcsImlzcyI6ImFkZGEyNDcuY29tIiwibmFtZSI6IkFCSElTSEVLIEtVTUFSICIsImVtYWlsIjoia3VtYXJhYmhpc2hla2t1bWFyNDU0QGdtYWlsLmNvbSIsInBob25lIjoiOTE0MjY3ODA5OSIsInVzZXJJZCI6ImFkZGEudjEuMzQ3Zjk5ZmRlNTE5ZmVjOTNmZTFhZWIyZmEwNTc3ZjUiLCJpc01hc3RlckxvZ0luIjpmYWxzZSwibG9naW5BcGlWZXJzaW9uIjoyfQ.mOw-oAV4W9RpfhmkFgMXGWjNrqvhnLqbYb7JUWM7DhtiiSO_Ehu9FmnDaGRHSYUos0AbhmnJR_f-K_HanUA0pQ"
                     headers.update({"login_token": login_token})      
                 else:
                     token = input1.text.strip()
