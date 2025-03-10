@@ -150,6 +150,44 @@ async def course_extract(session, headers, course_id):
 
 
 
+async def direct_links(session, headers, course_id):  
+  lectures = []
+  params = {
+    'packageId': course_id,
+    'category': 'ONLINE_LIVE_CLASSES',
+    'isComingSoon': 'false',
+    'pageNumber': '0',
+    'pageSize': '10',
+    'src': 'aweb'
+  }
+  response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
+  response_json = await response.json()
+  subject_output = response_json.get('data', {}).get('packages', [])
+  for data in subject_ouput:
+    package_id = data.get("packageId")
+    reponse = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb")
+    response_json = await response.json()
+    content_output = response_json.get('data', {}).get('content', [])
+    for content in content_output:
+      name = content.get('name', 'Unknown')
+      url = content.get('url', 'No URL')
+      pdf = content.get('pdfFileName', 'No URL')
+      dpp_file = content.get('dppFileNames', [])
+      if url:
+        lectures.append(f"{name}: {url}")
+        if pdf and dpp_file:
+          lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
+        elif pdf:
+          lectures.append(f"{name}: https://store.adda247.com/{pdf}")
+        else:
+          lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+      else:
+        continue
+    return lectures
+
+
+
+
 # ----------------------- Adda-Command ----------------------- #
 
 @app.on_message(filters.command("adda"))
