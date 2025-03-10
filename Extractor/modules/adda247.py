@@ -131,12 +131,17 @@ async def course_extract(session, headers, course_id):
                     for content in content_output:
                         name = content.get('name', 'Unknown')
                         url = content.get('url', 'No URL')
+                        pdf = content.get('pdfFileName', 'No URL')
+                        dpp_file = content.get('dppFileNames', [])
 
                         lectures.append(f"{name}: {url}")
-
-                        pdf_file_id = content.get('pdfFileName')
-                        if pdf_file_id:
-                            lectures.append(f"{name}: https://store.adda247.com/{pdf_file_id[0]}")
+                        if pdf and dpp_file:
+                          lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
+                        elif pdf:
+                          lectures.append(f"{name}: https://store.adda247.com/{pdf}")
+                        else:
+                          lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+                          
 
     except Exception as e:
         print(f"Error In Course Extract: {e}")
