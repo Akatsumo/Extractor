@@ -62,7 +62,7 @@ async def course_extract(session, headers, course_id):
         )
         package_output = (await response.json())["data"]["bookmarkedPackages"]
 
-        print(f"1 {package_output}")
+        
         for package in package_output:
             package_id = package.get('packageId')
             title = package.get('title')
@@ -81,8 +81,7 @@ async def course_extract(session, headers, course_id):
             )
             response_json = await response.json()
             syllabus_output = response_json.get('data', {}).get('syllabus', [])
-
-            print(f"2 {syllabus_output}")
+            
             for syllabus in syllabus_output:
                 syllabus_id = syllabus.get('id')
                 syllabus_level = syllabus.get('level')
@@ -103,7 +102,7 @@ async def course_extract(session, headers, course_id):
                 )
                 response_json = await response.json()
                 subject_output = response_json.get('data', {}).get('syllabus', [])
-                print(f"3 {subject_output}")
+                
                 for subject in subject_output:
                     subject_id = subject.get('id')
                     subject_level = subject.get('level')
@@ -127,7 +126,7 @@ async def course_extract(session, headers, course_id):
                     response_json = await response.json()
                     content_output = response_json.get('data', {}).get('content', [])
 
-                    print(f"4 {content_output}")
+                    
                     for content in content_output:
                         name = content.get('name', 'Unknown')
                         url = content.get('url', 'No URL')
@@ -150,41 +149,57 @@ async def course_extract(session, headers, course_id):
 
 
 
-async def direct_links(session, headers, course_id):  
-  lectures = []
-  params = {
-    'packageId': course_id,
-    'category': 'ONLINE_LIVE_CLASSES',
-    'isComingSoon': 'false',
-    'pageNumber': '0',
-    'pageSize': '10',
-    'src': 'aweb'
-  }
-  response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
-  response_json = await response.json()
-  subject_output = response_json.get('data', {}).get('packages', [])
-  for data in subject_ouput:
-    package_id = data.get("packageId")
-    reponse = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb")
-    response_json = await response.json()
-    content_output = response_json.get('data', {}).get('content', [])
-    for content in content_output:
-      name = content.get('name', 'Unknown')
-      url = content.get('url', 'No URL')
-      pdf = content.get('pdfFileName', 'No URL')
-      dpp_file = content.get('dppFileNames', [])
-      if url:
-        lectures.append(f"{name}: {url}")
-        if pdf and dpp_file:
-          lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
-        elif pdf:
-          lectures.append(f"{name}: https://store.adda247.com/{pdf}")
-        else:
-          lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
-      else:
-        continue
-    return lectures
 
+
+
+async def direct_links(session, headers, course_id):
+    lectures = []
+    params = {
+        'packageId': course_id,
+        'category': 'ONLINE_LIVE_CLASSES',
+        'isComingSoon': 'false',
+        'pageNumber': '0',
+        'pageSize': '10',
+        'src': 'aweb'
+    }
+
+    try:
+        response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
+        response.raise_for_status()
+        response_json = await response.json()
+        subject_output = response_json.get('data', {}).get('packages', [])
+
+        for data in subject_output:
+            try:
+                package_id = data.get("packageId")
+                response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb")
+                response.raise_for_status()
+                response_json = await response.json()
+                content_output = response_json.get('data', {}).get('content', [])
+
+                for content in content_output:
+                    name = content.get('name', 'Unknown')
+                    url = content.get('url', None)
+                    pdf = content.get('pdfFileName', None)
+                    dpp_files = content.get('dppFileNames', [])
+
+                    if url:
+                        lectures.append(f"{name}: {url}")
+
+                        if pdf:
+                            lectures.append(f"{name}: https://store.adda247.com/{pdf}")
+
+                        if dpp_files:
+                            for dpp_file in dpp_files:
+                                lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+
+            except Exception as e:
+                print(f"Error fetching package details: {e}")
+            
+    except Exception as e:
+        print(f"Error fetching course details: {e}")
+    
+    return lectures
 
 
 
