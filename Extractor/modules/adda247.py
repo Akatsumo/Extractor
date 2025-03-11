@@ -168,6 +168,7 @@ async def direct_links(session, headers, course_id):
         response.raise_for_status()
         response_json = await response.json()
         subject_output = response_json.get('data', {}).get('packages', [])
+        print(subject_output)
 
         for data in subject_output:
             try:
