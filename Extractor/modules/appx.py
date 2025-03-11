@@ -70,8 +70,7 @@ async def course_extract(session, api, headers, token, course_id):
                                 "User-Agent": "Mozilla/5.0 (Linux; Android 15; CPH2585) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.135 Mobile Safari/537.36"
                             }
                             response = await session.get(url, headers=video_headers, params=params)
-                            output = (await response.json()).get("data", {})
-                            print(output)
+                            output = (await response.json()).get("data", {})                    
                         
                             if not output:
                                 continue
