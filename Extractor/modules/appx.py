@@ -72,7 +72,6 @@ async def course_extract(session, api, headers, token, course_id):
                             response = await session.get(url, headers=video_headers, params=params)
                             output = (await response.json()).get("data", {})
                             print(output)
-                            await asyncio.sleep(5)
                         
                             if not output:
                                 continue
@@ -82,8 +81,9 @@ async def course_extract(session, api, headers, token, course_id):
                             video_path, video_key = None, None
                         
                             try:
-                                video_path = appx_decrypt(encrypted_links[0].get("path", "").split(":")[0])
-                                video_key = appx_decrypt(encrypted_links[0].get("key", "").split(":")[0])         
+                                if encrypted_links:
+                                    video_path = encrypted_links[0].get("path", "").split(":")[0]
+                                    video_key = encrypted_links[0].get("key", "").split(":")[0]        
                             except Exception as decrypt_error:
                                 print(f"Error decrypting video for {title}: {decrypt_error}")
                         
