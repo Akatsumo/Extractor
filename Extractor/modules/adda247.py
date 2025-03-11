@@ -265,7 +265,7 @@ async def adda_txt(_, message):
             except:
                 return await message.reply_text("⏳ Timeout! Please try again.")
 
-            batch_name = next((course["title"].replace("/", "") for course in batch_data if course["packageId"] == course_id), "")
+            batch_name = next((course["title"].replace("/", "") for course in batch_data if int(course["packageId"]) == int(course_id)), "")
             if not batch_name:
                 return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
