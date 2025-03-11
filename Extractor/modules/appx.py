@@ -82,8 +82,10 @@ async def course_extract(session, api, headers, token, course_id):
                         
                             try:
                                 if encrypted_links:
-                                    video_path = appx_decrypt(encrypted_links[0].get("path", "").split(":")[0])
-                                    video_key = appx_decrypt(encrypted_links[0].get("key", "").split(":")[0])       
+                                    encrypted_video = encrypted_links[0].get("path")
+                                    encrypted_key = encrypted_links[0].get("key")
+                                    video_path = appx_decrypt(encrypted_video.split(":")[0]) if encrypted_video else ""
+                                    video_key = appx_decrypt(encrypted_key.split(":")[0]) if eencrypted_key else ""      
                             except Exception as decrypt_error:
                                 print(f"Error decrypting video for {title}: {decrypt_error}")
                         
