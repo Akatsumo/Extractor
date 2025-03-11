@@ -254,8 +254,8 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                         if encrypted_links:
                             video_path = appx_decrypt(encrypted_links[0].get("path", "").split(":")[0])
                             video_key = appx_decrypt(encrypted_links[0].get("key", "").split(":")[0])       
-                        except Exception as decrypt_error:
-                            print(f"Error decrypting video for {title}: {decrypt_error}")
+                    except Exception as decrypt_error:
+                        print(f"Error decrypting video for {title}: {decrypt_error}")
                             
                     pdf_link = output.get("pdf_link", "")
                     pdf_key = output.get("pdf_encryption_key", "")
