@@ -173,7 +173,7 @@ async def direct_links(session, headers, course_id):
         for data in subject_output:
             try:
                 package_id = data.get("packageId")
-                response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb")
+                response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb", headers=headers)
                 response.raise_for_status()
                 response_json = await response.json()
                 content_output = response_json.get('data', {}).get('onlineClasses', [])
