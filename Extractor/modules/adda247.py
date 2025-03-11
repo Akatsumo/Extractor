@@ -176,7 +176,7 @@ async def direct_links(session, headers, course_id):
                 response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb")
                 response.raise_for_status()
                 response_json = await response.json()
-                content_output = response_json.get('data', {}).get('content', [])
+                content_output = response_json.get('data', {}).get('onlineClasses', [])
 
                 for content in content_output:
                     name = content.get('name', 'Unknown')
@@ -186,13 +186,10 @@ async def direct_links(session, headers, course_id):
 
                     if url:
                         lectures.append(f"{name}: {url}")
-
                         if pdf:
                             lectures.append(f"{name}: https://store.adda247.com/{pdf}")
-
                         if dpp_files:
-                            for dpp_file in dpp_files:
-                                lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+                            lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
 
             except Exception as e:
                 print(f"Error fetching package details: {e}")
