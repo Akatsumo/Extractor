@@ -71,6 +71,8 @@ async def course_extract(session, api, headers, token, course_id):
                             }
                             response = await session.get(url, headers=video_headers, params=params)
                             output = (await response.json()).get("data", {})
+                            print(output)
+                            await asyncio.sleep(5)
                         
                             if not output:
                                 continue
