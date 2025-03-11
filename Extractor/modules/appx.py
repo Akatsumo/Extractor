@@ -82,8 +82,8 @@ async def course_extract(session, api, headers, token, course_id):
                         
                             try:
                                 if encrypted_links:
-                                    video_path = encrypted_links[0].get("path", "").split(":")[0]
-                                    video_key = encrypted_links[0].get("key", "").split(":")[0]        
+                                    video_path = appx_decrypt(encrypted_links[0].get("path", "").split(":")[0])
+                                    video_key = appx_decrypt(encrypted_links[0].get("key", "").split(":")[0])       
                             except Exception as decrypt_error:
                                 print(f"Error decrypting video for {title}: {decrypt_error}")
                         
@@ -250,15 +250,13 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                     encrypted_links = output.get("encrypted_links", [])
                     video_path, video_key = None, None
                     
-                    for link in encrypted_links:
-                        if link.get("quality") == "360p":
-                            try:
-                                video_path = appx_decrypt(link.get("path", "").split(":")[0])
-                                video_key = appx_decrypt(link.get("key", "").split(":")[0])
-                                break
-                            except Exception as decrypt_error:
-                                print(f"Error decrypting video for {title}: {decrypt_error}")
-                    
+                    try:
+                        if encrypted_links:
+                            video_path = appx_decrypt(encrypted_links[0].get("path", "").split(":")[0])
+                            video_key = appx_decrypt(encrypted_links[0].get("key", "").split(":")[0])       
+                        except Exception as decrypt_error:
+                            print(f"Error decrypting video for {title}: {decrypt_error}")
+                            
                     pdf_link = output.get("pdf_link", "")
                     pdf_key = output.get("pdf_encryption_key", "")
                     
