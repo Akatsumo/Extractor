@@ -57,7 +57,7 @@ async def course_extract(session, course_id, topic_id):
    
     params.update({'type': 'notes', 'notes_type': 'notes'})
     response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
+    notes_results = response.json().get('pageProps', {}).get("notesData", {}).get("notesDetails", {})
     
     for note in notes_results:
         name = note.get("docTitle", "Unknown")
