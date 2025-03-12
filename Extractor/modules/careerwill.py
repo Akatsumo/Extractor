@@ -45,7 +45,7 @@ async def course_extract(session, course_id, topic_id):
         'topic_id': topic_id
     }
         
-    response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
     classes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("classes", [])
     print(classes_results)
 
@@ -58,7 +58,7 @@ async def course_extract(session, course_id, topic_id):
             lectures.append(f"{name}: {url}\n")
    
     params.update({'type': 'notes', 'notes_type': 'notes'})
-    response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
     notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
     print(notes_results)
     for note in notes_results:
