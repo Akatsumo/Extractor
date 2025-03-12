@@ -55,17 +55,17 @@ async def course_extract(session, course_id, topic_id):
         else:
             lectures.append(f"{name}: {url}\n")
    
-    params.update({'type': 'notes', 'notes_type': 'notes'})
-    response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
+    #params.update({'type': 'notes', 'notes_type': 'notes'})
+    #response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    #notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
     
-    for note in notes_results:
-        name = note.get("docTitle", "Unknown")
-        url = note.get("docUrl", "Url Not Found")
-        if url:
-            lectures.append(f"{name}: {url}\n")
-        else:
-            continue
+    #for note in notes_results:
+     #   name = note.get("docTitle", "Unknown")
+     #   url = note.get("docUrl", "Url Not Found")
+     #   if url:
+     #       lectures.append(f"{name}: {url}\n")
+     #   else:
+     #       continue
     
     return lectures
 
