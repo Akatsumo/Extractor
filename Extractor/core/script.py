@@ -20,6 +20,7 @@ HELP_TEXT = """
 
 `/appx` : For Appx apps [Multi Purpose] [Free]
 `/khan` : Single Purpose [Free]
+`/cw` : Single Purpose [Free]
 """
 
 
