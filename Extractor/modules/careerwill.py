@@ -29,7 +29,7 @@ async def course_content(session, course_id):
     topic_results = (await response.json()).get("topics", [])
     print(topic_results)
     
-     if not batch_name:
+     if not topic_results:
         return await msg.edit_text("**Empty Batch Data. Does not exist any data in batch**")
 
     for topic in topic_results:
