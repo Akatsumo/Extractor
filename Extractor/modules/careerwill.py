@@ -16,40 +16,65 @@ cookies = {
 }
 
 
-async def course_content(session, course_id,  topic_id="", type="class"):
+async def course_content(session, course_id):
+    lectures = []
     params = {
-      'view': 'List',
-      'batch_type': 'my',
-      'id': course_id,
-      'type': type,
-      'notes_type': type
-      'topic_id': topic_id
+        'view': 'List',
+        'batch_type': 'my',
+        'id': course_id,
+        'type': 'class'
     }
-
-    if type == "class":
-        response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-        classes_results = response.json()["batchClassData"]["classes"]
-
-        if topic in classes_results:
-            name = topic.get("lessonName", "Unknown")
-            url = topic.get("lessonUrl", "Url Not Found")
-            if "youtube" == topic.get("lessonExt", ""):
-                lectures.append(f"{name}: {url}\n")
-            else:
-                lectures.append(f"{name}: {url}\n")
-    else:
-        response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-        notes_results = response.json()["batchClassData"]["notesData"]["notesDetails"]
-
-        if topic in notes_results:
-            name = topic.get("docTitle", "Unknown")
-            url = topic.get("docUrl", "Url Not Found")
-            if url:
-                lectures.append(f"{name}: {url}\n")
-            else:
-                continue
         
+    response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    topic_results = (await response.json()).get("topics", [])
+    print(topic_results)
     
+     if not batch_name:
+        return await msg.edit_text("**Empty Batch Data. Does not exist any data in batch**")
+
+    for topic in topic_results:
+        topic_id = topic.get("id", "Unknown")
+        lectures.extend(await course_extract(session, course_id, topic_id))
+    
+    return lectures
+
+
+async def course_extract(session, course_id, topic_id):
+    lectures = []
+    params = {
+        'view': 'List',
+        'batch_type': 'my',
+        'id': course_id,
+        'type': 'class',
+        'topic_id': topic_id
+    }
+        
+    response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    classes_results = (await response.json()).get("batchClassData", {}).get("classes", [])
+    print(classes_results)
+
+    for topic in classes_results:
+        name = topic.get("lessonName", "Unknown")
+        url = topic.get("lessonUrl", "Url Not Found")
+        if "youtube" == topic.get("lessonExt", ""):
+            lectures.append(f"{name}: {url}\n")
+        else:
+            lectures.append(f"{name}: {url}\n")
+   
+    params.update({'type': 'notes', 'notes_type': 'notes'})
+    response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    notes_results = (await response.json()).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
+    print(notes_results)
+    for note in notes_results:
+        name = note.get("docTitle", "Unknown")
+        url = note.get("docUrl", "Url Not Found")
+        if url:
+            lectures.append(f"{name}: {url}\n")
+        else:
+            continue
+    
+    return lectures
+
 
 
 
@@ -73,6 +98,7 @@ async def adda_txt(_, message):
                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
                     output = await response.json()
+                    print(output)
                     token = output['data']['token']    
                 else:
                     token = input1.text.strip()
@@ -109,7 +135,7 @@ async def adda_txt(_, message):
                 return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
-            lectures = await asyncio.create_task(course_extract(session, headers, course_id))
+            lectures = await asyncio.create_task(course_content(session, course_id))
             
             
             end_time = time.time()
