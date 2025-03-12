@@ -23,7 +23,6 @@ async def course_content(session, course_id):
         
     response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
     topic_results = response.json().get('pageProps', {}).get('topics', [])
-    print(topic_results)
     
     if not topic_results:
         return await msg.edit_text("**Empty Batch Data. Does not exist any data in batch**")
@@ -47,7 +46,6 @@ async def course_extract(session, course_id, topic_id):
         
     response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
     classes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("classes", [])
-    print(classes_results)
 
     for topic in classes_results:
         name = topic.get("lessonName", "Unknown")
@@ -60,7 +58,7 @@ async def course_extract(session, course_id, topic_id):
     params.update({'type': 'notes', 'notes_type': 'notes'})
     response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
     notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
-    print(notes_results)
+    
     for note in notes_results:
         name = note.get("docTitle", "Unknown")
         url = note.get("docUrl", "Url Not Found")
