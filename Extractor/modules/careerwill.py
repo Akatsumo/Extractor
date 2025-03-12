@@ -26,7 +26,7 @@ async def course_content(session, course_id):
     }
         
     response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    topic_results = (await response.json()).get("topics", [])
+    topic_results = (await response.read()).get("topics", [])
     print(topic_results)
     
     if not topic_results:
@@ -50,7 +50,7 @@ async def course_extract(session, course_id, topic_id):
     }
         
     response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    classes_results = (await response.json()).get("batchClassData", {}).get("classes", [])
+    classes_results = (await response.read()).get("batchClassData", {}).get("classes", [])
     print(classes_results)
 
     for topic in classes_results:
@@ -63,7 +63,7 @@ async def course_extract(session, course_id, topic_id):
    
     params.update({'type': 'notes', 'notes_type': 'notes'})
     response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    notes_results = (await response.json()).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
+    notes_results = (await response.read()).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
     print(notes_results)
     for note in notes_results:
         name = note.get("docTitle", "Unknown")
@@ -111,10 +111,10 @@ async def adda_txt(_, message):
           
             response = await session.get(f"https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/live-classes.json?view=List&batch_type=my", cookies=cookies)
 
-#            if response.status != 200:
-#              return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            if response.status != 200:
+              return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-            batch_data = (await response.json()) #["myBatchData"]
+            batch_data = (await response.read())["myBatchData"]
             print(batch_data)
             if not batch_data:
                 return await msg.edit_text("No batch data found.")
