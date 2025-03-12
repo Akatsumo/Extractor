@@ -114,7 +114,7 @@ async def adda_txt(_, message):
             #if response.status != 200:
             #  return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-            batch_data = (await response.read())["myBatchData"]
+            batch_data = json.loads(await response.read())["myBatchData"]
             print(batch_data)
             if not batch_data:
                 return await msg.edit_text("No batch data found.")
