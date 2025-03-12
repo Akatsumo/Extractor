@@ -4,6 +4,7 @@ import time
 import json
 import aiohttp
 import asyncio
+import cloudscraper
 from Extractor import app
 from pyrogram import filters 
 from Extractor.core.main_func import get_time
@@ -26,7 +27,8 @@ async def adda_txt(_, message):
                 input1 = await app.listen(user_id=user_id, timeout=30)
                 if "*" in input1.text:
                     userid, password = input1.text.split("*")
-                    response = await sscraper.post(login_url, json={"userid": userid, "pwd": password})
+                    scraper = cloudscraper.create_scraper()
+                    response = scraper.post(login_url, json={"userid": userid, "pwd": password})
                     
                     if response.status != 200:
                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
