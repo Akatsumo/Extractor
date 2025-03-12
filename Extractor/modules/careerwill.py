@@ -176,7 +176,7 @@ async def careerwill_login(_, message):
         await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
     except Exception as e:
-        await message.reply_text(f"Error: `{str(e)[::40]}`")
+        await message.reply_text(f"Error: `{str(e)}`")
         print(f"Error: {str(e)}")
 
 
