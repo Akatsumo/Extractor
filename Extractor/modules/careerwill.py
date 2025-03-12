@@ -21,8 +21,8 @@ async def course_content(session, course_id):
         'type': 'class'
     }
         
-    response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    topic_results = (await response.json()).get("topics", [])
+    response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    topic_results = response.json().get('pageProps', {}).get('topics', [])
     print(topic_results)
     
     if not topic_results:
@@ -46,7 +46,7 @@ async def course_extract(session, course_id, topic_id):
     }
         
     response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    classes_results = (await response.json()).get("batchClassData", {}).get("classes", [])
+    classes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("classes", [])
     print(classes_results)
 
     for topic in classes_results:
@@ -59,7 +59,7 @@ async def course_extract(session, course_id, topic_id):
    
     params.update({'type': 'notes', 'notes_type': 'notes'})
     response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    notes_results = (await response.json()).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
+    notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
     print(notes_results)
     for note in notes_results:
         name = note.get("docTitle", "Unknown")
@@ -114,13 +114,13 @@ async def careerwill_login(_, message):
         if response.status_code != 200:
             return await msg.edit_text("😒 **Failed to fetch live classes.**")
 
-        batch_data = response.json()
-        print(batch_data)
-        if not batch_data.get("myBatchData"):
+        batch_data = response.json().get('pageProps', {}).get('myBatchData', [])
+       
+        if not batch_data:
             return await msg.edit_text("No batch data found.")
 
         batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
-        for data in batch_data["myBatchData"]:
+        for data in batch_data:
             batch_list += f"`{data['id']}`  -   **{data['batchName']}**\n\n"
 
         await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
@@ -133,7 +133,7 @@ async def careerwill_login(_, message):
             return await msg.edit_text("⏳ Timeout! Please try again.")
 
         batch_name = next(
-            (course["batchName"] for course in batch_data["myBatchData"] if int(course["id"]) == int(course_id)), ""
+            (course["batchName"] for course in batch_data if int(course["id"]) == int(course_id)), ""
         )
         if not batch_name:
             return await msg.edit_text("**Invalid Batch ID. Please try again.**")
