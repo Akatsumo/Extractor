@@ -63,6 +63,7 @@ async def course_extract(session, course_id, topic_id):
               'id': '2158',
               'type': 'class',
               'class_id': class_id
+            }
              response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/player.json", cookies=cookies, params=params)
              stream_token = response['pageProps']['streamToken']['token']
              lesson_url = response['pageProps']['classDetailsData']['lessonUrl']
