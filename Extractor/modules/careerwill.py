@@ -51,21 +51,22 @@ async def course_extract(session, course_id, topic_id):
         name = topic.get("lessonName", "Unknown")
         url = topic.get("lessonUrl", "Url Not Found")
         if "youtube" == topic.get("lessonExt", ""):
+            lectures.append(f"{name}: http://www.youtube.com/watch?v={url}\n")
+        else:
+            lectures.append(f"{name}: http://www.youtube.com/watch?v={url}\n")
+   
+    params.update({'type': 'notes', 'notes_type': 'notes'})
+    response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+    notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
+    
+    for note in notes_results:
+        name = note.get("docTitle", "Unknown")
+        url = note.get("docUrl", "Url Not Found")
+        if url:
+            print(url)
             lectures.append(f"{name}: {url}\n")
         else:
-            lectures.append(f"{name}: {url}\n")
-   
-    #params.update({'type': 'notes', 'notes_type': 'notes'})
-    #response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    #notes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("notesData", {}).get("notesDetails", [])
-    
-    #for note in notes_results:
-     #   name = note.get("docTitle", "Unknown")
-     #   url = note.get("docUrl", "Url Not Found")
-     #   if url:
-     #       lectures.append(f"{name}: {url}\n")
-     #   else:
-     #       continue
+            continue
     
     return lectures
 
@@ -158,6 +159,7 @@ async def careerwill_login(_, message):
 
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)[::40]}`")
+        print(f"Error: {str(e)}")
 
 
 
