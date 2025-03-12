@@ -51,9 +51,9 @@ async def course_extract(session, course_id, topic_id):
         name = topic.get("lessonName", "Unknown")
         url = topic.get("lessonUrl", "Url Not Found")
         if "youtube" == topic.get("lessonExt", ""):
-            lectures.append(f"{name}: http://www.youtube.com/watch?v={url}\n")
+            lectures.append(f"{name}: http://www.youtube.com/watch?v={url}")
         else:
-            lectures.append(f"{name}: http://www.youtube.com/watch?v={url}\n")
+            lectures.append(f"{name}: http://www.youtube.com/watch?v={url}")
    
     params.update({'type': 'notes', 'notes_type': 'notes'})
     response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
@@ -63,8 +63,7 @@ async def course_extract(session, course_id, topic_id):
         name = note.get("docTitle", "Unknown")
         url = note.get("docUrl", "Url Not Found")
         if url:
-            print(url)
-            lectures.append(f"{name}: {url}\n")
+            lectures.append(f"{name}: {url}")
         else:
             continue
     
@@ -141,7 +140,8 @@ async def careerwill_login(_, message):
         start_time = time.time()
         lectures = await asyncio.create_task(course_content(session, course_id))
         end_time = time.time()
-        elapsed = f"{end_time - start_time:.2f} seconds"
+        duration_seconds = end_time - start_time
+        elapsed = get_time(duration_seconds)
 
         file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
         with open(file_name, "w") as f:
