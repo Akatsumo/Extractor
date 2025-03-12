@@ -139,7 +139,7 @@ async def careerwill_login(_, message):
 
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
         start_time = time.time()
-        lectures = await asyncio.create_task(await course_content(session, course_id))
+        lectures = asyncio.create_task(await course_content(session, course_id))
         end_time = time.time()
         elapsed = f"{end_time - start_time:.2f} seconds"
 
@@ -150,7 +150,7 @@ async def careerwill_login(_, message):
         caption = f"**App Name** : `CAREERWILL`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed}`"
         me = await app.get_me()
         big_file_id = me.photo.big_file_id
-        thumb = await asyncio.create_task(app.download_media(big_file_id))
+        thumb = asyncio.create_task(await app.download_media(big_file_id))
 
         await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
         os.remove(file_name)
