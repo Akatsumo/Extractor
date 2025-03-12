@@ -34,7 +34,7 @@ async def adda_txt(_, message):
                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
                     output = await response.json()
-                    token = output['data'][''token]    
+                    token = output['data']['token']    
                 else:
                     token = input1.text.strip()
             except:
