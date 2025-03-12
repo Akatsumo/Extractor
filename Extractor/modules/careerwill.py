@@ -111,8 +111,8 @@ async def adda_txt(_, message):
           
             response = await session.get(f"https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/live-classes.json?view=List&batch_type=my", cookies=cookies)
 
-            if response.status != 200:
-              return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            #if response.status != 200:
+            #  return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
             batch_data = (await response.read())["myBatchData"]
             print(batch_data)
