@@ -78,7 +78,7 @@ async def course_extract(session, course_id, topic_id):
 async def careerwill_login(_, message):
     user_id = message.from_user.id
     try:
-        scraper = cloudscraper.create_scraper()
+        session = cloudscraper.create_scraper()
         login_url = "https://wbspec.crwilladmin.com/api/v1/login"
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
         
@@ -91,7 +91,7 @@ async def careerwill_login(_, message):
 
         if "*" in input1.text:
             userid, password = input1.text.split("*")
-            response = scraper.post(login_url, json={"userid": userid, "pwd": password})
+            response = session.post(login_url, json={"userid": userid, "pwd": password})
 
             if response.status_code != 200:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
@@ -106,8 +106,7 @@ async def careerwill_login(_, message):
         await input1.delete()
         cookies.update({'token': token})  
         await msg.edit_text("✅ **Login Successful**")
-
-        session = scraper  
+ 
         response = session.get(
             "https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/live-classes.json?view=List&batch_type=my",
             cookies=cookies
@@ -116,6 +115,7 @@ async def careerwill_login(_, message):
             return await msg.edit_text("😒 **Failed to fetch live classes.**")
 
         batch_data = response.json()
+        print(batch_data)
         if not batch_data.get("myBatchData"):
             return await msg.edit_text("No batch data found.")
 
