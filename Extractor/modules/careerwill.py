@@ -10,10 +10,7 @@ from pyrogram import filters
 from Extractor.core.main_func import get_time
 
 
-cookies = {
-    'token': '',
-    
-}
+cookies = {}
 
 
 async def course_content(session, course_id):
@@ -151,7 +148,7 @@ async def adda_txt(_, message):
         caption = f"**App Name** : `CAREERWILL`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed}`"
         me = await app.get_me()
         big_file_id = me.photo.big_file_id
-            thumb = await app.download_media(big_file_id)
+        thumb = await app.download_media(big_file_id)
 
         await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
         os.remove(file_name)
