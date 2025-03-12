@@ -77,69 +77,7 @@ async def course_extract(session, course_id, topic_id):
 
 
 
-"""
 
-async def course_content(session, course_id):
-    lectures = []
-    params = {
-        'view': 'List',
-        'batch_type': 'my',
-        'id': course_id,
-        'type': 'class'
-    }
-
-    try:
-        response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", params=params)
-        response.raise_for_status()
-        topic_results = response.json()["topics"]
-
-        for topic in topic_results:
-            topic_id = topic.get("lessonName", "Unknown")
-            lectures.append(await course_extract(session, course_id, topic_id))
-    except Exception as e:
-        print(f"Error fetching course content: {e}")
-    
-    return lectures
-
-async def course_extract(session, course_id, topic_id):
-    lectures = []
-    params = {
-        'view': 'List',
-        'batch_type': 'my',
-        'id': course_id,
-        'type': 'class',
-        'topic_id': topic_id
-    }
-
-    try:
-        response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", params=params)
-        response.raise_for_status()
-        classes_results = response.json()["batchClassData"]["classes"]
-
-        for topic in classes_results:
-            name = topic.get("lessonName", "Unknown")
-            url = topic.get("lessonUrl", "Url Not Found")
-            lectures.append(f"{name}: {url}\n")
-        
-        params.update({'type': 'notes', 'notes_type': 'notes'})
-        response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", params=params)
-        response.raise_for_status()
-        notes_results = response.json()["batchClassData"]["notesData"]["notesDetails"]
-
-        for topic in notes_results:
-            name = topic.get("docTitle", "Unknown")
-            url = topic.get("docUrl", "Url Not Found")
-            if url:
-                lectures.append(f"{name}: {url}\n")
-            else:
-                continue
-    except Exception as e:
-        print(f"Error extracting course content: {e}")
-    
-    return lectures
-
-
-"""
 
 @app.on_message(filters.command("cw"))
 async def adda_txt(_, message):
@@ -167,14 +105,15 @@ async def adda_txt(_, message):
                 return await message.reply_text("⏳ Timeout! Please try again.")
             
             await input1.delete()
-            cookies = {'token': token}
+            cookies.update({'token': token})
             await msg.edit_text("✅ **Login Successful**")
             
             response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/live-classes.json?view=List&batch_type=my", cookies=cookies)
-            if response.status != 200:
-                return await msg.edit_text("😒 **Failed to fetch live classes.**")
+            #if response.status != 200:
+             #   return await msg.edit_text("😒 **Failed to fetch live classes.**")
             
             batch_data = await response.json()
+            print(batch_data)
             if not batch_data["myBatchData"]:
                 return await msg.edit_text("No batch data found.")
             
