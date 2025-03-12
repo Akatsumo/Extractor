@@ -15,6 +15,45 @@ cookies = {
     
 }
 
+
+async def course_content(session, course_id,  topic_id="", type="class"):
+    params = {
+      'view': 'List',
+      'batch_type': 'my',
+      'id': course_id,
+      'type': type,
+      'notes_type': type
+      'topic_id': topic_id
+    }
+
+    if type == "class":
+        response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+        classes_results = response.json()["batchClassData"]["classes"]
+
+        if topic in classes_results:
+            name = topic.get("lessonName", "Unknown")
+            url = topic.get("lessonUrl", "Url Not Found")
+            if "youtube" == topic.get("lessonExt", ""):
+                lectures.append(f"{name}: {url}\n")
+            else:
+                lectures.append(f"{name}: {url}\n")
+    else:
+        response = await session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
+        notes_results = response.json()["batchClassData"]["notesData"]["notesDetails"]
+
+        if topic in notes_results:
+            name = topic.get("docTitle", "Unknown")
+            url = topic.get("docUrl", "Url Not Found")
+            if url:
+                lectures.append(f"{name}: {url}\n")
+            else:
+                continue
+        
+    
+
+
+
+
 @app.on_message(filters.command("cw"))
 async def adda_txt(_, message):
     user_id = message.from_user.id
