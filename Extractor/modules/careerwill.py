@@ -11,6 +11,7 @@ from Extractor.core.main_func import get_time
 
 cookies = {}
 
+# ----------------------- Course-Content ----------------------- #
 
 async def course_content(session, course_id):
     lectures = []
@@ -33,6 +34,7 @@ async def course_content(session, course_id):
     
     return lectures
 
+# ----------------------- Course-Extract ----------------------- #
 
 async def course_extract(session, course_id, topic_id):
     lectures = []
@@ -71,6 +73,7 @@ async def course_extract(session, course_id, topic_id):
 
 
 
+# ----------------------- Careerwill-Command ----------------------- #
 
 @app.on_message(filters.command("cw"))
 async def careerwill_login(_, message):
