@@ -65,8 +65,8 @@ async def course_extract(session, course_id, topic_id):
               'class_id': class_id
             }
             response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/player.json", cookies=cookies, params=params)
-            stream_token = response['pageProps']['streamToken']['token']
-            lesson_url = response['pageProps']['classDetailsData']['lessonUrl']
+            stream_token = response.json()['pageProps']['streamToken']['token']
+            lesson_url = response.json()['pageProps']['classDetailsData']['lessonUrl']
             lectures.append(f"{name}: https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/videos/{lesson_url}/master.m3u8?bcov_auth={stream_token}")
     
         else:
