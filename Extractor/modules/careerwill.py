@@ -51,11 +51,25 @@ async def course_extract(session, course_id, topic_id):
 
     for topic in classes_results:
         name = topic.get("lessonName", "Unknown")
+        class_id = topic.get("id", "Unknown")
         url = topic.get("lessonUrl", "Url Not Found")
         if "youtube" == topic.get("lessonExt", ""):
             lectures.append(f"{name}: http://www.youtube.com/watch?v={url}")
+            
+        elif "brightcove" == topic.get("lessonExt", ""):
+            params = {
+              'view': 'List',
+              'batch_type': 'my',
+              'id': '2158',
+              'type': 'class',
+              'class_id': class_id
+             response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/player.json", cookies=cookies, params=params)
+             stream_token = response['pageProps']['streamToken']['token']
+             lesson_url = response['pageProps']['classDetailsData']['lessonUrl']
+             lectures.append(f"{name}: https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/videos/{lesson_url}/master.m3u8?bcov_auth={stream_token}")
+    
         else:
-            lectures.append(f"{name}: http://www.youtube.com/watch?v={url}")
+            lectures.append(f"{name}: {url}")
    
     params.update({'type': 'notes', 'notes_type': 'notes'})
     response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
