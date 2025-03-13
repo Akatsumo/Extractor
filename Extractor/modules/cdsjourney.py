@@ -90,7 +90,7 @@ async def cdsjourney_login(_, message):
         headers = {'referer': 'https://www.cdsjourney.com/'}
         login_url = "https://www.cdsjourney.com/login-or-register/"
 
-        msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
+        msg = await message.reply_text("**🔑 Please send your ID, phone number, or email, and then I will send an OTP**")
 
         try:
             input1 = await app.listen(user_id=user_id, timeout=30)
