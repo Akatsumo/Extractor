@@ -92,44 +92,49 @@ async def cdsjourney_login(_, message):
 
         msg = await message.reply_text("**🔑 Please send your ID, phone number, or email, and then I will send an OTP**")
 
-#        try:
-#            input1 = await app.listen(user_id=user_id, timeout=30)
-#        except:
-#            return await msg.edit_text("⏳ Timeout! Please try again.")
-#
-#        data = {
-#            'csrfmiddlewaretoken': csrf_token,
-#            'loginEmail': input1.text.strip()
-#        }
-#
-#        response = session.post(login_url, headers=headers, cookies=cookies, data=data)
-#
-#        if response.status_code != 200:
-#            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-#
-#        await msg.edit_text("**Login successful, please enter OTP sent to your phone**")
-#
-#        try:
-#            input2 = await app.listen(user_id=user_id, timeout=30)
-#        except:
-#            return await msg.edit_text("⏳ Timeout! Please try again.")
-#
-#        headers.update({'referer': 'https://www.cdsjourney.com/login/?next=/student-dashboard/subject/84/'})
-#
-#        data = {
-#            'csrfmiddlewaretoken': csrf_token,
-#            'loginPhone2': input1.text.strip(),
-#            'sent-OTP': input2.text.strip(),
-#            'first-name': '',
-#            'mobile': ''
-#        }
-#
-#        response = session.post("https://www.cdsjourney.com/verify-quiz-otp/", headers=headers, cookies=cookies, data=data)
-#
-#        if response.status_code != 200:
-#            return await msg.edit_text("😒 **Login failed, incorrect OTP.**")
-#
-        sessionid = "sq1q8hbqgvcf29y55vlnh0h09478d38e" #response.cookies.get('sessionid', None)
+        try:
+            input1 = await app.listen(user_id=user_id, timeout=30)
+        except:
+            return await msg.edit_text("⏳ Timeout! Please try again.")
+            
+        if input1.text.strip().isdigit() and len(input1.text.strip()) == 10 or "@" in input1.text.strip():
+            data = {
+               'csrfmiddlewaretoken': csrf_token,
+               'loginEmail': input1.text.strip()
+            }
+
+            response = session.post(login_url, headers=headers, cookies=cookies, data=data)
+
+            if response.status_code != 200:
+                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+
+            await msg.edit_text("**Login successful, please enter OTP sent to your phone**")
+            try:
+                input2 = await app.listen(user_id=user_id, timeout=30)
+            except:
+                return await msg.edit_text("⏳ Timeout! Please try again.")
+
+            headers.update({'referer': 'https://www.cdsjourney.com/login/?next=/student-dashboard/subject/84/'})
+
+            data = {
+              'csrfmiddlewaretoken': csrf_token,
+              'loginPhone2': input1.text.strip(),
+              'sent-OTP': input2.text.strip(),
+              'first-name': '',
+              'mobile': ''
+            }
+
+            response = session.post("https://www.cdsjourney.com/verify-quiz-otp/", headers=headers, cookies=cookies, data=data)
+            sessionid = response.cookies.get('sessionid', None)
+            await input2.delete()
+            
+            if response.status_code != 200:
+                return await msg.edit_text("😒 **Login failed, incorrect OTP.**")
+
+        else:
+            sessionid = input1.text.strip()
+            
+        await input1.delete()       
         cookies.update({'sessionid': sessionid})
         headers.update({'referer': 'https://www.cdsjourney.com/student-dashboard/purchase-order-list/'})
 
@@ -162,9 +167,9 @@ async def cdsjourney_login(_, message):
         await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
 
         try:
-            input2 = await app.listen(user_id=user_id, timeout=30)
-            batch_id = int(input2.text.strip()) 
-            await input2.delete()
+            input3 = await app.listen(user_id=user_id, timeout=30)
+            batch_id = int(input3.text.strip()) 
+            await input3.delete()
         except:
             return await msg.edit_text("⏳ Timeout! Please try again.")
 
