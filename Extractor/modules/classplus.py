@@ -21,7 +21,7 @@ def get_system_fingerprint():
         "version": platform.version(),
         "machine": platform.machine(),
         "processor": platform.processor(),
-        "uuid": str(uuid.getnode())  # Unique hardware-based ID
+        "uuid": str(uuid.getnode()) 
     }
     
     fingerprint_string = "_".join(system_info.values())
@@ -64,7 +64,7 @@ async def otp_login(session, org_code, org_id, phone):
         "retry": 0,
         "orgId": org_id,
         "otpCount": 0,
-        "mobile": str(phone)
+        "mobile": str(phone.strip())
     }
     
     response = await session.post(url, headers=headers, json=data)
