@@ -125,7 +125,6 @@ async def cdsjourney_login(_, message):
             }
 
             response = session.post("https://www.cdsjourney.com/verify-quiz-otp/", headers=headers, cookies=cookies, data=data)
-            print(response.json())
             sessionid = response.cookies.get('sessionid', None)
             await input2.delete()
             
