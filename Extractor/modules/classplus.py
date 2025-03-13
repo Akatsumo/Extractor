@@ -110,8 +110,8 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
     print(output)
  
     if output.get("status") == "success": 
-        token = response_data['data']['token']
-        refresh_token = response_data['data']['refreshToken']
+        token = output['data']['token']
+        refresh_token = output['data']['refreshToken']
         return token  
     else:
         return None
