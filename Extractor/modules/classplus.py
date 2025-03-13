@@ -64,7 +64,7 @@ async def otp_login(session, org_code, org_id, phone):
         "retry": 0,
         "orgId": org_id,
         "otpCount": 0,
-        "mobile": phone
+        "mobile": str(phone)
     }
     
     response = await session.post(url, headers=headers, json=data)
@@ -85,8 +85,8 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
         "countryExt": "91",
         "sessionId": sessionID,
         "orgId": org_id,
-        "fingerprintId": "b26a64a95429af40fc4ebda1d37ea638" # get_system_fingerprint(),
-        "mobile": phone
+        "fingerprintId": "b26a64a95429af40fc4ebda1d37ea638", # get_system_fingerprint(),
+        "mobile": str(phone)
     }
 
     response = await session.post(url, headers=headers, json=data)
