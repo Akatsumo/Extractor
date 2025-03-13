@@ -85,7 +85,7 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
         "countryExt": "91",
         "sessionId": sessionID,
         "orgId": org_id,
-        "fingerprintId": get_system_fingerprint(),
+        "fingerprintId": "b26a64a95429af40fc4ebda1d37ea638" # get_system_fingerprint(),
         "mobile": phone
     }
 
@@ -93,8 +93,10 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
     output = await response.json()
     print(output)
  
-    if output.get("status") == "success":  
-        return output.get("token")  
+    if output.get("status") == "success": 
+        token = response_data['data']['token']
+        refresh_token = response_data['data']['refreshToken']
+        return token  
     else:
         return None
 
