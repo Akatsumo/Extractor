@@ -1,4 +1,3 @@
-
 import re
 import os
 import time
@@ -33,53 +32,44 @@ async def gen_csrftoken(session):
 
 # ----------------------- Course-Extract ----------------------- #
 
-async def course_extract(session, course_id, topic_id):
+async def course_extract(session, batch_url, headers, cookies):
     lectures = []
-    params = {
-        'view': 'List',
-        'batch_type': 'my',
-        'id': course_id,
-        'type': 'class',
-        'topic_id': topic_id
-    }
+    headers.update({'referer': 'https://www.cdsjourney.com/student-dashboard/home/'})
+    response = session.get(f"https://www.cdsjourney.com{batch_url}", headers=headers, cookies=cookies)
+    
+    if response.status_code != 200:
+        return await msg.edit_text("😒 **Login failed, incorrect batch credentials.**")
         
-    response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    classes_results = response.json().get('pageProps', {}).get("batchClassData", {}).get("classes", [])
+    soup = BeautifulSoup(response.text, 'html.parser')
+    subject_data = []
+    
+    for subject in soup.find_all('a', href=True):
+        if '/student-dashboard/subject/' in subject['href']:
+            subject_name = subject.find('img')['alt'] if subject.find('img') else 'No Subject Name'
+            subject_link = subject['href']
+            subject_data.append({'Subject Name': subject_name, 'Subject Link': subject_link})
 
-    for topic in classes_results:
-        name = topic.get("lessonName", "Unknown")
-        class_id = topic.get("id", "Unknown")
-        url = topic.get("lessonUrl", "Url Not Found")
-        if "youtube" == topic.get("lessonExt", ""):
-            lectures.append(f"{name}: http://www.youtube.com/embed/{url}")
-            
-        elif "brightcove" == topic.get("lessonExt", ""):
-            params = {
-              'view': 'List',
-              'batch_type': 'my',
-              'id': '2158',
-              'type': 'class',
-              'class_id': class_id
-            }
-            response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/player.json", cookies=cookies, params=params)
-            stream_token = response.json()['pageProps']['streamToken']['token']
-            lesson_url = response.json()['pageProps']['classDetailsData']['lessonUrl']
-            lectures.append(f"{name}: https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/videos/{lesson_url}/master.m3u8?bcov_auth={stream_token}")
+    for subject in subject_data:
+        print(f"Subject Name: {subject['Subject Name']}")
+        subject_url = subject['Subject Link']
+        headers.update({'referer': f'https://www.cdsjourney.com{batch_url}'})
+        response = session.get(f"https://www.cdsjourney.com{subject_url}", headers=headers, cookies=cookies)
     
-        else:
-            lectures.append(f"{name}: {url}")
+        if response.status_code != 200:
+           return await msg.edit_text("😒 **Login failed, incorrect subject credentials.**")
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        cards = soup.find_all('div', class_='card')
    
-    params.update({'type': 'notes', 'notes_type': 'notes'})
-    response = session.get("https://web.careerwill.com/_next/data/RqQQCO-Y8ngCTaHq8KW2p/class.json", cookies=cookies, params=params)
-    notes_results = response.json().get('pageProps', {}).get("notesData", {}).get("notesDetails", {})
-    
-    for note in notes_results:
-        name = note.get("docTitle", "Unknown")
-        url = note.get("docUrl", "Url Not Found")
-        if url:
-            lectures.append(f"{name}: {url}")
-        else:
-            continue
+        for card in cards:
+            subject_name = card.find('span', class_='btn btn-header-link').get_text(strip=True).split('\n')[0].strip()
+            zoom_link_tag = card.find('span', class_='btn btn-primary btn-sm radius-sm no-animation')
+            if zoom_link_tag:
+                zoom_link = zoom_link_tag['onclick'].split('\'')[1]  # Extract Zoom link from the onclick attribute
+            else:
+                zoom_link = None 
+                
+            lectures.append(f"{subject_name}: {zoom_link}")   
     
     return lectures
 
@@ -186,7 +176,7 @@ async def cdsjourney_login(_, message):
 
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
         start_time = time.time()
-        lectures = await asyncio.create_task(course_content(session, batch_url))
+        lectures = await asyncio.create_task(course_content(session, batch_url, headers, cookies))
         end_time = time.time()
         duration_seconds = end_time - start_time
         elapsed = get_time(duration_seconds)
