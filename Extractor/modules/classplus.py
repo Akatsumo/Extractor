@@ -80,13 +80,29 @@ async def otp_login(session, org_code, org_id, phone):
 
 async def verify_otp(session, otp_num, org_id, phone, sessionID):
     url = "https://api.classplusapp.com/v2/users/verify"
+    headers = {
+      'accept': 'application/json, text/plain, */*',
+      'accept-language': 'en',
+      'api-version': '52',
+      'content-type': 'application/json;charset=UTF-8',
+      'origin': 'https://web.classplusapp.com',
+      'priority': 'u=1, i',
+      'referer': 'https://web.classplusapp.com/',
+      'sec-ch-ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"Windows"',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-site',
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    }
     data = {
         "otp": otp_num,
         "countryExt": "91",
         "sessionId": sessionID,
         "orgId": org_id,
         "fingerprintId": "b26a64a95429af40fc4ebda1d37ea638", # get_system_fingerprint(),
-        "mobile": "9153207525"
+        "mobile": str(phone.strip())
     }
 
     response = await session.post(url, headers=headers, json=data)
