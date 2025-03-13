@@ -92,44 +92,44 @@ async def cdsjourney_login(_, message):
 
         msg = await message.reply_text("**🔑 Please send your ID, phone number, or email, and then I will send an OTP**")
 
-        try:
-            input1 = await app.listen(user_id=user_id, timeout=30)
-        except:
-            return await msg.edit_text("⏳ Timeout! Please try again.")
-
-        data = {
-            'csrfmiddlewaretoken': csrf_token,
-            'loginEmail': input1.text.strip()
-        }
-
-        response = session.post(login_url, headers=headers, cookies=cookies, data=data)
-
-        if response.status_code != 200:
-            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-
-        await msg.edit_text("**Login successful, please enter OTP sent to your phone**")
-
-        try:
-            input2 = await app.listen(user_id=user_id, timeout=30)
-        except:
-            return await msg.edit_text("⏳ Timeout! Please try again.")
-
-        headers.update({'referer': 'https://www.cdsjourney.com/login/?next=/student-dashboard/subject/84/'})
-
-        data = {
-            'csrfmiddlewaretoken': csrf_token,
-            'loginPhone2': input1.text.strip(),
-            'sent-OTP': input2.text.strip(),
-            'first-name': '',
-            'mobile': ''
-        }
-
-        response = session.post("https://www.cdsjourney.com/verify-quiz-otp/", headers=headers, cookies=cookies, data=data)
-
-        if response.status_code != 200:
-            return await msg.edit_text("😒 **Login failed, incorrect OTP.**")
-
-        sessionid = response.cookies.get('sessionid', None)
+#        try:
+#            input1 = await app.listen(user_id=user_id, timeout=30)
+#        except:
+#            return await msg.edit_text("⏳ Timeout! Please try again.")
+#
+#        data = {
+#            'csrfmiddlewaretoken': csrf_token,
+#            'loginEmail': input1.text.strip()
+#        }
+#
+#        response = session.post(login_url, headers=headers, cookies=cookies, data=data)
+#
+#        if response.status_code != 200:
+#            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+#
+#        await msg.edit_text("**Login successful, please enter OTP sent to your phone**")
+#
+#        try:
+#            input2 = await app.listen(user_id=user_id, timeout=30)
+#        except:
+#            return await msg.edit_text("⏳ Timeout! Please try again.")
+#
+#        headers.update({'referer': 'https://www.cdsjourney.com/login/?next=/student-dashboard/subject/84/'})
+#
+#        data = {
+#            'csrfmiddlewaretoken': csrf_token,
+#            'loginPhone2': input1.text.strip(),
+#            'sent-OTP': input2.text.strip(),
+#            'first-name': '',
+#            'mobile': ''
+#        }
+#
+#        response = session.post("https://www.cdsjourney.com/verify-quiz-otp/", headers=headers, cookies=cookies, data=data)
+#
+#        if response.status_code != 200:
+#            return await msg.edit_text("😒 **Login failed, incorrect OTP.**")
+#
+        sessionid = "sq1q8hbqgvcf29y55vlnh0h09478d38e" #response.cookies.get('sessionid', None)
         cookies.update({'sessionid': sessionid})
         headers.update({'referer': 'https://www.cdsjourney.com/student-dashboard/purchase-order-list/'})
 
