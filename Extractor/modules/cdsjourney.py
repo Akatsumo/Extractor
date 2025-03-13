@@ -125,6 +125,7 @@ async def cdsjourney_login(_, message):
             }
 
             response = session.post("https://www.cdsjourney.com/verify-quiz-otp/", headers=headers, cookies=cookies, data=data)
+            print(response.json())
             sessionid = response.cookies.get('sessionid', None)
             await input2.delete()
             
@@ -181,7 +182,7 @@ async def cdsjourney_login(_, message):
 
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
         start_time = time.time()
-        lectures = await asyncio.create_task(course_content(session, batch_url, headers, cookies))
+        lectures = await asyncio.create_task(course_extract(session, batch_url, headers, cookies))
         end_time = time.time()
         duration_seconds = end_time - start_time
         elapsed = get_time(duration_seconds)
