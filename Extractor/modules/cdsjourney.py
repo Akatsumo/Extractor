@@ -110,7 +110,7 @@ async def cdsjourney_login(_, message):
 
             await msg.edit_text("**Login successful, please enter OTP sent to your phone**")
             try:
-                input2 = await app.listen(user_id=user_id, timeout=30)
+                input2 = await app.listen(user_id=user_id, timeout=300)
             except:
                 return await msg.edit_text("⏳ Timeout! Please try again.")
 
