@@ -86,7 +86,7 @@ async def verify_otp(session, otp_num, org_id, phone, sessionID):
         "sessionId": sessionID,
         "orgId": org_id,
         "fingerprintId": "b26a64a95429af40fc4ebda1d37ea638", # get_system_fingerprint(),
-        "mobile": str(phone.strip())
+        "mobile": "9153207525"
     }
 
     response = await session.post(url, headers=headers, json=data)
