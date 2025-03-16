@@ -22,6 +22,7 @@ HELP_TEXT = """
 `/khan` : Single Purpose [Free]
 `/cw` : Single Purpose [Free]
 `/cds` : Single Purpose [Free]
+`/adda` : Single Purpose [Free]
 """
 
 
