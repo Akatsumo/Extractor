@@ -36,63 +36,116 @@ headers = {
   
 # ----------------------- Course Extractor ----------------------- #
 
-async def direct_links(session, headers, course_id):
+async def course_extract(session, headers, course_id):
     lectures = []
-    params = {
-        'packageId': course_id,
-        'category': 'ONLINE_LIVE_CLASSES',
-        'isComingSoon': 'false',
-        'pageNumber': '0',
-        'pageSize': '10',
-        'src': 'aweb'
-    }
-
     try:
-        response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
-        response.raise_for_status()
-        response_json = await response.json()
-        subject_output = response_json.get('data', {}).get('packages', [])
+        params = {
+            'purchasedPackage': course_id,
+            'src': 'aweb'
+        }
 
-        total_items = response_json.get('data', {}).get('packagesCount', 0)
-        page_size = 10
-        page_count = math.ceil(total_items / page_size)
+        response = await session.get(
+            "https://store.adda247.com/api/v1/ppc/package/bookmark",
+            headers=headers,
+            params=params
+        )
+        package_output = (await response.json())["data"]["bookmarkedPackages"]
 
-        for page_number in range(page_count):
-            params['pageNumber'] = str(page_number)
-            response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
-            response.raise_for_status()
+        for package in package_output:
+            package_id = package.get('packageId')
+            title = package.get('title')
+
+            params = {
+                'packageId': package_id,
+                'contentType': 'ONLINE_LIVE_CLASSES',
+                'pageNo': 0,
+                'src': 'aweb'
+            }
+
+            response = await session.get(
+                "https://store.adda247.com/api/v1/syllabus/ppc/subjects",
+                headers=headers,
+                params=params
+            )
             response_json = await response.json()
-            subject_output = response_json.get('data', {}).get('packages', [])
+            syllabus_output = response_json.get('data', {}).get('syllabus', [])
 
-            for data in subject_output:
-                try:
-                    package_id = data.get("packageId")
-                    response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb", headers=headers)
-                    response.raise_for_status()
+            for syllabus in syllabus_output:
+                syllabus_id = syllabus.get('id')
+                syllabus_level = syllabus.get('level')
+
+                params = {
+                    'packageId': package_id,
+                    'contentType': 'ONLINE_LIVE_CLASSES',
+                    'syllabusId': syllabus_id,
+                    'level': syllabus_level,
+                    'pageNo': 0,
+                    'src': 'aweb'
+                }
+
+                response = await session.get(
+                    "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter",
+                    headers=headers,
+                    params=params
+                )
+                response_json = await response.json()
+                subject_output = response_json.get('data', {}).get('syllabus', [])
+
+                for subject in subject_output:
+                    subject_id = subject.get('id')
+                    subject_level = subject.get('level')
+
+                    params = {
+                        'contentType': 'ONLINE_LIVE_CLASSES',
+                        'packageId': package_id,
+                        'level': subject_level,
+                        'syllabusId': subject_id,
+                        'pageNo': 0,
+                        'pageSize': 20,
+                        'status': 1,
+                        'src': 'aweb'
+                    }
+
+                    response = await session.get(
+                        "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
+                        headers=headers,
+                        params=params
+                    )
                     response_json = await response.json()
-                    content_output = response_json.get('data', {}).get('onlineClasses', [])
+                    content_output = response_json.get('data', {}).get('content', [])
 
-                    for content in content_output:
-                        name = content.get('name', 'Unknown')
-                        url = content.get('url', None)
-                        pdf = content.get('pdfFileName', None)
-                        dpp_files = content.get('dppFileNames', [])
+                    total_items = response_json.get('data', {}).get('total', 0)
+                    page_size = 20
+                    page_count = math.ceil(total_items / page_size)
 
-                        if url:
-                            lectures.append(f"{name}: {url}")
+                    for page_number in range(page_count):
+                        params['pageNo'] = page_number
+                        response = await session.get(
+                            "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
+                            headers=headers,
+                            params=params
+                        )
+                        response_json = await response.json()
+                        content_output = response_json.get('data', {}).get('content', [])
 
-                        if pdf:
-                            lectures.append(f"{name}: https://store.adda247.com/{pdf}")
+                        for content in content_output:
+                            name = content.get('name', 'Unknown')
+                            url = content.get('url', None)
+                            pdf = content.get('pdfFileName', None)
+                            dpp_files = content.get('dppFileNames', [])
 
-                        if dpp_files:
-                            for dpp_file in dpp_files:
-                                lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+                            if url:
+                               lectures.append(f"{name}: {url}")
 
-                except Exception as e:
-                    print(f"Error fetching package details for package {package_id}: {e}")
-            
+                            if pdf:
+                               lectures.append(f"{name}: https://store.adda247.com/{pdf}")
+
+                            if dpp_files:
+                               for dpp_file in dpp_files:
+                                 lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+
     except Exception as e:
-        print(f"Error fetching course details: {e}")
+        print(f"Error In Course Extract: {e}")
 
     return lectures
 
@@ -100,9 +153,6 @@ async def direct_links(session, headers, course_id):
 
 
 # ----------------------- Direct-Links ----------------------- #
-
-import aiohttp
-import math
 
 async def direct_links(session, headers, course_id):
     lectures = []
