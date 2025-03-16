@@ -2,6 +2,7 @@ import re
 import os
 import time
 import json
+import math
 import aiohttp
 import asyncio
 from Extractor import app
@@ -139,54 +140,70 @@ async def course_extract(session, headers, course_id):
 
 
 
+# ----------------------- Direct-Links ----------------------- #
 
 async def direct_links(session, headers, course_id):
     lectures = []
+    url = "https://store.adda247.com/api/v3/ppc/package/child"
     params = {
         'packageId': course_id,
         'category': 'ONLINE_LIVE_CLASSES',
         'isComingSoon': 'false',
-        'pageNumber': '0',
-        'pageSize': '10',
+        'pageNumber': 0,
+        'pageSize': 10,
         'src': 'aweb'
     }
 
     try:
-        response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
+        response = await session.get(url, headers=headers, params=params)
         response.raise_for_status()
         response_json = await response.json()
-        subject_output = response_json.get('data', {}).get('packages', [])
-        print(subject_output)
+        
+        total_items = response_json.get('data', {}).get('packagesCount', 0)
+        page_size = 10
+        page_count = math.ceil(total_items / page_size)
 
-        for data in subject_output:
-            try:
-                package_id = data.get("packageId")
-                response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb", headers=headers)
-                response.raise_for_status()
-                response_json = await response.json()
-                content_output = response_json.get('data', {}).get('onlineClasses', [])
+        for page_number in range(page_count):
+            params['pageNumber'] = page_number
+            response = await session.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            response_json = await response.json()
 
-                for content in content_output:
-                    name = content.get('name', 'Unknown')
-                    url = content.get('url', None)
-                    pdf = content.get('pdfFileName', None)
-                    dpp_files = content.get('dppFileNames', [])
+            subject_output = response_json.get('data', {}).get('packages', [])
 
-                    if url:
-                        lectures.append(f"{name}: {url}")
+            for data in subject_output:
+                try:
+                    package_id = data.get("packageId")
+                    package_response = await session.get(
+                        f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb", 
+                        headers=headers
+                    )
+                    package_response.raise_for_status()
+                    package_json = await package_response.json()
+                    
+                    content_output = package_json.get('data', {}).get('onlineClasses', [])
+
+                    for content in content_output:
+                        name = content.get('name', 'Unknown')
+                        url = content.get('url', None)
+                        pdf = content.get('pdfFileName', None)
+                        dpp_files = content.get('dppFileNames', [])
+
+                        if url:
+                            lectures.append(f"{name}: {url}")
                         if pdf:
                             lectures.append(f"{name}: https://store.adda247.com/{pdf}")
                         if dpp_files:
-                            lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+                            for dpp_file in dpp_files:
+                                lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
 
-            except Exception as e:
-                print(f"Error fetching package details: {e}")
+                except Exception as e:
+                    print(f"Error fetching package details for package {package_id}: {e}")
             
     except Exception as e:
-        print(f"Error fetching course details: {e}")
+        print(f"Error fetching course details for course {course_id}: {e}")
     
     return lectures
-
 
 
 # ----------------------- Adda-Command ----------------------- #
