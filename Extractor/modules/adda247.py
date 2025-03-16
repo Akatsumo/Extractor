@@ -35,7 +35,7 @@ headers = {
 }
   
 # ----------------------- Course Extractor ----------------------- #
-
+"""
 async def course_extract(session, headers, course_id):
     lectures = []
     try:
@@ -149,6 +149,76 @@ async def course_extract(session, headers, course_id):
 
     return lectures
 
+"""
+
+import math
+import aiohttp
+
+async def direct_links(session, headers, course_id):
+    lectures = []
+    all_packages = []
+
+    params = {
+        'packageId': course_id,
+        'category': 'ONLINE_LIVE_CLASSES',
+        'isComingSoon': 'false',
+        'pageNumber': '0',
+        'pageSize': '10',
+        'src': 'aweb'
+    }
+
+    try:
+        response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
+        response.raise_for_status()
+        response_json = await response.json()
+
+        total_items = response_json.get('data', {}).get('packagesCount', 0)
+        page_size = 10
+        page_count = math.ceil(total_items / page_size)
+
+        print(f"Total pages: {page_count}")
+
+        for page_number in range(page_count):
+            params['pageNumber'] = str(page_number)
+            response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
+            response.raise_for_status()
+            response_json = await response.json()
+            subject_output = response_json.get('data', {}).get('packages', [])
+
+            for data in subject_output:
+                package_id = data.get("packageId")
+                all_packages.append(package_id)
+
+        for package_id in all_packages:
+            try:
+                response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb", headers=headers)
+                response.raise_for_status()
+                response_json = await response.json()
+                content_output = response_json.get('data', {}).get('onlineClasses', [])
+
+                for content in content_output:
+                    name = content.get('name', 'Unknown')
+                    url = content.get('url', None)
+                    pdf = content.get('pdfFileName', None)
+                    dpp_files = content.get('dppFileNames', [])
+
+                    if url:
+                        lectures.append(f"{name}: {url}")
+
+                    if pdf:
+                        lectures.append(f"{name}: https://store.adda247.com/{pdf}")
+
+                    if dpp_files:
+                        for dpp_file in dpp_files:
+                            lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
+
+            except Exception as e:
+                print(f"Error fetching content details for package {package_id}: {e}")
+
+    except Exception as e:
+        print(f"Error fetching course details: {e}")
+
+    return lectures
 
 
 
