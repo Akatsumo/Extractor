@@ -35,8 +35,6 @@ headers = {
 }
   
 # ----------------------- Course Extractor ----------------------- #
-import math
-import aiohttp
 
 async def course_extract(session, headers, course_id):
     lectures = []
@@ -160,6 +158,9 @@ async def course_extract(session, headers, course_id):
 
 # ----------------------- Direct-Links ----------------------- #
 
+import aiohttp
+import math
+
 async def direct_links(session, headers, course_id):
     lectures = []
     params = {
@@ -176,14 +177,13 @@ async def direct_links(session, headers, course_id):
         response.raise_for_status()
         response_json = await response.json()
         subject_output = response_json.get('data', {}).get('packages', [])
-        print(subject_output)
 
         total_items = response_json.get('data', {}).get('packagesCount', 0)
         page_size = 10
         page_count = math.ceil(total_items / page_size)
 
         for page_number in range(page_count):
-            params['pageNumber'] = str(page_number) 
+            params['pageNumber'] = str(page_number)
             response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
             response.raise_for_status()
             response_json = await response.json()
@@ -204,13 +204,12 @@ async def direct_links(session, headers, course_id):
                         dpp_files = content.get('dppFileNames', [])
 
                         if url:
-                          lectures.append(f"{name}: {url}")
-                          
-                        if pdf and dpp_files:
-                            lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
-                        elif pdf:
+                            lectures.append(f"{name}: {url}")
+
+                        if pdf:
                             lectures.append(f"{name}: https://store.adda247.com/{pdf}")
-                        elif dpp_files:
+
+                        if dpp_files:
                             for dpp_file in dpp_files:
                                 lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
 
@@ -220,7 +219,6 @@ async def direct_links(session, headers, course_id):
     except Exception as e:
         print(f"Error fetching course details: {e}")
 
-    print(f"Failed URLs: {failed_urls}")  # This will print all failed URLs with 403 errors
     return lectures
 
 
