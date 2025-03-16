@@ -35,7 +35,7 @@ headers = {
 }
   
 # ----------------------- Course Extractor ----------------------- #
-"""
+
 async def course_extract(session, headers, course_id):
     lectures = []
     try:
@@ -149,10 +149,8 @@ async def course_extract(session, headers, course_id):
 
     return lectures
 
-"""
 
-import math
-import aiohttp
+
 
 async def direct_links(session, headers, course_id):
     lectures = []
@@ -223,7 +221,7 @@ async def direct_links(session, headers, course_id):
 
 
 # ----------------------- Direct-Links ----------------------- #
-
+"""
 async def direct_links(session, headers, course_id):
     lectures = []
     params = {
@@ -284,7 +282,7 @@ async def direct_links(session, headers, course_id):
 
     return lectures
 
-
+"""
 
 # ----------------------- Adda-Command ----------------------- #
 
