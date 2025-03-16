@@ -51,7 +51,6 @@ async def course_extract(session, headers, course_id):
         )
         package_output = (await response.json())["data"]["bookmarkedPackages"]
 
-        
         for package in package_output:
             package_id = package.get('packageId')
             title = package.get('title')
@@ -70,7 +69,7 @@ async def course_extract(session, headers, course_id):
             )
             response_json = await response.json()
             syllabus_output = response_json.get('data', {}).get('syllabus', [])
-            
+
             for syllabus in syllabus_output:
                 syllabus_id = syllabus.get('id')
                 syllabus_level = syllabus.get('level')
@@ -91,7 +90,7 @@ async def course_extract(session, headers, course_id):
                 )
                 response_json = await response.json()
                 subject_output = response_json.get('data', {}).get('syllabus', [])
-                
+
                 for subject in subject_output:
                     subject_id = subject.get('id')
                     subject_level = subject.get('level')
@@ -115,21 +114,34 @@ async def course_extract(session, headers, course_id):
                     response_json = await response.json()
                     content_output = response_json.get('data', {}).get('content', [])
 
-                    
-                    for content in content_output:
-                        name = content.get('name', 'Unknown')
-                        url = content.get('url', 'No URL')
-                        pdf = content.get('pdfFileName', 'No URL')
-                        dpp_file = content.get('dppFileNames', [])
+                    total_items = response_json.get('data', {}).get('total', 0)
+                    page_size = 20
+                    page_count = math.ceil(total_items / page_size)
 
-                        lectures.append(f"{name}: {url}")
-                        if pdf and dpp_file:
-                          lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
-                        elif pdf:
-                          lectures.append(f"{name}: https://store.adda247.com/{pdf}")
-                        else:
-                          lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
-                          
+                    for page_number in range(page_count):
+                        params['pageNo'] = page_number
+                        response = await session.get(
+                            "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
+                            headers=headers,
+                            params=params
+                        )
+                        response_json = await response.json()
+                        content_output = response_json.get('data', {}).get('content', [])
+
+                        for content in content_output:
+                            name = content.get('name', 'Unknown')
+                            url = content.get('url', 'No URL')
+                            pdf = content.get('pdfFileName', 'No URL')
+                            dpp_files = content.get('dppFileNames', [])
+
+                            lectures.append(f"{name}: {url}")
+                            if pdf and dpp_files:
+                                lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
+                            elif pdf:
+                                lectures.append(f"{name}: https://store.adda247.com/{pdf}")
+                            elif dpp_files:
+                                for dpp_file in dpp_files:
+                                    lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
 
     except Exception as e:
         print(f"Error In Course Extract: {e}")
