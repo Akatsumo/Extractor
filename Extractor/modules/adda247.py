@@ -267,7 +267,7 @@ async def adda_txt(_, message):
 
             maha_pack = next((item.get("mahaPack", False) for item in batch_data if item["packageId"] == course_id), False)
             start_time = time.time()
-            if maha_pack == False:
+            if maha_pack:
                 lectures = await asyncio.create_task(course_extract(session, headers, course_id))
             else:
                 lectures = await asyncio.create_task(direct_links(session, headers, course_id)) 
