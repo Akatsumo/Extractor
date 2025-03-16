@@ -156,44 +156,41 @@ async def course_extract(session, headers, course_id):
 
 async def direct_links(session, headers, course_id):
     lectures = []
-    url = "https://store.adda247.com/api/v3/ppc/package/child"
+    failed_urls = []  # List to store URLs that failed with 403 error
     params = {
         'packageId': course_id,
         'category': 'ONLINE_LIVE_CLASSES',
         'isComingSoon': 'false',
-        'pageNumber': 0,
-        'pageSize': 10,
+        'pageNumber': '0',
+        'pageSize': '10',
         'src': 'aweb'
     }
 
     try:
-        response = await session.get(url, headers=headers, params=params)
+        response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
         response.raise_for_status()
         response_json = await response.json()
-        
+        subject_output = response_json.get('data', {}).get('packages', [])
+        print(subject_output)
+
         total_items = response_json.get('data', {}).get('packagesCount', 0)
         page_size = 10
         page_count = math.ceil(total_items / page_size)
 
         for page_number in range(page_count):
-            params['pageNumber'] = page_number
-            response = await session.get(url, headers=headers, params=params)
+            params['pageNumber'] = str(page_number)  # Update page number dynamically
+            response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
             response.raise_for_status()
             response_json = await response.json()
-
             subject_output = response_json.get('data', {}).get('packages', [])
 
             for data in subject_output:
                 try:
                     package_id = data.get("packageId")
-                    package_response = await session.get(
-                        f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb", 
-                        headers=headers
-                    )
-                    package_response.raise_for_status()
-                    package_json = await package_response.json()
-                    
-                    content_output = package_json.get('data', {}).get('onlineClasses', [])
+                    response = await session.get(f"https://store.adda247.com/api/v1/my/purchase/OLC/{package_id}?src=aweb", headers=headers)
+                    response.raise_for_status()
+                    response_json = await response.json()
+                    content_output = response_json.get('data', {}).get('onlineClasses', [])
 
                     for content in content_output:
                         name = content.get('name', 'Unknown')
@@ -201,21 +198,28 @@ async def direct_links(session, headers, course_id):
                         pdf = content.get('pdfFileName', None)
                         dpp_files = content.get('dppFileNames', [])
 
-                        if url:
-                            lectures.append(f"{name}: {url}")
-                        if pdf:
+                        lectures.append(f"{name}: {url}")
+                        if url == 'No URL' or pdf == 'No URL' or not dpp_files:
+                            failed_urls.append(f"Failed URL for {name}: {url}")
+                        if pdf and dpp_files:
+                            lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
+                        elif pdf:
                             lectures.append(f"{name}: https://store.adda247.com/{pdf}")
-                        if dpp_files:
+                        elif dpp_files:
                             for dpp_file in dpp_files:
                                 lectures.append(f"{name}: https://store.adda247.com/{dpp_file}")
 
                 except Exception as e:
                     print(f"Error fetching package details for package {package_id}: {e}")
+                    failed_urls.append(f"Error fetching package details for package {package_id}: {e}")
             
     except Exception as e:
-        print(f"Error fetching course details for course {course_id}: {e}")
-    
+        print(f"Error fetching course details: {e}")
+        failed_urls.append(f"Error fetching course details: {e}")
+
+    print(f"Failed URLs: {failed_urls}")  # This will print all failed URLs with 403 errors
     return lectures
+
 
 
 # ----------------------- Adda-Command ----------------------- #
