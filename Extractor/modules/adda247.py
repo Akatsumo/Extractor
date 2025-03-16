@@ -204,42 +204,43 @@ async def adda_txt(_, message):
             msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
             try:
                 input1 = await app.listen(user_id=user_id, timeout=30)
-                if "*" in input1.text:
-                    email, password = input1.text.split("*")
-                    response = await session.post(login_url, json={"email": email, "providerName": "email", "sec": password}, headers=headers)
-                    
-                    if response.status != 200:
-                       return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-
-                    output = await response.json()
-                    login_token = output["loginToken"] 
-                    headers.update({"login_token": login_token})
-                    response = await session.post("https://userapi.adda247.com/forceLogout?src=aweb", headers=headers)
-                    output_response = await response.json()
-                  
-                    if response.status != 200:
-                       return await msg.edit_text("😒 **Login failed, did not fetched token.**")
-                      
-                    token = output_response['data']['jwtToken']
-                    jwt_token_new = output_response['data']['jwtTokenNew']
-                         
-                else:
-                    token = input1.text.strip()
             except:
                 return await message.reply_text("⏳ Timeout! Please try again.")
+              
+            if "*" in input1.text:
+                email, password = input1.text.split("*")
+                response = await session.post(login_url, json={"email": email, "providerName": "email", "sec": password}, headers=headers)
+                    
+                if response.status != 200:
+                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
+                output = await response.json()
+                login_token = output["loginToken"] 
+                headers.update({"login_token": login_token})
+                response = await session.post("https://userapi.adda247.com/forceLogout?src=aweb", headers=headers)
+                output_response = await response.json()
+                  
+                if response.status != 200:
+                    return await msg.edit_text("😒 **Login failed, did not fetch token.**")
+                      
+                token = output_response['data']['jwtToken']
+                jwt_token_new = output_response['data']['jwtTokenNew']
+                         
+            else:
+                token = input1.text.strip()
+            
             await input1.delete()            
             await msg.edit_text("✅ **Login Successful**")
 
             headers.update({"x-jwt-token": token})
             params = {
-              "pageNumber": 0,
-              "pageSize": 10,
-              "src": "aweb"
+                "pageNumber": 0,
+                "pageSize": 10,
+                "src": "aweb"
             }
             response = await session.get(f"https://store.adda247.com/api/v2/ppc/package/purchased", headers=headers, params=params)
             if response.status != 200:
-              return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
             batch_data = (await response.json())["data"]
             
@@ -266,7 +267,7 @@ async def adda_txt(_, message):
 
             maha_pack = next((item.get("mahaPack", False) for item in batch_data if item["packageId"] == course_id), False)
             start_time = time.time()
-            if maha_pack:
+            if maha_pack == False:
                 lectures = await asyncio.create_task(course_extract(session, headers, course_id))
             else:
                 lectures = await asyncio.create_task(direct_links(session, headers, course_id)) 
@@ -292,6 +293,7 @@ async def adda_txt(_, message):
         await session.close()
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)}`")
+
 
 
 
