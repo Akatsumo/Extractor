@@ -216,11 +216,12 @@ async def adda_txt(_, message):
                     headers.update({"login_token": login_token})
                     response = await session.post("https://userapi.adda247.com/forceLogout?src=aweb", headers=headers)
                     output_response = await response.json()
+                  
                     if response.status != 200:
                        return await msg.edit_text("😒 **Login failed, did not fetched token.**")
                       
-                    token = data['data']['jwtToken']
-                    jwt_token_new = data['data']['jwtTokenNew']
+                    token = output_response['data']['jwtToken']
+                    jwt_token_new = output_response['data']['jwtTokenNew']
                          
                 else:
                     token = input1.text.strip()
