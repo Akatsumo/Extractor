@@ -23,27 +23,15 @@ async def csrf_token(session):
 
 
 headers = {
-    "accept": "*/*",
-    "accept-language": "en-US,en;q=0.9",
-    "content-type": "application/json",
-    "cp-origin": "11",
-    "dname": "Chrome on Windows Desktop",
-    "login_type": "1",
-    "origin": "https://www.adda247.com",
-    "priority": "u=1, i",
-    "referer": "https://www.adda247.com/",
-    "sec-ch-ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"Windows"',
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-site",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-    "x-auth-token": "fpoa43edty5",
-    "x-csrf-token": "",
-    "x-jwt-token": ""
+    'X-Auth-Token': 'fpoa43edty5',
+    'X-CSRF-Token': '',
+    'X-JWT-Token': '',
+    'login_token': '',
+    'Referer': 'https://www.adda247.com/',
+    'Content-Type': 'application/json',
+    'login_type': '1',
+    'dName': 'Chrome on Windows Desktop'
 }
-
   
 # ----------------------- Course Extractor ----------------------- #
 
@@ -225,8 +213,15 @@ async def adda_txt(_, message):
 
                     output = await response.json()
                     login_token = output["loginToken"] 
-                    token = output["jwtToken"] if output["jwtToken"] else ""
-                    headers.update({"login_token": login_token})      
+                    headers.update({"login_token": login_token})
+                    response = await session.post("https://userapi.adda247.com/forceLogout?src=aweb", headers=headers)
+                    output_response = await response.json()
+                    if response.status != 200:
+                       return await msg.edit_text("😒 **Login failed, did not fetched token.**")
+                      
+                    token = data['data']['jwtToken']
+                    jwt_token_new = data['data']['jwtTokenNew']
+                         
                 else:
                     token = input1.text.strip()
             except:
