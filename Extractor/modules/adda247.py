@@ -35,9 +35,12 @@ headers = {
 }
   
 # ----------------------- Course Extractor ----------------------- #
+import math
+import aiohttp
 
 async def course_extract(session, headers, course_id):
     lectures = []
+    failed_urls = []  # List to store URLs that failed with 403 error
     try:
         params = {
             'purchasedPackage': course_id,
@@ -135,6 +138,8 @@ async def course_extract(session, headers, course_id):
                             dpp_files = content.get('dppFileNames', [])
 
                             lectures.append(f"{name}: {url}")
+                            if url == 'No URL' or pdf == 'No URL' or not dpp_files:
+                                failed_urls.append(f"Failed URL for {name}: {url}")
                             if pdf and dpp_files:
                                 lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
                             elif pdf:
@@ -146,6 +151,7 @@ async def course_extract(session, headers, course_id):
     except Exception as e:
         print(f"Error In Course Extract: {e}")
 
+    print(f"Failed URLs: {failed_urls}")  # This will print all failed URLs with 403 errors
     return lectures
 
 
@@ -156,7 +162,6 @@ async def course_extract(session, headers, course_id):
 
 async def direct_links(session, headers, course_id):
     lectures = []
-    failed_urls = []  # List to store URLs that failed with 403 error
     params = {
         'packageId': course_id,
         'category': 'ONLINE_LIVE_CLASSES',
@@ -178,7 +183,7 @@ async def direct_links(session, headers, course_id):
         page_count = math.ceil(total_items / page_size)
 
         for page_number in range(page_count):
-            params['pageNumber'] = str(page_number)  # Update page number dynamically
+            params['pageNumber'] = str(page_number) 
             response = await session.get("https://store.adda247.com/api/v3/ppc/package/child", headers=headers, params=params)
             response.raise_for_status()
             response_json = await response.json()
@@ -198,9 +203,9 @@ async def direct_links(session, headers, course_id):
                         pdf = content.get('pdfFileName', None)
                         dpp_files = content.get('dppFileNames', [])
 
-                        lectures.append(f"{name}: {url}")
-                        if url == 'No URL' or pdf == 'No URL' or not dpp_files:
-                            failed_urls.append(f"Failed URL for {name}: {url}")
+                        if url:
+                          lectures.append(f"{name}: {url}")
+                          
                         if pdf and dpp_files:
                             lectures.append(f"{name}: https://store.adda247.com/{pdf}\n{name}: https://store.adda247.com/{dpp_file}")
                         elif pdf:
@@ -211,11 +216,9 @@ async def direct_links(session, headers, course_id):
 
                 except Exception as e:
                     print(f"Error fetching package details for package {package_id}: {e}")
-                    failed_urls.append(f"Error fetching package details for package {package_id}: {e}")
             
     except Exception as e:
         print(f"Error fetching course details: {e}")
-        failed_urls.append(f"Error fetching course details: {e}")
 
     print(f"Failed URLs: {failed_urls}")  # This will print all failed URLs with 403 errors
     return lectures
