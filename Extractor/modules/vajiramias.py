@@ -22,56 +22,21 @@ headers = {
 }
 
 
-async def gen_csrftoken(session):
-    url = "https://www.cdsjourney.com/"
-    response = session.get(url) 
-    if response.status_code == 200:
-        cookies = response.cookies
-        csrftoken = cookies.get('csrftoken')
-        return csrftoken
-    else:
-        return None
+
 
 # ----------------------- Course-Extract ----------------------- #
 
-async def course_extract(session, batch_url, headers, cookies):
+async def course_extract(session, batch_url):
     lectures = []
-    headers.update({'referer': 'https://www.cdsjourney.com/student-dashboard/home/'})
-    response = session.get(f"https://www.cdsjourney.com{batch_url}", headers=headers, cookies=cookies)
-    
-    if response.status_code != 200:
-        return await msg.edit_text("😒 **Login failed, incorrect batch credentials.**")
-        
+    response = session.get(batch_url)  
     soup = BeautifulSoup(response.text, 'html.parser')
-    subject_data = []
     
-    for subject in soup.find_all('a', href=True):
-        if '/student-dashboard/subject/' in subject['href']:
-            subject_name = subject.find('img')['alt'] if subject.find('img') else 'No Subject Name'
-            subject_link = subject['href']
-            subject_data.append({'Subject Name': subject_name, 'Subject Link': subject_link})
-
-    for subject in subject_data:
-        print(f"Subject Name: {subject['Subject Name']}")
-        subject_url = subject['Subject Link']
-        headers.update({'referer': f'https://www.cdsjourney.com{batch_url}'})
-        response = session.get(f"https://www.cdsjourney.com{subject_url}", headers=headers, cookies=cookies)
-    
-        if response.status_code != 200:
-           return await msg.edit_text("😒 **Login failed, incorrect subject credentials.**")
+    chapters = soup.find_all('a', class_='chapter_box')
+    for chapter in chapters:
+        chapter_number = chapter.find('div', class_='chapter_count').text.strip()
+        chapter_name = chapter.find('h3').text.strip()
+        chapter_link = f"https://vajiramias.com{chapter['href']}"
         
-        soup = BeautifulSoup(response.text, 'html.parser')
-        cards = soup.find_all('div', class_='card')
-   
-        for card in cards:
-            subject_name = card.find('span', class_='btn btn-header-link').get_text(strip=True).split('\n')[0].strip()
-            zoom_link_tag = card.find('span', class_='btn btn-primary btn-sm radius-sm no-animation')
-            if zoom_link_tag:
-                zoom_link = zoom_link_tag['onclick'].split('\'')[1]  # Extract Zoom link from the onclick attribute
-            else:
-                zoom_link = None 
-                
-            lectures.append(f"{subject_name}: {zoom_link}")   
     
     return lectures
 
@@ -184,7 +149,7 @@ async def vajiram_login(_, message):
 
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
             start_time = time.time()
-            lectures = await asyncio.create_task(course_extract(session, batch_url, headers, cookies))
+            lectures = await asyncio.create_task(course_extract(session, batch_url))
             end_time = time.time()
             duration_seconds = end_time - start_time
             elapsed = get_time(duration_seconds)
