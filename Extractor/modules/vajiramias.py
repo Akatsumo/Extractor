@@ -23,38 +23,41 @@ headers = {
 
 
 # ----------------------- Course-Extract ----------------------- #
-
 async def course_extract(session, batch_url):
-    lectures = []
+    try:
+        lectures = []
     
-    response = session.get(batch_url)  
-    soup = BeautifulSoup(response.text, 'html.parser')
-    
-    chapters = soup.find_all('a', class_='chapter_box')
-    for chapter in chapters:
-        chapter_number = chapter.find('div', class_='chapter_count').text.strip()
-        chapter_name = chapter.find('h3').text.strip()
-        chapter_link = f"https://vajiramias.com{chapter['href']}"
-        
-        response = session.get(chapter_link)
+        response = session.get(batch_url)  
         soup = BeautifulSoup(response.text, 'html.parser')
-        sections = soup.find_all('a', class_='nav-link')
-        for section in sections:
-            section_name = section.text.strip()
-            section_link = section['href'].split("=")[1]
-            
-            response = session.get(f'{chapter_link}/?section-id={section_link}')
-            soup = BeautifulSoup(response.text, 'html.parser')
-            breadcrumb = soup.find('div', class_='breadcrumb')
-            course_title = breadcrumb.find_all('span')[-1].text.strip() if breadcrumb else 'Course Title Not Found'
-            main_video_wrapper = soup.find('div', id='main_video_wrapper')
-            video_url = main_video_wrapper['data-video-url'] if main_video_wrapper else 'Video URL Not Found'
-            lectures.append(f"{course_title}, {section_name}: {video_url}")
-
     
-    return lectures
-
-
+        chapters = soup.find_all('a', class_='chapter_box')
+        for chapter in chapters:
+            chapter_number = chapter.find('div', class_='chapter_count').text.strip()
+            chapter_name = chapter.find('h3').text.strip()
+            chapter_link = f"https://vajiramias.com{chapter['href']}"
+            print(f"chapter link: {chapter_link}")
+        
+            response = session.get(chapter_link)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            sections = soup.find_all('a', class_='nav-link')
+            for section in sections:
+                section_name = section.text.strip()
+                section_link = section['href'].split("=")[1]
+                print(f"section link: {chapter_link}")
+            
+                response = session.get(f"{chapter_link}/?section-id={section_link}")
+                soup = BeautifulSoup(response.text, 'html.parser')
+                breadcrumb = soup.find('div', class_='breadcrumb')
+                course_title = breadcrumb.find_all('span')[-1].text.strip() if breadcrumb else 'Course Title Not Found'
+                main_video_wrapper = soup.find('div', id='main_video_wrapper')
+                video_url = main_video_wrapper['data-video-url'] if main_video_wrapper else 'Video URL Not Found'
+                print(f"video link: {video_url}")
+                lectures.append(f"{course_title}, {section_name}: {video_url}")
+                
+        return lectures
+    
+    except Exception as e:
+        print(f"Error: {str(e)}")
 
     
 
