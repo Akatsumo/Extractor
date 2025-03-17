@@ -23,6 +23,7 @@ HELP_TEXT = """
 `/cw` : Single Purpose [Free]
 `/cds` : Single Purpose [Free]
 `/adda` : Single Purpose [Free]
+`/vajiram` : Single Purpose [Free]
 """
 
 
