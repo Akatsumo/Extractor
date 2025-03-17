@@ -43,9 +43,9 @@ async def course_extract(session, batch_url):
             for section in sections:
                 section_name = section.text.strip()
                 section_link = section['href'].split("=")[1]
-                print(f"section link: {chapter_link}")
+                print(f"section link: {section_link}")
             
-                response = session.get(f"{chapter_link}/?section-id={section_link}")
+                response = session.get(f"{chapter_link}?section-id={section_link}")
                 soup = BeautifulSoup(response.text, 'html.parser')
                 breadcrumb = soup.find('div', class_='breadcrumb')
                 course_title = breadcrumb.find_all('span')[-1].text.strip() if breadcrumb else 'Course Title Not Found'
