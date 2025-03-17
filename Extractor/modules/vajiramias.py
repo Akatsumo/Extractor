@@ -74,7 +74,7 @@ async def vajiram_login(_, message):
             return await message.reply_text("csrf token did not found !!")
 
         headers.update({'Referer': login_url})    
-        msg = await message.reply_text("**🔑 Please send your ID, phone number, or email, and then I will send an OTP**")
+        msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
 
         try:
             input1 = await app.listen(user_id=user_id, timeout=30)
@@ -143,7 +143,7 @@ async def vajiram_login(_, message):
             s_no = 1  
             for course in free_courses:
                 batch_list += f"`{s_no}`  -   **{course['course_name']}-{course['course_type']}**\n\n"
-                batch_data[s_no] = {'batch_name': course_name, 'batch_url': course['course_url']}
+                batch_data[s_no] = {'batch_name': course['course_name'], 'batch_url': course['course_url']}
                 s_no += 1
 
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
@@ -180,8 +180,6 @@ async def vajiram_login(_, message):
             await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
             os.remove(file_name)
             await msg.delete()
-
-            await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{sessionid}`")
 
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)}`")
