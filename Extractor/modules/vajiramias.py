@@ -51,8 +51,8 @@ async def course_extract(session, batch_url):
                 course_title = breadcrumb.find_all('span')[-1].text.strip() if breadcrumb else 'Course Title Not Found'
                 main_video_wrapper = soup.find('div', id='main_video_wrapper')
                 video_url = main_video_wrapper['data-video-url'] if main_video_wrapper else 'Video URL Not Found'
-                print(f"video link: {video_url}")
-                lectures.append(f"{course_title}, {section_name}: {video_url}")
+               
+                lectures.append(f"{course_title}, {section_name}: {video_url.split("/")[2]}")
                 
         return lectures
     
