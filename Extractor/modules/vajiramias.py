@@ -26,6 +26,7 @@ headers = {
 
 async def course_extract(session, batch_url):
     lectures = []
+    
     response = session.get(batch_url)  
     soup = BeautifulSoup(response.text, 'html.parser')
     
@@ -42,7 +43,7 @@ async def course_extract(session, batch_url):
             section_name = section.text.strip()
             section_link = section['href'].split("=")[1]
             
-            response = session.get('{chapter_link}/?section-id={section_link}')
+            response = session.get(f'{chapter_link}/?section-id={section_link}')
             soup = BeautifulSoup(response.text, 'html.parser')
             breadcrumb = soup.find('div', class_='breadcrumb')
             course_title = breadcrumb.find_all('span')[-1].text.strip() if breadcrumb else 'Course Title Not Found'
@@ -141,7 +142,7 @@ async def vajiram_login(_, message):
             batch_data = {}
             s_no = 1  
             for course in free_courses:
-                batch_list += f"{s_no}  -   **{course['course_name']}-{course['course_type']}**\n\n"
+                batch_list += f"`{s_no}`  -   **{course['course_name']}-{course['course_type']}**\n\n"
                 batch_data[s_no] = {'batch_name': course_name, 'batch_url': course['course_url']}
                 s_no += 1
 
