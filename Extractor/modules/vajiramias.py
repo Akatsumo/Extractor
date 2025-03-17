@@ -1,7 +1,5 @@
-import re
 import os
 import time
-import json
 import asyncio
 import requests
 from Extractor import app
@@ -37,6 +35,21 @@ async def course_extract(session, batch_url):
         chapter_name = chapter.find('h3').text.strip()
         chapter_link = f"https://vajiramias.com{chapter['href']}"
         
+        response = session.get(chapter_link)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        sections = soup.find_all('a', class_='nav-link')
+        for section in sections:
+            section_name = section.text.strip()
+            section_link = section['href'].split("=")[1]
+            
+            response = session.get('{chapter_link}/?section-id={section_link}')
+            soup = BeautifulSoup(response.text, 'html.parser')
+            breadcrumb = soup.find('div', class_='breadcrumb')
+            course_title = breadcrumb.find_all('span')[-1].text.strip() if breadcrumb else 'Course Title Not Found'
+            main_video_wrapper = soup.find('div', id='main_video_wrapper')
+            video_url = main_video_wrapper['data-video-url'] if main_video_wrapper else 'Video URL Not Found'
+            lectures.append(f"{course_title}, {section_name}: {video_url}")
+
     
     return lectures
 
