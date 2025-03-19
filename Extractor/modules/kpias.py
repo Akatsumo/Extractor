@@ -66,8 +66,9 @@ async def kpias_login(_, message):
         session = requests.Session()
         login_url = 'https://online.kpiasdelhi.com/login/?next='
         response = session.get(login_url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        csrfmiddlewaretoken = soup.find('input', {'name': 'csrfmiddlewaretoken'})['value']
+       
+        # soup = BeautifulSoup(response.text, 'html.parser')
+        # csrfmiddlewaretoken = soup.find('input', {'name': 'csrfmiddlewaretoken'})['value']
         
         headers = {
           'Referer': login_url,
@@ -88,7 +89,7 @@ async def kpias_login(_, message):
             username, password = input1.text.split("*")
           
             data = {
-                'csrfmiddlewaretoken': csrfmiddlewaretoken,
+                'csrfmiddlewaretoken': csrf_token,
                 'username': username,
                 'password': password
             }
