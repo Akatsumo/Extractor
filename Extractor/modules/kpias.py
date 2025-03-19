@@ -64,7 +64,7 @@ async def kpias_login(_, message):
     user_id = message.from_user.id
     try:
         session = requests.Session()
-        response = session.get("https://online.kpiasdelhi.com/login/?next=")
+        response = session.get("https://online.kpiasdelhi.com/login/")
 
         csrf_token = session.cookies.get('csrftoken')
         sessionid = session.cookies.get('sessionid')
