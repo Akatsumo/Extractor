@@ -64,9 +64,14 @@ async def kpias_login(_, message):
     user_id = message.from_user.id
     try:
         session = requests.Session()
-        response = session.get("https://online.kpiasdelhi.com/login/?next=")
+        login_url = 'https://online.kpiasdelhi.com/login/?next='
+        response = session.get(login_url)
         soup = BeautifulSoup(response.text, 'html.parser')
         csrfmiddlewaretoken = soup.find('input', {'name': 'csrfmiddlewaretoken'})['value']
+        
+        headers = {
+          'Referer': login_url,
+        }
 
         csrf_token = session.cookies.get('csrftoken')
         sessionid = session.cookies.get('sessionid')
@@ -87,14 +92,12 @@ async def kpias_login(_, message):
                 'username': username,
                 'password': password
             }
-
-            response = session.post("https://online.kpiasdelhi.com/login/?next=", cookies=cookies, data=data)
+            response = session.post(login_url, data=data, headers=headers)
 
             if response.status_code != 200:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
             sessionid = session.cookies.get('sessionid')   
-            print(sessionid)
         else:
             sessionid = input1.text.strip()
 
