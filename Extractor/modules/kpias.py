@@ -113,7 +113,7 @@ async def kpias_login(_, message):
         for course in data['results']:
             course_id = course['id']
             course_title = course['title']
-            batch_list += f"{course_id}  -   **{course_title}**\n\n"
+            batch_list += f"`{course_id}`  -   **{course_title}**\n\n"
 
         await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
 
