@@ -142,7 +142,7 @@ async def kpias_login(_, message):
         with open(file_name, "w") as f:
             f.write("\n".join(lectures))
 
-        caption = f"**App Name** : `KP IAS`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed}`"
+        caption = f"**App Name** : `KPIAS Delhi`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed}`"
         me = await app.get_me()
         big_file_id = me.photo.big_file_id
         thumb = await asyncio.create_task(app.download_media(big_file_id))
