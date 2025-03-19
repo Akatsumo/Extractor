@@ -92,12 +92,13 @@ async def kpias_login(_, message):
                 'username': username,
                 'password': password
             }
-            response = session.post(login_url, data=data, headers=headers)
+            response = session.post(login_url, data=data, headers=headers, cookies=cookies)
 
             if response.status_code != 200:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
             sessionid = session.cookies.get('sessionid')   
+            print(sessionid)
         else:
             sessionid = input1.text.strip()
 
