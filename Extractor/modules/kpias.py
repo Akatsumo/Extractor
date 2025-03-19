@@ -28,7 +28,6 @@ async def course_extract(session, cookies, batch_id):
     for test in tests:
         test_name = test.find('p', class_='text-sm font-semibold leading-6 text-gray-900').get_text(strip=True)
         link = f"https://online.kpiasdelhi.com{test.find('a', href=True)['href']}"
-        print(link)
         
         response = session.get(link, cookies=cookies)
         soup = BeautifulSoup(response.text, 'html.parser')
