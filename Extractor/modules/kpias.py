@@ -64,7 +64,7 @@ async def kpias_login(_, message):
     user_id = message.from_user.id
     try:
         session = requests.Session()
-        response = session.get("https://online.kpiasdelhi.com/login/")
+        response = session.get("https://online.kpiasdelhi.com/login/?next=")
 
         csrf_token = session.cookies.get('csrftoken')
         sessionid = session.cookies.get('sessionid')
@@ -86,7 +86,7 @@ async def kpias_login(_, message):
                 'password': password
             }
 
-            response = session.post("https://online.kpiasdelhi.com/login/", cookies=cookies, data=data)
+            response = session.post("https://online.kpiasdelhi.com/login/?next=", cookies=cookies, data=data)
 
             if response.status_code != 200:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
