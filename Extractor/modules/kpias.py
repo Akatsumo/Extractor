@@ -13,45 +13,43 @@ cookies = {}
 
 # ----------------------- Course-Extract ----------------------- #
 
-async def course_extract(session, batch_url, headers, cookies):
-    lectures = []
-    headers.update({'referer': 'https://www.cdsjourney.com/student-dashboard/home/'})
-    response = session.get(f"https://www.cdsjourney.com{batch_url}", headers=headers, cookies=cookies)
-    
-    if response.status_code != 200:
-        return await msg.edit_text("😒 **Login failed, incorrect batch credentials.**")
-        
-    soup = BeautifulSoup(response.text, 'html.parser')
-    subject_data = []
-    
-    for subject in soup.find_all('a', href=True):
-        if '/student-dashboard/subject/' in subject['href']:
-            subject_name = subject.find('img')['alt'] if subject.find('img') else 'No Subject Name'
-            subject_link = subject['href']
-            subject_data.append({'Subject Name': subject_name, 'Subject Link': subject_link})
 
-    for subject in subject_data:
-        print(f"Subject Name: {subject['Subject Name']}")
-        subject_url = subject['Subject Link']
-        headers.update({'referer': f'https://www.cdsjourney.com{batch_url}'})
-        response = session.get(f"https://www.cdsjourney.com{subject_url}", headers=headers, cookies=cookies)
+async def course_extract(session, cookies, batch_id):
+    lectures = []
+    url = f'https://online.kpiasdelhi.com/courses/running_contents/{batch_id}/'
+
+    params = {
+        'content_type': [3, 4, 5, 7, 8]  
+    } 
+    response = session.get(url, cookies=cookies, params=params)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tests = soup.find_all('li', class_='relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50')
     
-        if response.status_code != 200:
-           return await msg.edit_text("😒 **Login failed, incorrect subject credentials.**")
+    for test in tests:
+        test_name = test.find('p', class_='text-sm font-semibold leading-6 text-gray-900').get_text(strip=True)
+        link = f"https://online.kpiasdelhi.com{test.find('a', href=True)['href']}"
+        print(link)
         
+        response = session.get(link, cookies=cookies)
         soup = BeautifulSoup(response.text, 'html.parser')
-        cards = soup.find_all('div', class_='card')
-   
-        for card in cards:
-            subject_name = card.find('span', class_='btn btn-header-link').get_text(strip=True).split('\n')[0].strip()
-            zoom_link_tag = card.find('span', class_='btn btn-primary btn-sm radius-sm no-animation')
-            if zoom_link_tag:
-                zoom_link = zoom_link_tag['onclick'].split('\'')[1]  # Extract Zoom link from the onclick attribute
+        
+        div = soup.find('div', class_='mt-6 py-2 px-4 sm:px-6 lg:px-0 max-w-5xl mx-auto flex justify-center')
+        if div:
+            button = div.find('button', {'x-on:click': True})
+            if button:
+                x_on_click = button.get('x-on:click')
+                url_match = re.search(r"window\.open\('([^']+)'", x_on_click)
+
+                if url_match:
+                    download_url = url_match.group(1)
+                    lectures.append(f"{test_name}: {download_url}")
+                else:
+                    print("URL not found in the 'x-on:click' attribute.")
             else:
-                zoom_link = None 
-                
-            lectures.append(f"{subject_name}: {zoom_link}")   
-    
+                print("Button with 'x-on:click' attribute not found.")
+        else:
+            print("The div with the specified class was not found.")
+
     return lectures
 
 
@@ -131,7 +129,7 @@ async def kpias_login(_, message):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures = await asyncio.create_task(course_extract(session, batch_name, cookies))
+        lectures = await asyncio.create_task(course_extract(session, cookies, batch_id))
         end_time = time.time()
 
         duration_seconds = end_time - start_time
