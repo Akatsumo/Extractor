@@ -7,10 +7,10 @@ from pyrogram import filters
 from Extractor.core.main_func import get_time
 
 
-async def khan_extract(session, headers, slug):
-    # https://api.khanglobalstudies.com/cms/lessons/lession_id
-    lesson_url = f"https://api.khanglobalstudies.com/cms/user/courses/{slug}/lessons"
-    response = await session.get(lesson_url, headers=headers)
+async def course_extract(session, headers, params, course_id):
+    params({"course_id": course_id})
+    lesson_url = "https://myrisingindia.in/api_2cderep6masrlen/api/sections"
+    response = await session.get(lesson_url, headers=headers, params=params)
     
     try:
         output = await response.json()
@@ -45,8 +45,8 @@ async def khan_extract(session, headers, slug):
 
 
 
-@app.on_message(filters.command("khan"))
-async def khan_login(_, message):
+@app.on_message(filters.command("rising"))
+async def myrising_login(_, message):
     user_id = message.from_user.id
     try:
         async with aiohttp.ClientSession() as session:
@@ -97,11 +97,21 @@ async def khan_login(_, message):
                 batch_list += f"`{batch_id}`  -   **{batch_name}**\n\n"
 
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+            try:
+                input2 = await app.listen(user_id=user_id, timeout=30)
+                course_id = input2.text.strip()
+                await input2.delete()
+            except:
+                return await message.reply_text("⏳ Timeout! Please try again.")
+
+            batch_name = next((course["title"].replace("/", "") for course in batch_data if int(course["id"]) == int(course_id)), "")
+            if not batch_name:
+                return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
             
-
+            await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
             start_time = time.time()
-            lectures = await asyncio.create_task(khan_extract(session, headers, slug))
+            lectures = await asyncio.create_task(course_extract(session, headers, params, course_id))
             end_time = time.time()
             elapsed = get_time(end_time - start_time)
 
