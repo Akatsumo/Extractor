@@ -8,33 +8,14 @@ from Extractor.core.main_func import get_time
 
 
 async def course_extract(session, headers, params, course_id):
-    params({"course_id": course_id})
+    params.update({"course_id": course_id})
     lesson_url = "https://myrisingindia.in/api_2cderep6masrlen/api/sections"
     response = await session.get(lesson_url, headers=headers, params=params)
-    
-    try:
-        output = await response.json()
-        lessons = output.get("lessons", [])
-
-        if not lessons:
-            print("No lessons found.")
-            return []
-        
-        lectures = []
-        
-        for lesson in lessons:
-            lesson_name = lesson.get("name", "No Lesson Name") 
-            
-            for video in lesson.get("videos", []):
-                video_title = video.get("name", "No Title")
-                video_url = video.get("video_url", "No URL")
-                lectures.append(f"{video_title}: {video_url}\n")
-
-                pdfs = video.get("pdfs") or []
-                for pdf in pdfs:
-                    title = pdf.get("title", "No Title")
-                    url = pdf.get("url", "No URL")
-                    lectures.append(f"{title}: {url}\n")
+    response_output = await response.json()
+    for subject in response_output:
+        subject_id = subject['subject_id']
+        params.update({"subject_id": subject_id})
+  
         
         return lectures
     
