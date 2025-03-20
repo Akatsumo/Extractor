@@ -17,11 +17,9 @@ async def course_extract(session, headers, params, course_id):
         params.update({"subject_id": subject_id})
   
         
-        return lectures
+    return lectures
     
-    except Exception as e:
-        print(f"Error: {e}")
-        return []
+    
 
 
 
