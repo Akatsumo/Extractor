@@ -78,9 +78,9 @@ async def process_uk(session, raw_text, token, ids):
                 }
             )
             course_id2 = main_func.encode_base64(e_text)
-            data = {"layer_two_input_data": course_id2, "content": "content", "csrf_name": token}
+            data = {"tile_input": course_id2, "content": "content", "csrf_name": token}
 
-            response2 = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
+            response2 = await session.post("https://online.utkarsh.com/web/Course/tiles_data", cookies=cookies, data=data)
             output2 = json.loads(await response2.text())
             decode_output2 = main_func.utkarsh_decrypt(output2["response"])
             decoded2 = json_repair.repair_json(decode_output2, return_objects=True)
@@ -107,6 +107,7 @@ async def process_uk(session, raw_text, token, ids):
                 output3 = json.loads(await response.text())         
                 decode_output3 = main_func.utkarsh_decrypt(output3["response"])
                 decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
+                print(f"output links: {decoded3["data"]["list"]}")
 
                 for data in decoded3["data"]["list"]:
                     title = data["title"]
@@ -115,7 +116,13 @@ async def process_uk(session, raw_text, token, ids):
                     if data.get("bitrate_urls", []):
                         for item in data.get("bitrate_urls", []):             
                             if item["title"] == "720x1280.mp4" and item["url"]:
-                                lecture += f"{title}: {url}\n"
+                                url = item["url"]
+                                url = url.replace("/enc/", "/plain/")
+                                lecture += f"{title}: {url}.mp4\n"
+                                v_count += 1
+                            if item["title"] == "720p" and item["url"]:
+                                url = item["url"]
+                                lecture += f"{title}: {item["url"]}\n"
                                 v_count += 1
                                                               
 
