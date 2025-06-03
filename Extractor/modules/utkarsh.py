@@ -61,7 +61,6 @@ async def process_uk(session, raw_text, token, ids):
         output1 = json.loads(await response1.text())
         decode_output1 = main_func.utkarsh_decrypt(output1["response"])
         decoded1 = json_repair.repair_json(decode_output1, return_objects=True)
-        print(f"decode 1: {decoded1}")
         x_ids = [sx["id"] for sx in decoded1["data"]["list"]]
 
         for i in x_ids:
@@ -86,52 +85,52 @@ async def process_uk(session, raw_text, token, ids):
             decode_output2 = main_func.utkarsh_decrypt(output2["response"])
             decoded2 = json_repair.repair_json(decode_output2, return_objects=True)
             print(f"decode 2: {decoded2}")
-            s_ids = [item["id"] for item in decoded2["data"]["list"]]
+            # s_ids = [item["id"] for item in decoded2["data"]["list"]]
 
-            for j in s_ids:
-                f_text = json.dumps(
-                    {
-                        "course_id": id,
-                        "parent_id": raw_text,
-                        "layer": 3,
-                        "page": 1,
-                        "revert_api": "1#0#0#1",
-                        "subject_id": i,
-                        "tile_id": 0,
-                        "topic_id": j,
-                        "type": "content",
-                    }
-                )
-                course_id3 = main_func.encode_base64(f_text)
-                data = {"layer_two_input_data": course_id3, "content": "content", "csrf_name": token}
+            # for j in s_ids:
+            #     f_text = json.dumps(
+            #         {
+            #             "course_id": id,
+            #             "parent_id": raw_text,
+            #             "layer": 3,
+            #             "page": 1,
+            #             "revert_api": "1#0#0#1",
+            #             "subject_id": i,
+            #             "tile_id": 0,
+            #             "topic_id": j,
+            #             "type": "content",
+            #         }
+            #     )
+            #     course_id3 = main_func.encode_base64(f_text)
+            #     data = {"layer_two_input_data": course_id3, "content": "content", "csrf_name": token}
 
-                response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
-                output3 = json.loads(await response.text())         
-                decode_output3 = main_func.utkarsh_decrypt(output3["response"])
-                decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
-                print(f"output links: {decoded3["data"]["list"]}")
+            #     response = await session.post("https://online.utkarsh.com/web/Course/get_layer_two_data", cookies=cookies, data=data)
+            #     output3 = json.loads(await response.text())         
+            #     decode_output3 = main_func.utkarsh_decrypt(output3["response"])
+            #     decoded3 = json_repair.repair_json(decode_output3, return_objects=True)
+            #     print(f"output links: {decoded3["data"]["list"]}")
 
-                for data in decoded3["data"]["list"]:
-                    title = data["title"]
-                    vid = data["id"]
-                    url = None
-                    if data.get("bitrate_urls", []):
-                        for item in data.get("bitrate_urls", []):             
-                            if item["title"] == "720x1280.mp4" and item["url"]:
-                                url = item["url"]
-                                url = url.replace("/enc/", "/plain/")
-                                lecture += f"{title}: {url}.mp4\n"
-                                v_count += 1
-                            if item["title"] == "720p" and item["url"]:
-                                url = item["url"]
-                                lecture += f"{title}: {item["url"]}\n"
-                                v_count += 1
+            #     for data in decoded3["data"]["list"]:
+            #         title = data["title"]
+            #         vid = data["id"]
+            #         url = None
+            #         if data.get("bitrate_urls", []):
+            #             for item in data.get("bitrate_urls", []):             
+            #                 if item["title"] == "720x1280.mp4" and item["url"]:
+            #                     url = item["url"]
+            #                     url = url.replace("/enc/", "/plain/")
+            #                     lecture += f"{title}: {url}.mp4\n"
+            #                     v_count += 1
+            #                 if item["title"] == "720p" and item["url"]:
+            #                     url = item["url"]
+            #                     lecture += f"{title}: {item["url"]}\n"
+            #                     v_count += 1
                                                               
 
-                    if data.get("file_type") == "1":
-                        pdf = data["file_url"]
-                        lecture += f"{title}: {pdf}\n"
-                        p_count += 1
+            #         if data.get("file_type") == "1":
+            #             pdf = data["file_url"]
+            #             lecture += f"{title}: {pdf}\n"
+            #             p_count += 1
 
     return lecture
 
