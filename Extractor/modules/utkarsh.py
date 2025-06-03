@@ -79,7 +79,7 @@ async def process_uk(session, raw_text, token, ids):
                 }
             )
             course_id2 = main_func.encode_base64(e_text)
-            data = {"tile_input": course_id2, "content": "content", "csrf_name": token}
+            data = {"tile_input": course_id2, "csrf_name": token}
 
             response2 = await session.post("https://online.utkarsh.com/web/Course/tiles_data", cookies=cookies, data=data)
             output2 = json.loads(await response2.text())
