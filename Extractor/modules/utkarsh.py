@@ -188,8 +188,8 @@ async def utkarsh_login(_, message):
     
         response = await session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, headers=headers, data=data) 
         output = await response.text()
-        print(output)
-        # decode_response = json.loads(main_func.utkarsh_decrypt(output["response"].replace(":MDE2MTA4NjQxMDI3NDUxNQ==", "")))
+        decode_response = json.loads(main_func.utkarsh_decrypt(output["response"].replace(":MDE2MTA4NjQxMDI3NDUxNQ==", "")))
+        print(decode_response)
         
         # FFF = "**BATCH ID   -   BATCH NAME**\n\n"
         # for course in decode_response["data"].get("data"):
