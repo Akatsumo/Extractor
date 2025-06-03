@@ -61,6 +61,7 @@ async def process_uk(session, raw_text, token, ids):
         output1 = json.loads(await response1.text())
         decode_output1 = main_func.utkarsh_decrypt(output1["response"])
         decoded1 = json_repair.repair_json(decode_output1, return_objects=True)
+        print(f"decode 1: {decoded1}")
         x_ids = [sx["id"] for sx in decoded1["data"]["list"]]
 
         for i in x_ids:
@@ -83,6 +84,7 @@ async def process_uk(session, raw_text, token, ids):
             response2 = await session.post("https://online.utkarsh.com/web/Course/tiles_data", cookies=cookies, data=data)
             output2 = json.loads(await response2.text())
             decode_output2 = main_func.utkarsh_decrypt(output2["response"])
+            print(decode_output2)
             decoded2 = json_repair.repair_json(decode_output2, return_objects=True)
             print(f"decode 2: {decoded2}")
             # s_ids = [item["id"] for item in decoded2["data"]["list"]]
