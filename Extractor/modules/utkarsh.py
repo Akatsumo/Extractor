@@ -187,57 +187,58 @@ async def utkarsh_login(_, message):
         headers['Referer'] = 'https://online.utkarsh.com/web/Profile/my_course'
     
         response = await session.post("https://online.utkarsh.com/web/Profile/my_course", cookies=cookies, headers=headers, data=data) 
-        output = await response.text()
-        decode_response = json.loads(main_func.utkarsh_decrypt(json.loads(output)["response"]))
+        output = await response.json()
+        print(output)
+        # decode_response = json.loads(main_func.utkarsh_decrypt(json.loads(output)["response"]))
         
-        FFF = "**BATCH ID   -   BATCH NAME**\n\n"
-        for course in decode_response["data"].get("data"):
-            FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
+        # FFF = "**BATCH ID   -   BATCH NAME**\n\n"
+        # for course in decode_response["data"].get("data"):
+        #     FFF += f"**`{course['id']}`   -   {course['title']}**\n\n"
         
-        await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
-        try:
-            input2 = await app.listen(user_id, timeout=30)  
-            raw_text2 = input2.text
-        except:
-            return await message.reply_text("⏳ Timeout! Please try again.")
+        # await msg.edit_text(f"{FFF}\n\n**📊 Now send the Batch ID to Download**")
+        # try:
+        #     input2 = await app.listen(user_id, timeout=30)  
+        #     raw_text2 = input2.text
+        # except:
+        #     return await message.reply_text("⏳ Timeout! Please try again.")
             
-        batch_name = next(
-            (course["title"].replace("/", "") for course in decode_response["data"]["data"] if course["id"] == raw_text2), ""
-        )
+        # batch_name = next(
+        #     (course["title"].replace("/", "") for course in decode_response["data"]["data"] if course["id"] == raw_text2), ""
+        # )
         
-        combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
-        course_id = main_func.utkarsh_encrypt(combo_text)
+        # combo_text = '{"course_id": "' + raw_text2 + '", "revert_api": "1#0#0#1", "parent_id": 0, "tile_id": "0", "layer": 1, "type": "course_combo"}'        
+        # course_id = main_func.utkarsh_encrypt(combo_text)
         
-        data = {'tile_input': course_id, 'csrf_name': token}
-        response = await session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data)
-        output = json.loads(await response.text())          
-        decode_output = main_func.utkarsh_decrypt(output["response"])
-        decoded = json_repair.repair_json(decode_output, return_objects=True)
+        # data = {'tile_input': course_id, 'csrf_name': token}
+        # response = await session.post('https://online.utkarsh.com/web/Course/tiles_data', cookies=cookies, data=data)
+        # output = json.loads(await response.text())          
+        # decode_output = main_func.utkarsh_decrypt(output["response"])
+        # decoded = json_repair.repair_json(decode_output, return_objects=True)
         
-        if decoded["status"] is not True:
-            return await msg.edit_text("✏️ **Invalid Course ID**")
+        # if decoded["status"] is not True:
+        #     return await msg.edit_text("✏️ **Invalid Course ID**")
                            
-        await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
-        start_time = time.time()
-        links = ""
+        # await msg.edit_text("**Extracting Video Links, Please Wait  📥**")
+        # start_time = time.time()
+        # links = ""
         
-        tasks = [process_uk(session, raw_text2, token, [item["id"]]) for item in decoded['data']]
-        results = await asyncio.gather(*tasks)
-        links = "".join(results)
+        # tasks = [process_uk(session, raw_text2, token, [item["id"]]) for item in decoded['data']]
+        # results = await asyncio.gather(*tasks)
+        # links = "".join(results)
 
-        elapsed = main_func.get_time(time.time() - start_time)
-        caption = f"**App Name** : `Utkarsh`\n\n**Batch Name** : `{batch_name}`\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
+        # elapsed = main_func.get_time(time.time() - start_time)
+        # caption = f"**App Name** : `Utkarsh`\n\n**Batch Name** : `{batch_name}`\n🍿 **Total Video** : `{v_count}`\n📝 **Total pdf** : `{p_count}`\n⌚️ **Time Taken** : `{elapsed}`"
         
-        file_path = f"{batch_name}_{user_id}.txt"
-        with open(file_path, "w") as f:
-            f.write(links)
+        # file_path = f"{batch_name}_{user_id}.txt"
+        # with open(file_path, "w") as f:
+        #     f.write(links)
 
-        me = await app.get_me()
-        big_file_id = me.photo.big_file_id
-        thumb = await asyncio.create_task(app.download_media(big_file_id))
-        await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
-        await msg.delete()
-        os.remove(file_path)
-        await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+        # me = await app.get_me()
+        # big_file_id = me.photo.big_file_id
+        # thumb = await asyncio.create_task(app.download_media(big_file_id))
+        # await app.send_document(chat_id=message.chat.id, document=file_path, caption=caption, thumb=thumb, reply_markup=keyboard)
+        # await msg.delete()
+        # os.remove(file_path)
+        # await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
 
