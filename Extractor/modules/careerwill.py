@@ -128,6 +128,7 @@ async def careerwill_login(_, message):
             f"{base_url}/live-classes.json?view=Grid",
             cookies=cookies
         )
+        print(response.json())
         if response.status_code != 200:
             return await msg.edit_text("😒 **Failed to fetch live classes.**")
 
