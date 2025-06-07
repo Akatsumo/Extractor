@@ -42,7 +42,7 @@ async def save_urls(app, user_id, m, all_urls, start_time, bname, batch_id):
         caption = (
             f"**APP NAME :** UTKARSH \n\n **Batch Name :** {batch_id} - {bname} \n\n "
             f"TOTAL LINK - {len(all_urls)} \n Video Links - {video_count - drm_video_count} \n "
-            f"Total Pdf - {pdf_count} \n\"
+            f"Total Pdf - {pdf_count} \n"
         )
         
         async with aiofiles.open(file_path, 'w', encoding='utf-8') as f:
