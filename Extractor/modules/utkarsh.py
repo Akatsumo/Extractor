@@ -5,13 +5,13 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from base64 import b64decode
 from pyrogram import filters
-from pyrogram import Client
+from Extractor import app
 from concurrent.futures import ThreadPoolExecutor
 import threading
 
 appname = "Utkarsh"
-txt_dump = -1002540703953
-txt_dump2 = -1002540703953
+txt_dump = 8075872851
+txt_dump2 = 8075872851
 
 def decrypt(enc):
     try:
@@ -187,7 +187,7 @@ def fetch_urls(subject_id, batch_id, topic_id, token, headers, url_lock, all_url
     except Exception as e:
         print(f"Error fetching URLs: {e}")
 
-@Client.on_message(filters.command(["ut"]))
+@app.on_message(filters.command(["ut"]))
 async def handle_utk_logic(app, m):
     try:
         editable = await m.reply_text("Send **ID & Password** in this manner otherwise app will not respond.\n\nSend like this:-  **ID*Password**")
