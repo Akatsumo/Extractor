@@ -124,13 +124,12 @@ async def careerwill_login(_, message):
         await msg.edit_text("✅ **Login Successful**")
  
         response = session.get(
-            "https://web.careerwill.com/live-classes.json?view=List&batch_type=my",
+            "https://web.careerwill.com/_next/data/J2PNcBmvfyASrHei6bXUp/live-classes.json?view=List&batch_type=my",
             cookies=cookies
         )
         if response.status_code != 200:
             return await msg.edit_text("😒 **Failed to fetch live classes.**")
 
-        print(response.json())
         batch_data = response.json().get('pageProps', {}).get('myBatchData', [])
        
         if not batch_data:
