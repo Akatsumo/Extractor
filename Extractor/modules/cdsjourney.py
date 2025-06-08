@@ -237,7 +237,6 @@ async def cdsjourney_login(_, message):
         }
 
         response = session.post(login_url, headers=headers, cookies=cookies, data=data)
-        print(response.json())
         if response.status_code != 200:
             return await msg.edit_text("😒 **Login failed. Invalid Email/Phone.**")
 
@@ -271,7 +270,6 @@ async def cdsjourney_login(_, message):
         headers.update({'referer': 'https://www.cdsjourney.com/student-dashboard/purchase-order-list/'})
         await msg.edit_text("✅ **Login Successful. Fetching your courses...**")
 
-        # Get Courses
         response = session.get('https://www.cdsjourney.com/student-dashboard/home/', headers=headers, cookies=cookies)
         if response.status_code != 200:
             return await msg.edit_text("😒 **Failed to fetch live classes.**")
