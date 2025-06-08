@@ -54,17 +54,25 @@ async def course_extract(session, course_id, topic_id):
         name = topic.get("lessonName", "Unknown")
         class_id = topic.get("id", "Unknown")
         url = topic.get("lessonUrl", "Url Not Found")
-        print(f"{name} - {url}")
+        
         
         if "youtube" == topic.get("lessonExt", ""):
-            print(topic)
-            lectures.append(f"{name}: http://www.youtube.com/embed/{url}")
+            params = {
+              'batch_type': 'my',
+              'view': 'Grid',
+              'id': course_id,
+              'type': 'class',
+              'class_id': topic.get("id")
+            }
+            response = session.get(f"{batch_url}/player.json", cookies=cookies, params=params)
+            ouput_link = response.json().get("lessonUrl", "Url Not Found")
+            lectures.append(f"{name}: http://www.youtube.com/embed/{ouput_link}")
             
         elif "brightcove" == topic.get("lessonExt", ""):
             params = {
               'view': 'List',
               'batch_type': 'my',
-              'id': '2158',
+              'id': course_id,
               'type': 'class',
               'class_id': class_id
             }
