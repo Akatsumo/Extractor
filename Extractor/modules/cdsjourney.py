@@ -214,6 +214,7 @@ async def cdsjourney_login(_, message):
     try:
         session = requests.Session()
         csrf_token = await gen_csrftoken(session) or ""
+        print(csrf_token)
         cookies = {'csrftoken': csrf_token}
         headers = {'referer': 'https://www.cdsjourney.com/'}
         login_url = "https://www.cdsjourney.com/login-or-register/"
@@ -236,7 +237,7 @@ async def cdsjourney_login(_, message):
         }
 
         response = session.post(login_url, headers=headers, cookies=cookies, data=data)
-
+        print(response.json())
         if response.status_code != 200:
             return await msg.edit_text("😒 **Login failed. Invalid Email/Phone.**")
 
