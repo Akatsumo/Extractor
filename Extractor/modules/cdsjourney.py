@@ -29,7 +29,7 @@ async def gen_csrftoken(session):
         csrftoken = cookies.get('csrftoken')
         return csrftoken
     else:
-        return None
+        return "VDZ6IlzPnwNO75M2-yVBzCnFrWvZTcoXz-CYxO215xop5h5GTF-z6pvpsyovHFxcwUL"
 
 # ----------------------- Course-Extract ----------------------- #
 
