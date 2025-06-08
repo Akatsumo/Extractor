@@ -65,7 +65,8 @@ async def course_extract(session, course_id, topic_id):
               'class_id': topic.get("id")
             }
             response = session.get(f"{base_url}/player.json", cookies=cookies, params=params)
-            ouput_link = response.json().get("lessonUrl", "Url Not Found")
+            print(response.json())
+            ouput_link = response.json().get("lessonUrl", "Not Found")
             lectures.append(f"{name}: http://www.youtube.com/embed/{ouput_link}")
             
         elif "brightcove" == topic.get("lessonExt", ""):
