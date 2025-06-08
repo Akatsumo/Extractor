@@ -57,6 +57,7 @@ async def course_extract(session, course_id, topic_id):
         print(f"{name} - {url}")
         
         if "youtube" == topic.get("lessonExt", ""):
+            print(topic)
             lectures.append(f"{name}: http://www.youtube.com/embed/{url}")
             
         elif "brightcove" == topic.get("lessonExt", ""):
