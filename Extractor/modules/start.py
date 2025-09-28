@@ -89,5 +89,9 @@ async def handle_callback(_, query):
     elif query.data == "noop":
         await query.answer("🚫 No more pages", show_alert=True)
 
+    elif query.data in core_func.appNameDict:
+        await query.answer(f"You clicked {core_func.appNameDict[f"{query.data}"]["name"]}", show_alert=True)
+        await core_func.appNameDict[f"{query.data}"]["func"](_, query.message)
+
 
 
