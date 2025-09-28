@@ -78,6 +78,15 @@ async def handle_callback(_, query):
         else:
             await query.answer("waito...", show_alert=True)
             await appx.appex_v3_txt(app, query.message, user_id, api, name)
+            
+    elif query.data.startswith("page_"):
+        page = int(query.data.split("_")[1])
+        await query.message.edit_text(
+            "🔘 Choose from the list:",
+            reply_markup=InlineKeyboardMarkup(get_page(page))
+        )
+    elif query.data == "noop":
+        await query.answer("🚫 No more pages", show_alert=True)
 
 
 
