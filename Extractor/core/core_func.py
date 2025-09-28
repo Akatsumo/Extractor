@@ -1,4 +1,20 @@
+from Extractor import module
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+callbackDict = {
+           "utkarsh_" : {"func" : module.utkarsh.handle_utk_logic},
+           "appx_" : {"func" : module.appx.appx_logins},
+           "khan_" : {"func" : module.khan.khan_login},
+           "careerwill_" : {"func" : module.careerwill.careerwill_login},
+           "cdsjourney_" : {"func" : module.cdsjourney.cdsjourney_login},
+           "adda247_" : {"func" : module.adda247.adda_login},
+           "classplus_" : {"func" : mdoule.classplus.classplus_login},
+           "vajiram_" : {"func" : module.vajiram.vajiram_login},
+           "kpias_" : {"func" : module.kpias.kpias_login},
+}
+
+
+
 
 appName = ["CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
            "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
