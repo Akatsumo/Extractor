@@ -20,11 +20,11 @@ def get_page(page: int, appNameDict=appNameDict, appx: bool = False):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
+
+    if start >= len(keys):
+        return InlineKeyboardMarkup([[InlineKeyboardButton("🚫 No more pages", callback_data="noop")]])
+
     buttons = []
-
-    if appx:
-        buttons.append([InlineKeyboardButton("🌿 Appx Manual", callback_data="appx_manual")])
-
     row = []
     for i, key in enumerate(keys[start:end], 1):
         row.append(InlineKeyboardButton(appNameDict[key]["name"], callback_data=key))
@@ -33,7 +33,7 @@ def get_page(page: int, appNameDict=appNameDict, appx: bool = False):
             row = []
     if row:
         buttons.append(row)
-        
+
     nav = []
     if page > 0:
         nav.append(InlineKeyboardButton("＜ ᴘʀᴇᴠ", callback_data=f"page_{page-1}"))
@@ -46,4 +46,4 @@ def get_page(page: int, appNameDict=appNameDict, appx: bool = False):
 
     return InlineKeyboardMarkup(buttons)
 
-
+                       
