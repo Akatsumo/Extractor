@@ -1,5 +1,6 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+appName = ["CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney"]
 
 PER_PAGE = 15
 
@@ -8,10 +9,10 @@ def get_page(page: int):
     end = start + PER_PAGE
     buttons = []
 
-    if start >= len(ITEMS):
+    if start >= len(appName):
         return [[InlineKeyboardButton("🚫 No more pages", callback_data="noop")]]
 
-    data = ITEMS[start:end]
+    data = appName[start:end]
     row = []
     for i, d in enumerate(data, 1):
         row.append(InlineKeyboardButton(d, callback_data=f"item_{d}"))
