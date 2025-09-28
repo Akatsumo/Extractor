@@ -45,7 +45,7 @@ async def khan_extract(session, headers, slug):
 
 
 
-@app.on_message(filters.command("khan"))
+# @app.on_message(filters.command("khan"))
 async def khan_login(_, message):
     user_id = message.from_user.id
     try:
