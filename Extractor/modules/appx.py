@@ -4,6 +4,7 @@ import time
 import json
 import aiohttp
 import asyncio
+from Extractor.core import appxlist
 from Extractor import app
 from pyrogram import filters 
 from Extractor.core.main_func import appx_decrypt, get_time
@@ -374,6 +375,13 @@ async def appex_v2_txt(app, message, user_id, api, name):
 
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
+    buttons = core_func.pages(0, appxlist.a_to_zList)
+    await message.reply_text("Choose the button",
+                            reply_markup=buttons)
+
+
+ 
+async def appx_loginMethod(_, message):
     user_id = message.from_user.id
     msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
 
@@ -390,4 +398,3 @@ async def appx_logins(_, message):
     mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
     await asyncio.sleep(10)
     await mm.delete()
-
