@@ -1,6 +1,13 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-appName = ["CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney"]
+appName = ["CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
+           "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
+           "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
+           "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
+           "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
+           "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
+           "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",
+           "CareerWill", "Utkarsh", "Khan", "appx", "CdsJourney",]
 
 PER_PAGE = 15
 
