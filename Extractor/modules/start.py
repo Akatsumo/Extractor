@@ -53,7 +53,7 @@ async def handle_callback(_, query):
             reply_markup=buttons
         )
     elif query.data == "help_":
-        button = core_func.get_page(page: 0)
+        button = core_func.get_page(page=0)
         await query.message.edit_text(
             "testo....",
             reply_markup=button
