@@ -79,7 +79,7 @@ async def course_extract(session, batch_url, headers, cookies):
 
 # ----------------------- Cdsjourney-Command ----------------------- #
 
-@app.on_message(filters.command("cds"))
+#@app.on_message(filters.command("cds"))
 async def cdsjourney_login(_, message):
     user_id = message.from_user.id
     try:
