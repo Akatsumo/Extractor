@@ -35,10 +35,10 @@ def get_page(page: int):
 
     nav = []
     if page > 0:
-        nav.append(InlineKeyboardButton("⬅️ Prev", callback_data=f"page_{page-1}"))
-    nav.append(InlineKeyboardButton("🔙 Back", callback_data="home_"))
+        nav.append(InlineKeyboardButton("＜ ᴘʀᴇᴠ", callback_data=f"page_{page-1}"))
+    nav.append(InlineKeyboardButton("↺ ʙ ᴀ ᴄ ᴋ ↺", callback_data="home_"))
     if end < len(keys):
-        nav.append(InlineKeyboardButton("➡️ Next", callback_data=f"page_{page+1}"))
+        nav.append(InlineKeyboardButton("ɴᴇxᴛ ＞", callback_data=f"page_{page+1}"))
     buttons.append(nav)
 
     return InlineKeyboardMarkup(buttons)
