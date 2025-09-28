@@ -20,9 +20,6 @@ def get_page(page: int, appNameDict=appNameDict, appx: bool = False):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
-    if start >= len(keys):
-        return InlineKeyboardMarkup([[InlineKeyboardButton("🚫 No more pages", callback_data="noop")]])
-
     buttons = []
 
     if appx:
