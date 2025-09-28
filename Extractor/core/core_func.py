@@ -9,7 +9,7 @@ appNameDict = {
     "cdsjourney_": {"name": "CdsJourney", "func": modules.cdsjourney.cdsjourney_login},
     "adda247_": {"name": "Adda 247", "func": modules.adda247.adda_login},
     "classplus_": {"name": "Classplus", "func": modules.classplus.classplus_login},
-    "vajiram_": {"name": "Vajiram", "func": modules.vajiram.vajiram_login},
+    "vajiram_": {"name": "Vajiram", "func": modules.vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": modules.kpias.kpias_login},
 }
 
