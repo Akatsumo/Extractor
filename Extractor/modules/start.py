@@ -10,7 +10,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 buttons = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton("🧰 Tools", callback_data="help_"),
+        InlineKeyboardButton("🧰 Tools", callback_data="tools_"),
         InlineKeyboardButton("🔗 Support", url="https://t.me/DevsHubChat")
     ]])
 
@@ -52,7 +52,7 @@ async def handle_callback(_, query):
             script.START_TEXT.format(name),
             reply_markup=buttons
         )
-    elif query.data == "help_":
+    elif query.data == "tools_":
         button = core_func.get_page(page=0)
         await query.message.edit_text(
             "testo....",
@@ -84,7 +84,7 @@ async def handle_callback(_, query):
         page = int(query.data.split("_")[1])
         await query.message.edit_text(
             "🔘 Choose from the list:",
-            reply_markup=InlineKeyboardMarkup(get_page(page))
+            reply_markup=core_func.get_page(page)
         )
     elif query.data == "noop":
         await query.answer("🚫 No more pages", show_alert=True)
