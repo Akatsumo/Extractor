@@ -2,7 +2,7 @@ from Extractor import modules
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
-    "utkarsh_": {"name": "Utkarsh", "func": modules.utkarsh.handle_utk_logic},
+    # "utkarsh_": {"name": "Utkarsh", "func": modules.utkarsh.handle_utk_logic},
     "appx_": {"name": "Appx", "func": modules.appx.appx_logins},
     "khan_": {"name": "Khan", "func": modules.khan.khan_login},
     "careerwill_": {"name": "Careerwill", "func": modules.careerwill.careerwill_login},
