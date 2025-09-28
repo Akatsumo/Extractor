@@ -102,7 +102,7 @@ async def course_extract(session, course_id, topic_id):
 
 # ----------------------- Careerwill-Command ----------------------- #
 
-@app.on_message(filters.command("cw"))
+# @app.on_message(filters.command("cw"))
 async def careerwill_login(_, message):
     user_id = message.from_user.id
     try:
