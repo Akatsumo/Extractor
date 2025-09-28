@@ -27,4 +27,9 @@ HELP_TEXT = """
 `/kp` : Single Purpose [Free]
 """
 
+TOOLS_TEXT = """
+I’ve prepared all extractor tools for you.
+Simply select your apk from the options below and continue learning.
+"""
+
 
