@@ -93,13 +93,7 @@ async def handle_callback(_, query):
         await query.answer(f"You clicked {core_func.appNameDict[f"{query.data}"]["name"]}", show_alert=True)
         await core_func.appNameDict[f"{query.data}"]["func"](_, query.message)
         
-    elif query.data in appxlist.a_to_zList:
-        await query.answer(f"You clicked {appxlist.a_to_zList[f"{query.data}"]["name"]}", show_alert=True)
-        button = core_func.get_page(page=0, appxlist.a_to_zList)
-        await query.message.edit_text(
-            script.TOOLS_TEXT,
-            reply_markup=button
-        )
+    
         
 
 
