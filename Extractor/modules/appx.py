@@ -372,7 +372,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
 # --------------------------- Appex-Command --------------------------- #
 
 
-@app.on_message(filters.command("appx")) 
+# @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
     user_id = message.from_user.id
     msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
