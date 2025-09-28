@@ -218,7 +218,7 @@ async def direct_links(session, headers, course_id):
 # ----------------------- Adda-Command ----------------------- #
 
 @app.on_message(filters.command("adda"))
-async def adda_txt(_, message):
+async def adda_login(_, message):
     user_id = message.from_user.id
     try:
         async with aiohttp.ClientSession() as session:
