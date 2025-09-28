@@ -58,7 +58,7 @@ async def handle_callback(_, query):
             "testo....",
             reply_markup=button
         )
-    elif query.data.startswith("appx"):
+    elif query.data.startswith("appxlogin"):
         data = query.data.split("_")[1]
         task = data.split("*")
         def extract_parts(url):
