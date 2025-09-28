@@ -30,7 +30,7 @@ def get_page(page: int):
         nav.append(InlineKeyboardButton("➡️ Next", callback_data=f"page_{page+1}"))
     buttons.append(nav)
 
-    return buttons
+    return InlineKeyboardMarkup(buttons)
 
 
 
