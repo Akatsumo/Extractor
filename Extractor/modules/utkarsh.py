@@ -187,7 +187,9 @@ def fetch_urls(subject_id, batch_id, topic_id, token, headers, url_lock, all_url
     except Exception as e:
         print(f"Error fetching URLs: {e}")
 
-@app.on_message(filters.command(["ut"]))
+
+
+
 async def handle_utk_logic(app, m):
     try:
         editable = await m.reply_text("Send **ID & Password** in this manner otherwise app will not respond.\n\nSend like this:-  **ID*Password**")
