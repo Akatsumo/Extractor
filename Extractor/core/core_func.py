@@ -16,7 +16,7 @@ appNameDict = {
 
 PER_PAGE = 15
 
-def get_page(page: int):
+def get_page(page: int, appNameDict=appNameDict):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
