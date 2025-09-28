@@ -55,7 +55,7 @@ async def handle_callback(_, query):
     elif query.data == "tools_":
         button = core_func.get_page(page=0)
         await query.message.edit_text(
-            "testo....",
+            script.TOOLS_TEXT,
             reply_markup=button
         )
     elif query.data.startswith("appxlogin"):
