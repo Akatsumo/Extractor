@@ -9,7 +9,7 @@ appNameDict = {
     "cdsjourney_": {"name": "CdsJourney", "func": modules.cdsjourney.cdsjourney_login},
     "adda247_": {"name": "Adda 247", "func": modules.adda247.adda_login},
     "classplus_": {"name": "Classplus", "func": modules.classplus.classplus_login},
-    # "vajiram_": {"name": "Vajiram", "func": modules.vajiramias.vajiram_login},
+    "vajiram_": {"name": "Vajiram", "func": modules.vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": modules.kpias.kpias_login},
 }
 
@@ -36,7 +36,7 @@ def get_page(page: int):
     nav = []
     if page > 0:
         nav.append(InlineKeyboardButton("＜ ᴘʀᴇᴠ", callback_data=f"page_{page-1}"))
-    nav.append(InlineKeyboardButton("↺ ʙ ᴀ ᴄ ᴋ ↺", callback_data="home_"))
+    nav.append(InlineKeyboardButton("↺ ʙ ᴀ ᴄ ᴋ ↻", callback_data="home_"))
     if end < len(keys):
         nav.append(InlineKeyboardButton("ɴᴇxᴛ ＞", callback_data=f"page_{page+1}"))
     buttons.append(nav)
