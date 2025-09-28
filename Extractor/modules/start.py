@@ -1,7 +1,7 @@
 import re
 from Extractor import app
 from pyrogram import filters, enums
-from Extractor.core import script
+from Extractor.core import script, core_func
 from Extractor.modules import appx
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -53,8 +53,9 @@ async def handle_callback(_, query):
             reply_markup=buttons
         )
     elif query.data == "help_":
+        button = core_func.get_page(page: 0)
         await query.message.edit_text(
-            script.HELP_TEXT,
+            "testo....",
             reply_markup=button
         )
     elif query.data.startswith("appx"):
