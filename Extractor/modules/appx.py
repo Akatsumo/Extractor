@@ -375,9 +375,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
 
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message):
-    buttons = core_func.get_page(0, appxlist.a_to_zList, True)
-    await message.reply_text("Choose the button",
-                            reply_markup=buttons)
+    pass
 
 
  
