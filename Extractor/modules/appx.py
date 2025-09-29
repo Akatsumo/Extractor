@@ -374,16 +374,17 @@ async def appex_v2_txt(app, message, user_id, api, name):
 
 
 @app.on_message(filters.command("appx")) 
-async def appx_logins(_, message):
-    buttons = main_func.get_page(0, appxmethod.a_to_zList, DictID="AppxShortAtoZ")
-    await message.reply_text("choose the buttons",
-            reply_markup=buttons)
+async def appx_logins(_, message, user_id=None, callback=True, manualLogin=False):
+    if not manualLogin:
+        buttons = main_func.get_page(0, appxmethod.a_to_zList, DictID="AppxShortAtoZ")
+        if callback:
+            await message.edit_text(script.TOOLS_TEXT,
+               reply_markup=buttons)
+        else:
+            await message.reply_text(script.TOOLS_TEXT,
+               reply_markup=buttons)
     
-
-
- 
-async def appx_loginMethod(_, message):
-    user_id = message.from_user.id
+    user_id = user_id if user_id else message.from_user.id
     msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
 
     input_msg = await app.listen(user_id=user_id)
