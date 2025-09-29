@@ -85,7 +85,7 @@ async def handle_callback(_, query):
         appNameDict = main_func.allDics[DictId]
         await query.message.edit_text(
             script.TOOLS_TEXT,
-            reply_markup=main_func.get_page(page, appNameDict, DictID, query):
+            reply_markup=main_func.get_page(page, appNameDict, DictID, query)
         )
     elif query.data.startwith("autoCallback#"):
         data = query.data.split("#")[1]
