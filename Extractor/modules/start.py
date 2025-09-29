@@ -98,7 +98,7 @@ async def handle_callback(_, query):
             def get_by_letter(data, letter):
                 letter = letter.upper()
                 return {k: v for k, v in data.items() if k.startswith(letter)}
-            shortDict = get_by_letter(appxmethod.appxapis, data["name"])
+            shortDict = get_by_letter(appxmethod.appxapis, appxmethod.a_to_zList[f"{data}"]["name"])
             await query.message.edit_text(
               script.TOOLS_TEXT,
               reply_markup=main_func.get_page(0, shortDict, "AppxShortDict")
