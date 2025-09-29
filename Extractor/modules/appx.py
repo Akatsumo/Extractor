@@ -4,7 +4,7 @@ import time
 import json
 import aiohttp
 import asyncio
-from Extractor.core import appxlist, core_func
+from Extractor.core import core_func
 from Extractor import app
 from pyrogram import filters 
 from Extractor.core.main_func import appx_decrypt, get_time
