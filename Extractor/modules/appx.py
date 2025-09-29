@@ -4,9 +4,9 @@ import time
 import json
 import aiohttp
 import asyncio
-from Extractor.core import core_func, appxmethod, main_func
 from Extractor import app
-from pyrogram import filters 
+from pyrogram import filters
+from Extractor.core import script, core_func, appxmethod, main_func 
 from Extractor.core.main_func import appx_decrypt, get_time
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
