@@ -75,13 +75,14 @@ def encode_base64(data):
     return encoded_string
 
 # --------------------------------------------------------------------------- #
-
+allDics = {}
 PER_PAGE = 15
 
 def get_page(page: int, appNameDict, DictID="Dic1", query=None, page_row=3):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
+    allDics[DictId] = appNameDict
 
     if start >= len(keys) and query:
         return await query.answer("🚫 No more pages", show_alert=True)
