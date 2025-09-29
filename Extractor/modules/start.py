@@ -1,7 +1,7 @@
 import re
 from Extractor import app
 from pyrogram import filters, enums
-from Extractor.core import script, core_func, main_func
+from Extractor.core import script, core_func, main_func, appxmethod
 from Extractor.modules import appx
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -92,6 +92,18 @@ async def handle_callback(_, query):
         if data in core_func.appNameDict:
             await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
             await core_func.appNameDict[f"{data}"]["func"](_, query.message, user_id)
+            
+        elif data in appxmethod.a_to_zList:
+            await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
+            def get_by_letter(data, letter):
+                letter = letter.upper()
+                return {k: v for k, v in data.items() if k.startswith(letter)}
+            shortDict = get_by_letter(appxmethod.appxapis, data["name"])
+            await query.message.edit_text(
+              script.TOOLS_TEXT,
+              reply_markup=main_func.get_page(0, shortDict, "AppxShortDict")
+            )
+            
         else:
             await query.answer("Callback Not Found!!")
         
