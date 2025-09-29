@@ -190,10 +190,11 @@ def fetch_urls(subject_id, batch_id, topic_id, token, headers, url_lock, all_url
 
 
 
-async def handle_utk_logic(app, m):
+async def handle_utk_logic(app, m, user_id):
+    user_id = user_id if user_id else m.from_user.id
     try:
         editable = await m.reply_text("Send **ID & Password** in this manner otherwise app will not respond.\n\nSend like this:-  **ID*Password**")
-        input1 = await app.listen(chat_id=m.chat.id)
+        input1 = await app.listen(chat_id=user_id)
         raw_text = input1.text
         await input1.delete()
         
@@ -268,7 +269,7 @@ async def handle_utk_logic(app, m):
         
         editable1 = await m.reply_text(f"**Now send the Batch ID to Download**\n\n**For All batch -** `{Batch_ids}`")
         user_id = int(m.chat.id)
-        input2 = await app.listen(chat_id=m.chat.id)
+        input2 = await app.listen(chat_id=user_id)
         await input2.delete()
         await editable.delete()
         await editable1.delete()
