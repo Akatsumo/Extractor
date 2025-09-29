@@ -1,6 +1,7 @@
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad, pad
 from base64 import b64decode, b64encode
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 
@@ -75,4 +76,37 @@ def encode_base64(data):
 
 # --------------------------------------------------------------------------- #
 
+PER_PAGE = 15
 
+def get_page(page: int, appNameDict, DictID="Dic1", query=None, page_row=3):
+    keys = list(appNameDict.keys())  
+    start = page * PER_PAGE
+    end = start + PER_PAGE
+
+    if start >= len(keys) and query:
+        return await query.answer("🚫 No more pages", show_alert=True)
+
+    buttons = []
+    row = []
+    for i, key in enumerate(keys[start:end], 1):
+        row.append(InlineKeyboardButton(appNameDict[key]["name"], callback_data=f"autoCallback_{key}"))
+        if i % page_row == 0:  
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+
+    nav = []
+    if page > 0:
+        nav.append(InlineKeyboardButton("＜ ᴘʀᴇᴠ", callback_data=f"{DictID}_page_{page-1}"))
+    nav.append(InlineKeyboardButton("↺ ʙ ᴀ ᴄ ᴋ ↻", callback_data="home_"))
+    if end < len(keys):  
+        nav.append(InlineKeyboardButton("ɴᴇxᴛ ＞", callback_data=f"{DictID}_page_{page+1}"))
+
+    if nav:
+        buttons.append(nav)
+    return InlineKeyboardMarkup(buttons)
+
+
+
+                                        
