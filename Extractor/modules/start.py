@@ -87,11 +87,13 @@ async def handle_callback(_, query):
             script.TOOLS_TEXT,
             reply_markup=main_func.get_page(page, appNameDict, DictID, query)
         )
-    elif query.data.startwith("autoCallback#"):
+    elif query.data.startswith("autoCallback#"):
         data = query.data.split("#")[1]
         if data in core_func.appNameDict:
             await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
             await core_func.appNameDict[f"{data}"]["func"](_, query.message)
+        else:
+            await query.answer("Callback Not Found!!")
         
     
         
