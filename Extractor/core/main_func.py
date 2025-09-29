@@ -85,7 +85,7 @@ def get_page(page: int, appNameDict, DictID="Dic1", query=None, page_row=3):
     allDics[DictId] = appNameDict
 
     if start >= len(keys) and query:
-        return await query.answer("🚫 No more pages", show_alert=True)
+        return query.answer("🚫 No more pages", show_alert=True)
 
     buttons = []
     row = []
