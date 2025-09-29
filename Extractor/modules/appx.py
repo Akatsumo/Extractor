@@ -383,20 +383,20 @@ async def appx_logins(_, message, user_id=None, callback=False, manualLogin=Fals
         else:
             await message.edit_text(script.TOOLS_TEXT,
                reply_markup=buttons)
+    else:
+        user_id = user_id if user_id else message.from_user.id
+        msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
+
+        input_msg = await app.listen(user_id=user_id)
+        raw_text = input_msg.text
+        await input_msg.delete()
+
     
-    user_id = user_id if user_id else message.from_user.id
-    msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
+        buttons = InlineKeyboardMarkup([
+           [InlineKeyboardButton("🌿 Appx V2", callback_data=f"appxlogin_v2*{raw_text}"), 
+            InlineKeyboardButton("🌴 Appx V3", callback_data=f"appxlogin_v3*{raw_text}")]
+        ])    
 
-    input_msg = await app.listen(user_id=user_id)
-    raw_text = input_msg.text
-    await input_msg.delete()
-
-    
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🌿 Appx V2", callback_data=f"appxlogin_v2*{raw_text}"), 
-         InlineKeyboardButton("🌴 Appx V3", callback_data=f"appxlogin_v3*{raw_text}")]
-    ])    
-
-    mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
-    await asyncio.sleep(10)
-    await mm.delete()
+        mm = await msg.edit_text("🕹 **Select Your Appx API Version:**", reply_markup=buttons)
+        await asyncio.sleep(10)
+        await mm.delete()
