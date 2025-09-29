@@ -103,8 +103,8 @@ async def course_extract(session, course_id, topic_id):
 # ----------------------- Careerwill-Command ----------------------- #
 
 # @app.on_message(filters.command("cw"))
-async def careerwill_login(_, message):
-    user_id = message.from_user.id
+async def careerwill_login(_, message, user_id):
+    user_id = user_id if user_id else message.from_user.id
     try:
         session = cloudscraper.create_scraper()
         login_url = "https://wbspec.crwilladmin.com/api/v1/login"
