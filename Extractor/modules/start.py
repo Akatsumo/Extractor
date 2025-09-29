@@ -91,7 +91,7 @@ async def handle_callback(_, query):
         data = query.data.split("#")[1]
         if data in core_func.appNameDict:
             await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
-            await core_func.appNameDict[f"{data}"]["func"](_, query.message)
+            await core_func.appNameDict[f"{data}"]["func"](_, query.message, user_id)
         else:
             await query.answer("Callback Not Found!!")
         
