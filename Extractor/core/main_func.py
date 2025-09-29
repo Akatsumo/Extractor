@@ -98,10 +98,10 @@ def get_page(page: int, appNameDict, DictID="Dic1", query=None, page_row=3):
 
     nav = []
     if page > 0:
-        nav.append(InlineKeyboardButton("＜ ᴘʀᴇᴠ", callback_data=f"{DictID}_page_{page-1}"))
+        nav.append(InlineKeyboardButton("＜ ᴘʀᴇᴠ", callback_data=f"page_{DictID}_{page-1}"))
     nav.append(InlineKeyboardButton("↺ ʙ ᴀ ᴄ ᴋ ↻", callback_data="home_"))
     if end < len(keys):  
-        nav.append(InlineKeyboardButton("ɴᴇxᴛ ＞", callback_data=f"{DictID}_page_{page+1}"))
+        nav.append(InlineKeyboardButton("ɴᴇxᴛ ＞", callback_data=f"page_{DictID}_{page+1}"))
 
     if nav:
         buttons.append(nav)
