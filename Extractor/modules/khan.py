@@ -45,9 +45,9 @@ async def khan_extract(session, headers, slug):
 
 
 
-# @app.on_message(filters.command("khan"))
-async def khan_login(_, message):
-    user_id = message.from_user.id
+@app.on_message(filters.command("khan"))
+async def khan_login(_, message, user_id):
+    user_id = user_id if user_id message.from_user.id
     try:
         async with aiohttp.ClientSession() as session:
             login_url = "https://api.khanglobalstudies.com/cms/login"
