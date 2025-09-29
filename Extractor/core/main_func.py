@@ -82,7 +82,7 @@ def get_page(page: int, appNameDict, DictID="Dic1", query=None, page_row=3):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
-    allDics[DictId] = appNameDict
+    allDics[DictID] = appNameDict
 
     if start >= len(keys) and query:
         return query.answer("🚫 No more pages", show_alert=True)
