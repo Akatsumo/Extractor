@@ -1,7 +1,7 @@
 import re
 from Extractor import app
 from pyrogram import filters, enums
-from Extractor.core import script, core_func, appxlist
+from Extractor.core import script, core_func, main_func
 from Extractor.modules import appx
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -53,10 +53,9 @@ async def handle_callback(_, query):
             reply_markup=buttons
         )
     elif query.data == "tools_":
-        button = core_func.get_page(page=0)
         await query.message.edit_text(
             script.TOOLS_TEXT,
-            reply_markup=button
+            reply_markup=main_func.get_page(0, core_func.appNameDict, "CoursesName")
         )
     elif query.data.startswith("appxlogin"):
         data = query.data.split("_")[1]
@@ -83,15 +82,14 @@ async def handle_callback(_, query):
     elif query.data.startswith("page_"):
         page = int(query.data.split("_")[1])
         await query.message.edit_text(
-            "🔘 Choose from the list:",
-            reply_markup=core_func.get_page(page)
+            script.TOOLS_TEXT,
+            reply_markup=main_func.get_page(page, appNameDict, DictID, query):
         )
-    elif query.data == "noop":
-        await query.answer("🚫 No more pages", show_alert=True)
-
-    elif query.data in core_func.appNameDict:
-        await query.answer(f"You clicked {core_func.appNameDict[f"{query.data}"]["name"]}", show_alert=True)
-        await core_func.appNameDict[f"{query.data}"]["func"](_, query.message)
+    elif query.data.startwith("autoCallback_"):
+        data = query.data.split("_")[1]
+        if data in core_func.appNameDict:
+            await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
+            await core_func.appNameDict[f"{data}"]["func"](_, query.message)
         
     
         
