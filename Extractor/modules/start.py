@@ -80,7 +80,8 @@ async def handle_callback(_, query):
             await appx.appex_v3_txt(app, query.message, user_id, api, name)
             
     elif query.data.startswith("page_"):
-        page = int(query.data.split("_")[1])
+        page = int(query.data.split("_")[2])
+        DictID = query.data.split("_")[1]
         await query.message.edit_text(
             script.TOOLS_TEXT,
             reply_markup=main_func.get_page(page, appNameDict, DictID, query):
