@@ -90,7 +90,7 @@ def get_page(page: int, appNameDict, DictID="Dic1", query=None, page_row=3):
     buttons = []
     row = []
     for i, key in enumerate(keys[start:end], 1):
-        row.append(InlineKeyboardButton(appNameDict[key]["name"], callback_data=f"autoCallback_{key}"))
+        row.append(InlineKeyboardButton(appNameDict[key]["name"], callback_data=f"autoCallback#{key}"))
         if i % page_row == 0:  
             buttons.append(row)
             row = []
