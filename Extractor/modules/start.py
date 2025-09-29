@@ -82,18 +82,22 @@ async def handle_callback(_, query):
     elif query.data.startswith("page_"):
         page = int(query.data.split("_")[2])
         DictID = query.data.split("_")[1]
+        appNameDict = main_func.allDics[DictId]
         await query.message.edit_text(
             script.TOOLS_TEXT,
             reply_markup=main_func.get_page(page, appNameDict, DictID, query):
         )
-    elif query.data.startwith("autoCallback_"):
-        data = query.data.split("_")[1]
+    elif query.data.startwith("autoCallback#"):
+        data = query.data.split("#")[1]
         if data in core_func.appNameDict:
             await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
             await core_func.appNameDict[f"{data}"]["func"](_, query.message)
         
     
         
+
+
+
 
 
 
