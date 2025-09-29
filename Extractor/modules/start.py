@@ -82,7 +82,7 @@ async def handle_callback(_, query):
     elif query.data.startswith("page_"):
         page = int(query.data.split("_")[2])
         DictID = query.data.split("_")[1]
-        appNameDict = main_func.allDics[DictId]
+        appNameDict = main_func.allDics[DictID]
         await query.message.edit_text(
             script.TOOLS_TEXT,
             reply_markup=main_func.get_page(page, appNameDict, DictID, query)
