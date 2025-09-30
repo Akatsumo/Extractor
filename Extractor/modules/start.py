@@ -101,7 +101,7 @@ async def handle_callback(_, query):
             shortDict = get_by_letter(appxmethod.appxapis, appxmethod.a_to_zList[f"{data}"]["name"])
             await query.message.edit_text(
               script.TOOLS_TEXT,
-              reply_markup=main_func.get_page(0, shortDict, "AppxShortDict")
+              reply_markup=main_func.get_page(0, shortDict, "AppxShortDict", query, True)
             )
             
         else:
