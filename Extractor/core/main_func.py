@@ -78,7 +78,7 @@ def encode_base64(data):
 allDics = {}
 PER_PAGE = 15
 
-def get_page(page: int, appNameDict, DictID="Dic1", query=None, back_data="home_", page_row=3):
+def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=None, page_row=3):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
