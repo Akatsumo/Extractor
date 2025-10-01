@@ -79,6 +79,7 @@ async def khan_login(_, message, user_id=None):
                 "Host": "api.khanglobalstudies.com",
                 "Authorization": f"Bearer {token}",
                 "Accept": "application/json",
+                "access-control-allow-origin": "*"
             }
 
             await msg.edit_text("✅ **Login Successful**")
