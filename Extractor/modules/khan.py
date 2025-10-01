@@ -85,6 +85,7 @@ async def khan_login(_, message, user_id):
 
             async with session.get("https://api.khanglobalstudies.com/cms/user/v2/courses", headers=headers) as response:
                 batch_data = await response.json()
+                print(batch_data)
 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
