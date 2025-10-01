@@ -76,7 +76,7 @@ async def khan_login(_, message, user_id=None):
             await input1.delete()
 
             headers = {
-                "Host": "api.khanglobalstudies.com",
+                #"Host": "api.khanglobalstudies.com",
                 "Authorization": f"Bearer {token}",
                 "Accept": "application/json",
                 "access-control-allow-origin": "*"
