@@ -5,7 +5,7 @@ from Extractor.core import script, core_func, main_func, appxmethod
 from Extractor.modules import appx
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# core_func.appNameDict["appx_"] = {"name": "Appx", "func": appx.appx_logins}
+core_func.appNameDict["appx_"] = {"name": "Appx", "func": appx.appx_logins}
 
 
 # ------------------------ Buttons ------------------------ # 
@@ -87,7 +87,7 @@ async def handle_callback(_, query):
         appNameDict = main_func.allDics[DictID]
         await query.message.edit_text(
             script.TOOLS_TEXT,
-            reply_markup=main_func.get_page(page, appNameDict, DictID, query)
+            reply_markup=main_func.get_page(page, appNameDict, DictID, "home_", query)
         )
     elif query.data.startswith("autoCallback#"):
         data = query.data.split("#")[1]
