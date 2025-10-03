@@ -84,8 +84,8 @@ def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=Non
     end = start + PER_PAGE
     allDics[DictID] = appNameDict
     
-    # if start >= len(keys) and query is not None:
-    #     return query.answer("🚫 No more pages", show_alert=True)
+    if start >= len(keys) and query is not None:
+        return query.answer("🚫 No more pages", show_alert=True)
 
     buttons = []
     row = []
