@@ -10,7 +10,7 @@ from Extractor.core import main_func
 
 
 cookies = {}
-base_url = "https://web.careerwill.com/_next/data/J2PNcBmvfyASrHei6bXUp"
+base_url = "https://web.careerwill.com/_next/data/d6TLWFsLIZYvlrxcFML9V"
 headers = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.9",
