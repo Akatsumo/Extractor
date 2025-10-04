@@ -63,30 +63,24 @@ async def course_extract(session, course_id, topic_id):
         
         
         if "youtube" == topic.get("lessonExt", ""):
-            params = {
-              'batch_type': 'my',
-              'view': 'Grid',
-              'id': course_id,
-              'type': 'class',
-              'class_id': topic.get("id")
-            }
+            params = {'batch_type': 'my', 'view': 'Grid', 'id': course_id, 'type': 'class', 'class_id': topic.get("id")}
             response = session.get(f"{base_url}/player.json", cookies=cookies, params=params)
             ouput_link = response.json()["pageProps"]["classDetailsData"].get("lessonUrl", "Not Found")
             lectures.append(f"{name}: http://www.youtube.com/embed/{ouput_link}")
             
         elif "brightcove" == topic.get("lessonExt", ""):
-            params = {
-              'view': 'List',
-              'batch_type': 'my',
-              'id': course_id,
-              'type': 'class',
-              'class_id': class_id
-            }
+            params = {'view': 'List', 'batch_type': 'my', 'id': course_id, 'type': 'class', 'class_id': class_id}
             response = session.get(f"{base_url}/player.json", cookies=cookies, params=params)
             stream_token = response.json()['pageProps']['streamToken']['token']
             lesson_url = response.json()['pageProps']['classDetailsData']['lessonUrl']
             lectures.append(f"{name}: https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/videos/{lesson_url}/master.m3u8?bcov_auth={stream_token}")
     
+        elif "vdocrypt" == topic.get("lessonExt", ""):
+            params = {'batch_type': 'my', 'view': 'Grid', 'id': course_id, 'type': 'class', 'class_id': topic.get("id")}
+            response = session.get(f"{base_url}/player.json", cookies=cookies, params=params)
+            ouput_link = response.json()["pageProps"]["classDetailsData"].get("lessonUrl", "Not Found")
+            lectures.append(f"{name}: https://crwilladmin.com/drm/{ouput_link}")
+            
         else:
             lectures.append(f"{name}: {url}")
    
