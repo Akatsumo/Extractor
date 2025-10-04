@@ -6,11 +6,17 @@ import asyncio
 import cloudscraper
 from Extractor import app
 from pyrogram import filters 
-from Extractor.core.main_func import get_time
+from Extractor.core import main_func
 
 
 cookies = {}
 base_url = "https://web.careerwill.com/_next/data/J2PNcBmvfyASrHei6bXUp"
+headers = {
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Content-Type": "application/json"
+}
+
 
 # ----------------------- Course-Content ----------------------- #
 
@@ -102,12 +108,14 @@ async def course_extract(session, course_id, topic_id):
 
 # ----------------------- Careerwill-Command ----------------------- #
 
-# @app.on_message(filters.command("cw"))
+@app.on_message(filters.command("cw"))
 async def careerwill_login(_, message, user_id):
     user_id = user_id if user_id else message.from_user.id
     try:
         session = cloudscraper.create_scraper()
         login_url = "https://wbspec.crwilladmin.com/api/v1/login"
+        cwkey = main_func.get_enc_key()
+        headers[""cwkey""] = cwkey
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
         
         try:
@@ -119,7 +127,7 @@ async def careerwill_login(_, message, user_id):
 
         if "*" in input1.text:
             userid, password = input1.text.split("*")
-            response = session.post(login_url, json={"userid": userid, "pwd": password})
+            response = session.post(login_url, headers, json={"userid": userid, "pwd": password})
 
             if response.status_code != 200:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
@@ -172,7 +180,7 @@ async def careerwill_login(_, message, user_id):
         lectures = await asyncio.create_task(course_content(session, course_id))
         end_time = time.time()
         duration_seconds = end_time - start_time
-        elapsed = get_time(duration_seconds)
+        elapsed = main_func.get_time(duration_seconds)
 
         file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
         with open(file_name, "w") as f:
