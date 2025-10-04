@@ -138,11 +138,7 @@ async def careerwill_login(_, message, user_id=None):
         cookies.update({'token': token})  
         await msg.edit_text("✅ **Login Successful**")
  
-        response = session.get(
-            f"{base_url}/live-classes.json?view=Grid",
-            cookies=cookies
-        )
-        print(response.json())
+        response = session.get(f"{base_url}/live-classes.json?view=Grid", cookies=cookies)
         if response.status_code != 200:
             return await msg.edit_text("😒 **Failed to fetch live classes.**")
 
