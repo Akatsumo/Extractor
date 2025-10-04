@@ -128,10 +128,10 @@ async def careerwill_login(_, message, user_id=None):
 
         if "*" in input1.text:
             userid, password = input1.text.split("*")
-            response = session.post(login_url, headers, json={"userid": userid, "pwd": password})
+            response = session.post(login_url, headers=headers, json={"userid": userid, "pwd": password})
 
-            # if response.status_code != 200:
-            #     return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            if response.status_code != 200:
+                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
             output = response.json()
             print(output)
