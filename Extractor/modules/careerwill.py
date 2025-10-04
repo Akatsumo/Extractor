@@ -134,7 +134,6 @@ async def careerwill_login(_, message, user_id=None):
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
             output = response.json()
-            print(output)
             token = output.get("data", {}).get("token")  
             if not token:
                 return await msg.edit_text("😒 **Login failed, token missing.**")
