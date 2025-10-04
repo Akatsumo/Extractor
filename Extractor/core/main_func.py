@@ -1,3 +1,4 @@
+import time
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad, pad
 from base64 import b64decode, b64encode
@@ -108,6 +109,16 @@ def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=Non
         buttons.append(nav)
     return InlineKeyboardMarkup(buttons)
 
+# --------------------------------------------------------------------------- #
+
+def get_enc_key(ts=None):
+    k, v = b"E12K7l97Z7wCo3Gu", b"mOk15J2m12qZ2tKI"
+    ts = int(time.time() * 1000) if ts is None else int(ts)
+    pt = f"{ts}||careerwillapp".encode()
+    cipher = AES.new(k, AES.MODE_CBC, v)
+    ct = cipher.encrypt(pad(pt, 16))
+    return b64encode(ct).decode()
 
 
+# --------------------------------------------------------------------------- #
                                         
