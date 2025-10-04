@@ -115,7 +115,7 @@ async def careerwill_login(_, message, user_id):
         session = cloudscraper.create_scraper()
         login_url = "https://wbspec.crwilladmin.com/api/v1/login"
         cwkey = main_func.get_enc_key()
-        headers[""cwkey""] = cwkey
+        headers["cwkey"] = cwkey
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
         
         try:
