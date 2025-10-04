@@ -109,12 +109,13 @@ async def course_extract(session, course_id, topic_id):
 # ----------------------- Careerwill-Command ----------------------- #
 
 @app.on_message(filters.command("cw"))
-async def careerwill_login(_, message, user_id):
+async def careerwill_login(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     try:
         session = cloudscraper.create_scraper()
         login_url = "https://wbspec.crwilladmin.com/api/v1/login"
         cwkey = main_func.get_enc_key()
+        print(f"cwkey: {cwkey}")
         headers["cwkey"] = cwkey
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
         
