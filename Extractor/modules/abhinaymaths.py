@@ -8,7 +8,11 @@ from Extractor.core import main_func
 
 
 
-headers = {}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    'X-Requested-With': 'XMLHttpRequest',
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+}
 
 # ----------------------- Course-Extract ----------------------- #
 
@@ -50,10 +54,10 @@ async def abhinayMath_login(_, message, user_id=None):
             }
             response = requests.post(login_url, headers=headers, data=login_data)
             decoded = json.loads(main_func.decode_base64(response.json().get('response', '')))
+            print(decoded)
           
             if decoded['status'] != True:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
-
             await msg.edit_text("✅ **Login Successful**")
 
             course_url = "https://abhinaymaths.in/web/Profile/my_course"
