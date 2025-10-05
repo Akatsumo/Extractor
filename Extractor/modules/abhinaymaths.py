@@ -4,7 +4,7 @@ import asyncio
 import requests
 from Extractor import app
 from pyrogram import filters 
-from Extractor.core.main_func import get_time
+from Extractor.core import main_func
 
 
 
