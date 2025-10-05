@@ -17,10 +17,10 @@ cookies = {}
 
     
 
-# ----------------------- Vajiram-Command ----------------------- #
+# ----------------------- AbhinayMath-Command ----------------------- #
 
 @app.on_message(filters.command("abhinay"))
-async def vajiram_login(_, message, user_id=None):
+async def abhinayMath_login(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     try:
         session = requests.Session()
@@ -29,11 +29,11 @@ async def vajiram_login(_, message, user_id=None):
         response = session.get(login_url)
         csrf_name = session.cookies.get('csrf_name')
         cookies.update({"csrf_name": csrf_name}) 
-
+        headers.update({'Referer': login_url})
+        
         if not csrf_name:
             return await message.reply_text("csrf name did not found !!")
-
-        headers.update({'Referer': login_url})    
+            
         msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
 
         try:
@@ -59,14 +59,15 @@ async def vajiram_login(_, message, user_id=None):
 
             await msg.edit_text("✅ **Login Successful**")
 
-            login_url = "https://abhinaymaths.in/web/Profile/my_course"
+            course_url = "https://abhinaymaths.in/web/Profile/my_course"
+            headers.update({'Referer': course_url})
             data = {
               "type": "Paid",
               "csrf_name": cookies["csrf_name"],
               "sort": "0"
             }
                     
-            response = session.post(login_url, headers=headers, cookies=cookies, data=data)
+            response = session.post(course_url, headers=headers, data=data)
             course_data = json.loads(main_func.decode_base64(response.json().get('response', ''))).get("get_course_categorywise", {}).get("data", [])
             batch_list = "**📚 Available Batches:**\n\n"
             batch_data = {}
