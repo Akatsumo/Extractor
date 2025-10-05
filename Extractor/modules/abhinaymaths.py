@@ -53,63 +53,30 @@ async def vajiram_login(_, message, user_id=None):
             }
             response = requests.post(login_url, headers=headers, cookies=cookies, data=login_data)
             decoded = json.loads(main_func.decode_base64(response.json().get('response', '')))
-            print(decoded)
-           
+          
             if decoded['status'] != True:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
             await msg.edit_text("✅ **Login Successful**")
+
+            login_url = "https://abhinaymaths.in/web/Profile/my_course"
+            data = {
+              "type": "Paid",
+              "csrf_name": cookies["csrf_name"],
+              "sort": "0"
+            }
                     
-            # response = session.get('https://vajiramias.com/courses/')
-            # if response.status_code != 200:
-            #     return await msg.edit_text("😒 **Login failed, incorrect OTP.**")
-
-            # soup = BeautifulSoup(response.text, 'html.parser')
-            # courses = soup.find_all('div', class_='col-md-3 col-sm-6 col-xs-12')
-
-            # purchased_courses = []  
-            # free_courses = []  
-
-            # for course in courses:
-            #     purchased_label = course.find('span', class_='label label-success text-bold font-14')
-            #     free_label = course.find('span', class_='label label-success text-bold font-14')
-                
-            #     if purchased_label and 'Purchased' in purchased_label.text:
-            #         course_name = course.find('h2', class_='item_header text-center').text.strip()
-            #         details_button = course.find('a', class_='margin-t-10 btn btn-sm btn-success btn-block font-14 text-bold')
-                
-            #         if details_button:
-            #             course_url = details_button['href']
-            #             course_info = {
-            #                 'course_name': course_name,
-            #                 'course_url': f"https://vajiramias.com{course_url}",
-            #                 'course_type': 'Purchased'
-            #             }
-            #             purchased_courses.append(course_info)
-            
-            #     elif free_label and 'Free Access' in free_label.text:
-            #         course_name = course.find('h2', class_='item_header text-center').text.strip()
-            #         details_button = course.find('a', class_='btn btn-sm btn-info btn-block font-14 text-bold')
-                
-            #         if details_button:
-            #             course_url = details_button['href']
-            #             course_info = {
-            #                 'course_name': course_name,
-            #                 'course_url': f"https://vajiramias.com{course_url}",
-            #                 'course_type': 'Free Access'
-            #             }
-            #             free_courses.append(course_info)
-
-            # free_courses.extend(purchased_courses)
-            # batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
-            # batch_data = {}
-            # s_no = 1  
-            # for course in free_courses:
-            #     batch_list += f"`{s_no}`  -   **{course['course_name']}-{course['course_type']}**\n\n"
-            #     batch_data[s_no] = {'batch_name': course['course_name'], 'batch_url': course['course_url']}
-            #     s_no += 1
-
-            # await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+            response = session.post(login_url, headers=headers, cookies=cookies, data=data)
+            course_data = json.loads(main_func.decode_base64(response.json()get("get_course_categorywise", {}).get("data", [])))
+            batch_list = "**📚 Available Batches:**\n\n"
+            batch_data = {}
+            for category in course_data:
+                for course in category.get("courses", []):
+                    if course.get("is_purchased") == "1":
+                        batch_list += f"{course.get('id')} - {course.get('title')}"
+                        batch_data.update({"_id"}: course.get('id'), "batch_name": course.get('title'), "category_name": category.get("category"), "batch_price": course.get('course_sp'), "batch_validity": course.get('validity'))
+        
+            await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
 
             # try:
             #     input3 = await app.listen(user_id=user_id, timeout=30)
