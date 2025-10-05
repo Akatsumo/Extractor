@@ -8,7 +8,7 @@ from Extractor.core import main_func
 
 
 
-headers = {"Referer": "https://abhinaymaths.in/"}
+headers = {}
 cookies = {}
 
 
@@ -28,7 +28,7 @@ async def vajiram_login(_, message, user_id=None):
 
         response = session.get(login_url)
         csrf_name = session.cookies.get('csrf_name')
-        cookies["csrf_name"] = csrf_name
+        cookies.update({"csrf_name": csrf_name}) 
 
         if not csrf_name:
             return await message.reply_text("csrf name did not found !!")
@@ -51,7 +51,7 @@ async def vajiram_login(_, message, user_id=None):
               "submit": "Login",
               "device_token": "null",
             }
-            response = requests.post(url, headers=headers, cookies=cookies, data=login_data)
+            response = requests.post(login_url, headers=headers, cookies=cookies, data=login_data)
             decoded = json.loads(main_func.decode_base64(response.get('response', '')))
             print(decoded)
            
