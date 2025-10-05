@@ -47,7 +47,7 @@ async def vajiram_login(_, message, user_id=None):
               "csrf_name": cookies["csrf_name"],
               "mobile": username,
               "url": "0",
-              "password": passwor,
+              "password": password,
               "submit": "Login",
               "device_token": "null",
             }
