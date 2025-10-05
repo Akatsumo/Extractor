@@ -52,7 +52,7 @@ async def vajiram_login(_, message, user_id=None):
               "device_token": "null",
             }
             response = requests.post(login_url, headers=headers, cookies=cookies, data=login_data)
-            decoded = json.loads(main_func.decode_base64(response.get('response', '')))
+            decoded = json.loads(main_func.decode_base64(response.json().get('response', '')))
             print(decoded)
            
             if decoded['status'] != True:
