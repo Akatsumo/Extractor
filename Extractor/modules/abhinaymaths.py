@@ -9,8 +9,6 @@ from Extractor.core import main_func
 
 
 headers = {}
-cookies = {}
-
 
 # ----------------------- Course-Extract ----------------------- #
 
@@ -27,8 +25,7 @@ async def abhinayMath_login(_, message, user_id=None):
         login_url = 'https://abhinaymaths.in/web/Auth/login'
 
         response = session.get(login_url)
-        csrf_name = session.cookies.get('csrf_name')
-        cookies.update({"csrf_name": csrf_name}) 
+        csrf_name = session.cookies.get('csrf_name') 
         headers.update({'Referer': login_url})
         
         if not csrf_name:
@@ -44,14 +41,14 @@ async def abhinayMath_login(_, message, user_id=None):
         if "*" in input1.text.strip():
             username, password = input1.text.split("*")
             login_data = {
-              "csrf_name": cookies["csrf_name"],
+              "csrf_name": csrf_name,
               "mobile": username,
               "url": "0",
               "password": password,
               "submit": "Login",
               "device_token": "null",
             }
-            response = requests.post(login_url, headers=headers, cookies=cookies, data=login_data)
+            response = requests.post(login_url, headers=headers, data=login_data)
             decoded = json.loads(main_func.decode_base64(response.json().get('response', '')))
           
             if decoded['status'] != True:
@@ -61,13 +58,10 @@ async def abhinayMath_login(_, message, user_id=None):
 
             course_url = "https://abhinaymaths.in/web/Profile/my_course"
             headers.update({'Referer': course_url})
-            data = {
-              "type": "Paid",
-              "csrf_name": cookies["csrf_name"],
-              "sort": "0"
-            }
+            data = {"type": "Paid", "csrf_name": csrf_name, "sort": "0"}
                     
             response = session.post(course_url, headers=headers, data=data)
+            print(response.json())
             course_data = json.loads(main_func.decode_base64(response.json().get('response', ''))).get("get_course_categorywise", {}).get("data", [])
             batch_list = "**📚 Available Batches:**\n\n"
             batch_data = {}
