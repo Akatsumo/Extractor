@@ -75,6 +75,11 @@ def encode_base64(data):
     encoded_string = encoded_bytes.decode('utf-8')
     return encoded_string
 
+def decode_base64(encoded_data):
+    decoded_bytes = b64decode(encoded_data)
+    decoded_string = decoded_bytes.decode('utf-8')
+    return decoded_string
+
 # --------------------------------------------------------------------------- #
 allDics = {}
 PER_PAGE = 15
