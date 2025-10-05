@@ -54,7 +54,6 @@ async def abhinayMath_login(_, message, user_id=None):
             }
             response = session.post(login_url, headers=headers, data=login_data)
             decoded = json.loads(main_func.decode_base64(response.json().get('response', '')))
-            print(decoded)
           
             if decoded['status'] != True:
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
@@ -65,14 +64,13 @@ async def abhinayMath_login(_, message, user_id=None):
             data = {"type": "Paid", "csrf_name": csrf_name, "sort": "0"}
                     
             response = session.post(course_url, headers=headers, data=data)
-            print(response.json())
             course_data = json.loads(main_func.decode_base64(response.json().get('response', ''))).get("get_course_categorywise", {}).get("data", [])
             batch_list = "**📚 Available Batches:**\n\n"
             batch_data = {}
             for category in course_data:
                 for course in category.get("courses", []):
                     if course.get("is_purchased") == "1":
-                        batch_list += f"{course.get('id')} - {course.get('title')}"
+                        batch_list += f"`{course.get('id')}` - {course.get('title')}"
                         batch_data.update({"_id": course.get('id'), "batch_name": course.get('title'), "category_name": category.get("category"), "batch_price": course.get('course_sp'), "batch_validity": course.get('validity')})
         
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
