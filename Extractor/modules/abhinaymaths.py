@@ -68,7 +68,6 @@ async def vajiram_login(_, message, user_id=None):
                     
             response = session.post(login_url, headers=headers, cookies=cookies, data=data)
             course_data = json.loads(main_func.decode_base64(response.json().get('response', ''))).get("get_course_categorywise", {}).get("data", [])))
-            print(course_data)
             batch_list = "**📚 Available Batches:**\n\n"
             batch_data = {}
             for category in course_data:
@@ -79,7 +78,38 @@ async def vajiram_login(_, message, user_id=None):
         
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
 
-           
+            # try:
+            #     input3 = await app.listen(user_id=user_id, timeout=30)
+            #     batch_id = int(input3.text.strip()) 
+            #     await input3.delete()
+            # except:
+            #     return await msg.edit_text("⏳ Timeout! Please try again.")
+
+            # batch_url = batch_data.get(batch_id, {}).get('batch_url')
+            # batch_name = batch_data.get(batch_id, {}).get('batch_name')
+
+            # if not batch_name:
+            #     return await msg.edit_text("**Invalid Batch ID. Please try again.**")
+
+            # await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+            # start_time = time.time()
+            # lectures = await asyncio.create_task(course_extract(session, batch_url))
+            # end_time = time.time()
+            # duration_seconds = end_time - start_time
+            # elapsed = get_time(duration_seconds)
+
+            # file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            # with open(file_name, "w") as f:
+            #     f.write("\n".join(lectures))
+
+            # caption = f"**App Name** : `VAJIRAM IAS`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed}`"
+            # me = await app.get_me()
+            # big_file_id = me.photo.big_file_id
+            # thumb = await asyncio.create_task(app.download_media(big_file_id))
+
+            # await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
+            # os.remove(file_name)
+            # await msg.delete()
 
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)}`")
