@@ -74,7 +74,7 @@ async def vajiram_login(_, message, user_id=None):
                 for course in category.get("courses", []):
                     if course.get("is_purchased") == "1":
                         batch_list += f"{course.get('id')} - {course.get('title')}"
-                        batch_data.update({"_id"}: course.get('id'), "batch_name": course.get('title'), "category_name": category.get("category"), "batch_price": course.get('course_sp'), "batch_validity": course.get('validity'))
+                        batch_data.update({"_id": course.get('id'), "batch_name": course.get('title'), "category_name": category.get("category"), "batch_price": course.get('course_sp'), "batch_validity": course.get('validity')})
         
             await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
 
