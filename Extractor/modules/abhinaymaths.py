@@ -67,7 +67,7 @@ async def vajiram_login(_, message, user_id=None):
             }
                     
             response = session.post(login_url, headers=headers, cookies=cookies, data=data)
-            course_data = json.loads(main_func.decode_base64(response.json().get('response', ''))).get("get_course_categorywise", {}).get("data", [])))
+            course_data = json.loads(main_func.decode_base64(response.json().get('response', ''))).get("get_course_categorywise", {}).get("data", [])
             batch_list = "**📚 Available Batches:**\n\n"
             batch_data = {}
             for category in course_data:
