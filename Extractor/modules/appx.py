@@ -329,7 +329,7 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
                     return await message.reply_text("⏳ Timeout! Please try again.")
                 
             headers.update({"Authorization": token})
-            await msg.edit_text("✅ **Login Successful**")
+            await msg.edit_text("✅ **Login Successful.**")
 
             response = await session.get(f"https://{api}/get/get_all_purchases?userid&item_type=10", headers=headers)
             batch_data = (await response.json()).get("data", [])
