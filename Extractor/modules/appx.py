@@ -334,7 +334,7 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None):
             response = await session.get(f"https://{api}/get/get_all_purchases?userid&item_type=10", headers=headers)
             batch_data = (await response.json()).get("data", [])
             if not batch_data:
-                return await msg.edit_text("No Batch Data found!!")
+                return await message.reply_text("No Batch Data found!!")
 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
