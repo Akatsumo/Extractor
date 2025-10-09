@@ -412,5 +412,6 @@ async def appx_logins(_, message, user_id=None, callback=False, api=None, name=N
         name, api = extract_parts(raw_text)
         if not name or not api:
             return await msg.edit_text("❌ **Invalid API URL! Please try again.**")
-        await appex_v3_txt(app, message, user_id, api, name) 
+        await appex_v3_txt(app, message, user_id, api, name)
+        await msg.delete()
             
