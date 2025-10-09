@@ -1,4 +1,3 @@
-import re
 from Extractor import app
 from pyrogram import filters, enums
 from Extractor.core import script, core_func, main_func, appxmethod
