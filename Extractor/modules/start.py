@@ -59,28 +59,7 @@ async def handle_callback(_, query):
             script.TOOLS_TEXT,
             reply_markup=main_func.get_page(0, core_func.appNameDict, "CoursesName")
         )
-    elif query.data.startswith("appxlogin"):
-        data = query.data.split("_")[1]
-        task = data.split("*")
-        def extract_parts(url):
-            match = re.search(r'([\w\d]+?)(api)?\.(.+)$', url)
-            if match:
-                name = match.group(1)
-                original_subdomain = match.group(1) + (match.group(2) or '') + '.' + match.group(3)
-                return name, original_subdomain
-            return None, None
-
-        name, api = extract_parts(task[1])
-        if not name or not api:
-            return await query.message.edit_text("❌ **Invalid API URL! Please try again.**")
-
-        if task[0] == "v2":
-            await query.answer("waito...", show_alert=True)
-            await appx.appex_v2_txt(app, query.message, user_id, api, name)
-        else:
-            await query.answer("waito...", show_alert=True)
-            await appx.appex_v3_txt(app, query.message, user_id, api, name)
-            
+        
     elif query.data.startswith("page_"):
         if not main_func.allDics:
             return await query.answer("Time up!", show_alert=True)
