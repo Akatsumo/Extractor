@@ -159,8 +159,10 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
             response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
             batch_data = json.loads(await response.read()).get("data", [])
-            print(batch_data)
-
+            if not batch_data:
+                await appex_v2_txt(app, message, user_id, api, name, token)
+                return
+                
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
             for data in batch_data:
@@ -294,7 +296,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
 
 
 
-async def appex_v2_txt(app, message, user_id, api, name):
+async def appex_v2_txt(app, message, user_id, api, name, token=None):
     try:
         async with aiohttp.ClientSession() as session:
             login_url = f"https://{api}/post/userLogin"
@@ -307,29 +309,32 @@ async def appex_v2_txt(app, message, user_id, api, name):
                 "User-Agent": "okhttp/4.9.1"
             }
 
-            msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
-            try:
-                input1 = await app.listen(user_id=user_id, timeout=30)
-                if "*" in input1.text:
-                    email, password = input1.text.split("*")
-                    response = await session.post(login_url, data={"email": email, "password": password}, headers=headers)
-                    if response.status != 200:
-                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            if not token:
+                msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
+                try:
+                    input1 = await app.listen(user_id=user_id, timeout=30)
+                    if "*" in input1.text:
+                        email, password = input1.text.split("*")
+                        response = await session.post(login_url, data={"email": email, "password": password}, headers=headers)
+                        if response.status != 200:
+                            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-                    output = await response.json()
-                    userid, token = output["data"]["userid"], output["data"]["token"]
-                    headers.update({"User-Id": userid, "Authorization": token})      
-                else:
-                    token = input1.text.strip()
-            except:
-                return await message.reply_text("⏳ Timeout! Please try again.")
-
-            await input1.delete()
+                        output = await response.json()
+                        userid, token = output["data"]["userid"], output["data"]["token"]
+                        headers.update({"User-Id": userid, "Authorization": token})      
+                    else:
+                        token = input1.text.strip()
+                        await input1.delete()
+                 except:
+                     return await message.reply_text("⏳ Timeout! Please try again.")
+                
             headers.update({"Authorization": token})
             await msg.edit_text("✅ **Login Successful**")
 
             response = await session.get(f"https://{api}/get/get_all_purchases?userid&item_type=10", headers=headers)
             batch_data = (await response.json()).get("data", [])
+            if not batch_data:
+                return await msg.edit_text("No Batch Data found!!")
 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
