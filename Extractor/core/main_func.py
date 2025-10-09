@@ -93,11 +93,12 @@ def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=Non
     if start >= len(keys) and query:
         return query.answer("🚫 No more pages", show_alert=True)
         
-    if appx:
-        buttons.append([InlineKeyboardButton("🔐 Manual Login", callback_data="manual_login")])
-
     buttons = []
     row = []
+    
+    if appx:
+        buttons.append([InlineKeyboardButton("🔐 Manual Login", callback_data="manual_login")])
+        
     for i, key in enumerate(keys[start:end], 1):
         row.append(InlineKeyboardButton(appNameDict[key]["name"], callback_data=f"autoCallback#{key}"))
         if i % page_row == 0:  
