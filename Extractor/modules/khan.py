@@ -76,15 +76,13 @@ async def khan_login(_, message, user_id=None):
             await input1.delete()
 
             headers = {
-                #"Host": "api.khanglobalstudies.com",
                 "Authorization": f"Bearer {token}",
                 "Accept": "application/json",
-                "access-control-allow-origin": "*"
             }
 
             await msg.edit_text("✅ **Login Successful**")
 
-            async with session.get("https://api.khanglobalstudies.com/cms/user/v2/courses", headers=headers) as response:
+            async with session.get("https://api.khanglobalstudies.com/v1/courses/paid", headers=headers) as response:
                 batch_data = await response.json()
                 print(batch_data)
 
