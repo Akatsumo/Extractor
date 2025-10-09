@@ -82,6 +82,8 @@ async def handle_callback(_, query):
             await appx.appex_v3_txt(app, query.message, user_id, api, name)
             
     elif query.data.startswith("page_"):
+        if not allDics:
+            return await query.answer("Time up!", show_alert=True)
         page = int(query.data.split("_")[2])
         DictID = query.data.split("_")[1]
         appNameDict = main_func.allDics[DictID]
