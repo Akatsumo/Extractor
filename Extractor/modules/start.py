@@ -92,12 +92,13 @@ async def handle_callback(_, query):
     elif query.data.startswith("autoCallback#"):
         data = query.data.split("#")[1]
         if data in core_func.appNameDict or data in appxmethod.appxapis:
-            await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
             if data in appxmethod.appxapis and data not in core_func.appNameDict:
+                await query.answer(f"You clicked {appxmethod.appxapis[f"{data}"]["name"]}", show_alert=True)
                 api = appxmethod.appxapis[f"{data}"]["api"]
                 name = appxmethod.appxapis[f"{data}"]["name"]
                 await appx.appx_logins(_, query.message, user_id, True, api, name)
             else:
+                await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
                 await core_func.appNameDict[f"{data}"]["func"](_, query.message, user_id)
             
         elif data in appxmethod.a_to_zList:
