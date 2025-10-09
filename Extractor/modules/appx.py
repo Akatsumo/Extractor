@@ -159,6 +159,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
 
             response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
             batch_data = json.loads(await response.read()).get("data", [])
+            print(batch_data)
 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
@@ -375,16 +376,19 @@ async def appex_v2_txt(app, message, user_id, api, name):
 
 @app.on_message(filters.command("appx")) 
 async def appx_logins(_, message, user_id=None, callback=False, api=None, name=None, manualLogin=False):
+    user_id = user_id if user_id else message.from_user.id
     if not manualLogin:
         buttons = main_func.get_page(0, appxmethod.a_to_zList, DictID="AppxShortAtoZ")
         if not callback:
             await message.reply_text(script.TOOLS_TEXT,
-               reply_markup=buttons)
+            reply_markup=buttons)
         else:
-            await message.edit_text(script.TOOLS_TEXT,
-               reply_markup=buttons)
+            if api and name:
+                await appex_v3_txt(app, message, user_id, api, name):   
+            else:
+                await message.edit_text(script.TOOLS_TEXT,
+                reply_markup=buttons)
     else:
-        user_id = user_id if user_id else message.from_user.id
         msg = await message.reply_text("📝 Please Provide Your Appx API URL.")
 
         input_msg = await app.listen(user_id=user_id)
