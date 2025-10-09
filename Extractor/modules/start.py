@@ -58,7 +58,10 @@ async def handle_callback(_, query):
             script.TOOLS_TEXT,
             reply_markup=main_func.get_page(0, core_func.appNameDict, "CoursesName")
         )
-        
+    elif query.data == "manual_login":
+        await query.answer("You clicked Manual Login", show_alert=True)
+        await appx.appx_logins(_, query.message, user_id, False, None, None, True)
+    
     elif query.data.startswith("page_"):
         if not main_func.allDics:
             return await query.answer("Time up!", show_alert=True)
