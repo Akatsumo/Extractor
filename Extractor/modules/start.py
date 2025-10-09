@@ -96,7 +96,7 @@ async def handle_callback(_, query):
             if data in appxmethod.appxapis and data not in core_func.appNameDict:
                 api = appxmethod.appxapis[f"{data}"]["api"]
                 name = appxmethod.appxapis[f"{data}"]["name"]
-                await appx.appx_logins(_, query.message, user_id, name, api)
+                await appx.appx_logins(_, query.message, user_id, True, api, name)
             else:
                 await core_func.appNameDict[f"{data}"]["func"](_, query.message, user_id)
             
