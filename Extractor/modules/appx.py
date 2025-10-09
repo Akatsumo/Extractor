@@ -374,7 +374,7 @@ async def appex_v2_txt(app, message, user_id, api, name):
 
 
 @app.on_message(filters.command("appx")) 
-async def appx_logins(_, message, user_id=None, callback=False, manualLogin=False):
+async def appx_logins(_, message, user_id=None, callback=False, api=None, name=None, manualLogin=False):
     if not manualLogin:
         buttons = main_func.get_page(0, appxmethod.a_to_zList, DictID="AppxShortAtoZ")
         if not callback:
