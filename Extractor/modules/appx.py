@@ -384,7 +384,7 @@ async def appx_logins(_, message, user_id=None, callback=False, api=None, name=N
             reply_markup=buttons)
         else:
             if api and name:
-                await appex_v3_txt(app, message, user_id, api, name):   
+                await appex_v3_txt(app, message, user_id, api, name)  
             else:
                 await message.edit_text(script.TOOLS_TEXT,
                 reply_markup=buttons)
