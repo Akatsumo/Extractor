@@ -4,7 +4,7 @@ from Extractor.core import script, core_func, main_func, appxmethod
 from Extractor.modules import appx
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# core_func.appNameDict["appx_"] = {"name": "Appx", "func": appx.appx_logins}
+core_func.appNameDict["appx_"] = {"name": "Appx", "func": appx.appx_logins}
 
 
 # ------------------------ Buttons ------------------------ # 
