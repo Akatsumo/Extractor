@@ -160,7 +160,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
             batch_data = json.loads(await response.read()).get("data", [])
             if not batch_data:
-                await appex_v2_txt(app, message, user_id, api, name, token)
+                await appex_v2_txt(app, message, user_id, api, name, token, msg)
                 return
                 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
@@ -296,7 +296,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
 
 
 
-async def appex_v2_txt(app, message, user_id, api, name, token=None):
+async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
     try:
         async with aiohttp.ClientSession() as session:
             login_url = f"https://{api}/post/userLogin"
@@ -334,7 +334,7 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None):
             response = await session.get(f"https://{api}/get/get_all_purchases?userid&item_type=10", headers=headers)
             batch_data = (await response.json()).get("data", [])
             if not batch_data:
-                return await message.reply_text("No Batch Data found!!")
+                return await msg.edit_text("No Batch Data found!!")
 
             batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
             batch_map = {}
