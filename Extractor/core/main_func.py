@@ -84,7 +84,7 @@ def decode_base64(encoded_data):
 allDics = {}
 PER_PAGE = 15
 
-def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=None, page_row=3):
+def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=None, appx=False page_row=3):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
@@ -92,6 +92,9 @@ def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=Non
     
     if start >= len(keys) and query:
         return query.answer("🚫 No more pages", show_alert=True)
+        
+    if appx:
+        buttons.append([InlineKeyboardButton("🔐 Manual Login", callback_data="manual_login")])
 
     buttons = []
     row = []
