@@ -1,4 +1,4 @@
-from Extractor.modules import vajiramias, utkarsh, khan, careerwill, adda247, kpias, classplus, cdsjourney
+from Extractor.modules import vajiramias, utkarsh, khan, careerwill, adda247, kpias, classplus, cdsjourney, appx
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
@@ -10,5 +10,6 @@ appNameDict = {
     "classplus_": {"name": "Classplus", "func": classplus.classplus_login},
     "vajiram_": {"name": "Vajiram", "func": vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": kpias.kpias_login},
+    "appx_": {"name": "Appx", "func": appx.appx_logins},
 }
 
