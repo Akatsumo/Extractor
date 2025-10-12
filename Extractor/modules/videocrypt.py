@@ -177,7 +177,7 @@ class VideoCryptExtractor:
 
             userId = main_func.jwt_decoder(token).get("id")
             key, iv = main_func.gen_key_iv(self.BASE, user_id)
-            headers = {**self.HEADERS, "jwt": token, "userid": str(userId)}
+            headers = {**self.HEADERS, "jwt": token, "userid": userId}
 
             data = {"user_id": userId}
             courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
