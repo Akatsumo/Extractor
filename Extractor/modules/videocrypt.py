@@ -39,6 +39,12 @@ def header_definer(name):
         version = "50"
         appid = "681"
         return authorization, version, appid
+    elif name == "pateltutorials":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_263"
+        version = "59"
+        appid = "263"
+        return authorization, version, appid
+        
     else:
         return None, None, None
         
