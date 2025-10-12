@@ -146,7 +146,7 @@ def gen_key_iv(de, id=None):
     iv = gen_value(base, Arrayvector)
     return key, iv
 
-def videocrypt_encrypt(key, iv, plaintext):
+def encrypt(key, iv, plaintext):
     key = key.encode("utf8")
     iv = iv.encode("utf8")
     padded = pad(plaintext.encode("utf-8"), AES.block_size)
@@ -154,7 +154,7 @@ def videocrypt_encrypt(key, iv, plaintext):
     encrypted = cipher.encrypt(padded)
     return b64encode(encrypted).decode("utf-8")
 
-def videocrypt_decrypt(key, iv, encoded_data):
+def decrypt(key, iv, encoded_data):
     if ":" in encoded_data:
         encoded_data = encoded_data.split(":")[0]
     key = key.encode("utf8")
