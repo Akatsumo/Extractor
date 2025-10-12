@@ -1,5 +1,6 @@
 import json
 import time
+import asyncio
 import requests
 from Extractor import app
 from pyrogram import filters
@@ -43,7 +44,7 @@ def header_definer(name):
         
 
 
-# --------------- AbhinayMaths Extractor --------------- #
+# --------------- VideoCrypt Extractor --------------- #
 
 class VideoCryptExtractor:
     def __init__(self, name):
@@ -160,47 +161,46 @@ class VideoCryptExtractor:
                 login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
                 result = self.fetch("data_model/users/login_auth", self.HEADERS, login_data, key, iv)
                 token = result["data"]["jwt"] 
-           else:
+            else:
                 token = raw
 
-           userId = main_func.jwt_decoder(token).get("id")
-           key, iv = mainf_func.gen_key_iv(self.BASE, user_id)
-           headers = {**self.HEADERS, "jwt": token, "userid": str(userId)}
+            userId = main_func.jwt_decoder(token).get("id")
+            key, iv = mainf_func.gen_key_iv(self.BASE, user_id)
+            headers = {**self.HEADERS, "jwt": token, "userid": str(userId)}
 
-           data = {"user_id": userId}
-           courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
-           courses = courses_data["data"]
+            data = {"user_id": userId}
+            courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
+            courses = courses_data["data"]
 
-           course_batches = "📚 **Available Batches:**\n\n"
-           for c in courses:
-               course_batches += f"`{c['id']}` - **{c['title']}**\n"
+            course_batches = "📚 **Available Batches:**\n\n"
+            for c in courses:
+                course_batches += f"`{c['id']}` - **{c['title']}**\n"
 
-           await msg.edit_text(f"{course_batches}\n**📊 Now send the Batch ID to Download**")
-           input2 = await app.listen(user_id=user_id)
-           batch_id = input2.text.strip()
-           await input2.delete()
-           batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
+            await msg.edit_text(f"{course_batches}\n**📊 Now send the Batch ID to Download**")
+            input2 = await app.listen(user_id=user_id)
+            batch_id = input2.text.strip()
+            await input2.delete()
+            batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
 
-           await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
-           start = time.time()
-           all_contents = self.process_course(batch_id, batch_id, headers, key, iv)
+            await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+            start = time.time()
+            all_contents = self.process_course(batch_id, batch_id, headers, key, iv)
 
-           file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
-           with open(filename, "w", encoding="utf-8") as f:
-               f.write(all_contents)
+            file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            with open(file_name, "w", encoding="utf-8") as f:
+                f.write(all_contents)
 
-           elapsed = main_func.get_time(time.time() - start)
+            elapsed = main_func.get_time(time.time() - start)
     
-           caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(all_contents)}`\n🍿 **Videos** : {self.v_count} | 📝 **PDFs** : {self.p_count}\n⌚️ **Time Taken** : `{elapsed} sec`"
-           me = await app.get_me()
-           big_file_id = me.photo.big_file_id
-           thumb = await asyncio.create_task(app.download_media(big_file_id))
-           await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-           os.remove(file_name)
-           await msg.delete()
-           await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
-      except Exception as e:
-           await message.reply_text(f"Error: `{str(e)}`")
+            caption = f"**App Name** : `{self.name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(all_contents)}`\n🍿 **Videos** : {self.v_count} | 📝 **PDFs** : {self.p_count}\n⌚️ **Time Taken** : `{elapsed} sec`"
+
+            me = await app.get_me()
+            big_file_id = me.photo.big_file_id
+            thumb = await asyncio.create_task(app.download_media(big_file_id))
+            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
+            os.remove(file_name)
+            await msg.delete()
+            await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+        except Exception as e:
+            await message.reply_text(f"Error: `{str(e)}`")
         
-
-
