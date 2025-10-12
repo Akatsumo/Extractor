@@ -57,6 +57,7 @@ class VideoCryptExtractor:
         self.v_count = 0
         self.p_count = 0
         self.name = name
+        self.session = requests.Session()
         self.DEFAULT_BASE = "0117108641864451"
         self.BASE = "1171086418644515_166"
         self.API_BASE = "https://appapi.videocrypt.in/index.php"
@@ -79,7 +80,7 @@ class VideoCryptExtractor:
     def fetch(self, endpoint, headers, data, key, iv):
         url = f"{self.API_BASE}/{endpoint}"
         enc = main_func.encrypt(key, iv, json.dumps(data))
-        res = requests.post(url, headers=headers, data=enc)
+        res = self.session.post(url, headers=headers, data=enc)
         if response.status != 200:
             return {'status': False, 'message': 'something went wrong!'}
         text = res.text
