@@ -1,8 +1,8 @@
-from Extractor.modules import vajiramias, utkarsh, khan, careerwill, adda247, kpias, classplus, cdsjourney
+from Extractor.modules import vajiramias, khan, careerwill, adda247, kpias, classplus, cdsjourney
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
-    "utkarsh_": {"name": "Utkarsh", "func": utkarsh.handle_utk_logic},
+    # "utkarsh_": {"name": "Utkarsh", "func": utkarsh.handle_utk_logic},
     "khan_": {"name": "Khan", "func": khan.khan_login},
     "careerwill_": {"name": "Careerwill", "func": careerwill.careerwill_login},
     "cdsjourney_": {"name": "CdsJourney", "func": cdsjourney.cdsjourney_login},
