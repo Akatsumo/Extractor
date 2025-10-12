@@ -3,8 +3,8 @@ import time
 import requests
 from Extractor import app
 from pyrogram import filters
-from Extractor.core import main_func
 from base64 import b64decode
+from Extractor.core import main_func
 
 
 def header_definer(name):
@@ -49,6 +49,7 @@ class VideoCryptExtractor:
     def __init__(self, name):
         self.v_count = 0
         self.p_count = 0
+        self.name = name
         self.DEFAULT_BASE = "0117108641864451"
         self.BASE = "1171086418644515_166"
         self.API_BASE = "https://appapi.videocrypt.in/index.php"
@@ -87,11 +88,11 @@ class VideoCryptExtractor:
                 pass
         raise ValueError(f"Failed to decrypt: {text}")
 
-    def get_content_url(self, course_id, content, headers, key, iv, name):
+    def get_content_url(self, course_id, content, headers, key, iv):
         url = None
         if content.get("file_type") == "3":
             if content.get("is_drm") == "1":
-                url = f"https://abhinaymaths.in/drm/{content.get('vdc_id')}/{headers.get('userid')}" if name == "abhinaymaths" else f"https://www.videocrypt.in/drm/{content.get('vdc_id')}/{headers.get('userid')}"
+                url = f"https://abhinaymaths.in/drm/{content.get('vdc_id')}/{headers.get('userid')}" if self.name == "abhinaymaths" else f"https://www.videocrypt.in/drm/{content.get('vdc_id')}/{headers.get('userid')}"
             elif content.get("video_type") == "1":
                 url = f"https://youtu.be/{content['file_url']}"
             else:
@@ -144,52 +145,62 @@ class VideoCryptExtractor:
         return results
 
 
-
-
+    async def videocrypt_login(self, app, message, user_id):
+        user_id = user_id if user_id else message.from_user.id
+        try:
+            msg = await message.reply_text("🔑 Enter login credentials (Mobile*Password or Token): ")
+            input1 = await app.listen(user_id=user_id, timeout=30)
+            raw = input1.text.strip()
+            await input1.delete()
     
-    def start(self):
-        print("🔑 Enter login credentials (Mobile*Password or Token): ")
-        raw = input("> ").strip()
+            key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
 
-        key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
+            if "*" in raw:
+                email, password = raw.split("*")
+                login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
+                result = self.fetch("data_model/users/login_auth", self.HEADERS, login_data, key, iv)
+                token = result["data"]["jwt"] 
+           else:
+                token = raw
 
-        if "*" in raw:
-            email, password = raw.split("*")
-            login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
-            result = self.fetch("data_model/users/login_auth", self.HEADERS, login_data, key, iv)
-            token = result["data"]["jwt"]
-            print(f"\n✅ Login Success!\nToken: {token}")
-        else:
-            token = raw
+           userId = main_func.jwt_decoder(token).get("id")
+           key, iv = mainf_func.gen_key_iv(self.BASE, user_id)
+           headers = {**self.HEADERS, "jwt": token, "userid": str(userId)}
 
-        user_id = input("\nEnter your User ID (from token): ").strip()
-        key, iv = gen_key_iv(self.BASE, user_id)
-        headers = {**self.HEADERS, "jwt": token, "userid": str(user_id)}
+           data = {"user_id": userId}
+           courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
+           courses = courses_data["data"]
 
-        data = {"user_id": user_id}
-        courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
-        courses = courses_data["data"]
+           course_batches = "📚 **Available Batches:**\n\n"
+           for c in courses:
+               course_batches += f"`{c['id']}` - **{c['title']}**\n"
 
-        print("\n📚 Available Batches:")
-        for c in courses:
-            print(f"{c['id']} - {c['title']}")
+           await msg.edit_text(f"{course_batches}\n**📊 Now send the Batch ID to Download**")
+           input2 = await app.listen(user_id=user_id)
+           batch_id = input2.text.strip()
+           await input2.delete()
+           batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
 
-        batch_id = input("\nEnter Batch ID to extract: ").strip()
-        batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
+           await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+           start = time.time()
+           all_contents = self.process_course(batch_id, batch_id, headers, key, iv)
 
-        print("\n📥 Extracting, please wait...")
-        start = time.time()
-        all_contents = self.process_course(batch_id, batch_id, headers, key, iv)
+           file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+           with open(filename, "w", encoding="utf-8") as f:
+               f.write(all_contents)
 
-        filename = f"{batch_name}.txt"
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(all_contents)
+           elapsed = main_func.get_time(time.time() - start)
+    
+           caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(all_contents)}`\n🍿 **Videos** : {self.v_count} | 📝 **PDFs** : {self.p_count}\n⌚️ **Time Taken** : `{elapsed} sec`"
+           me = await app.get_me()
+           big_file_id = me.photo.big_file_id
+           thumb = await asyncio.create_task(app.download_media(big_file_id))
+           await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
+           os.remove(file_name)
+           await msg.delete()
+           await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+      except Exception as e:
+           await message.reply_text(f"Error: `{str(e)}`")
+        
 
-        elapsed = get_time(time.time() - start)
-        print(f"\n✅ Done! Saved as {filename}")
-        print(f"🍿 Videos: {self.v_count} | 📝 PDFs: {self.p_count} | ⏱️ {elapsed}")
 
-# --------------- Run Script --------------- #
-
-if __name__ == "__main__":
-    AbhinayMaths().start()
