@@ -176,7 +176,7 @@ class VideoCryptExtractor:
                 token = raw
 
             userId = main_func.jwt_decoder(token).get("id")
-            key, iv = main_func.gen_key_iv(self.BASE, user_id)
+            key, iv = main_func.gen_key_iv(self.BASE, userId)
             headers = {**self.HEADERS, "jwt": token, "userid": userId}
 
             data = {"user_id": userId}
