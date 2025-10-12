@@ -4,6 +4,7 @@ import requests
 from Extractor import app
 from pyrogram import filters
 from Extractor.core import main_func
+from base64 import b64decode
 
 
 def header_definer(name):
@@ -51,13 +52,14 @@ class VideoCryptExtractor:
         self.DEFAULT_BASE = "0117108641864451"
         self.BASE = "1171086418644515_166"
         self.API_BASE = "https://appapi.videocrypt.in/index.php"
+        authorization, version, appid = header_definer(name)
         self.HEADERS = {
             "userid": "0",
             "devicetype": "1",
             "lang": "1",
-            "authorization": ,
-            "version": "103",
-            "appid": "586",
+            "authorization": authorization,
+            "version": version,
+            "appid": appid,
             "user-agent": "okhttp/4.11.0",
         }
         self.LOGIN_DATA = {
@@ -85,11 +87,11 @@ class VideoCryptExtractor:
                 pass
         raise ValueError(f"Failed to decrypt: {text}")
 
-    def get_content_url(self, course_id, content, headers, key, iv):
+    def get_content_url(self, course_id, content, headers, key, iv, name):
         url = None
         if content.get("file_type") == "3":
             if content.get("is_drm") == "1":
-                url = f"https://abhinaymaths.in/drm/{content.get('vdc_id')}/{headers.get('userid')}"
+                url = f"https://abhinaymaths.in/drm/{content.get('vdc_id')}/{headers.get('userid')}" if name == "abhinaymaths" else f"https://www.videocrypt.in/drm/{content.get('vdc_id')}/{headers.get('userid')}"
             elif content.get("video_type") == "1":
                 url = f"https://youtu.be/{content['file_url']}"
             else:
