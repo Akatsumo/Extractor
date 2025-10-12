@@ -131,3 +131,35 @@ def get_enc_key(ts=None):
 
 # --------------------------------------------------------------------------- #
                                         
+def gen_value(base, source):
+    ref = b64decode(source).decode("utf-8")
+    combined = base[:16]
+    return "".join(ref[int(c)] for c in combined)
+
+def gen_key_iv(de, id=None):
+    base = id + de if id else de
+    ArrayKey = "JSFGKiZeJClfKiUzZiZCKw=="
+    Arrayvector = "IyokREp2eXcydyUhXy0kQA=="
+    key = gen_value(base, ArrayKey)
+    iv = gen_value(base, Arrayvector)
+    return key, iv
+
+def videocrypt_encrypt(key, iv, plaintext):
+    key = key.encode("utf8")
+    iv = iv.encode("utf8")
+    padded = pad(plaintext.encode("utf-8"), AES.block_size)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    encrypted = cipher.encrypt(padded)
+    return b64encode(encrypted).decode("utf-8")
+
+def videocrypt_decrypt(key, iv, encoded_data):
+    if ":" in encoded_data:
+        encoded_data = encoded_data.split(":")[0]
+    key = key.encode("utf8")
+    iv = iv.encode("utf8")
+    decoded_data = b64decode(encoded_data)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted = unpad(cipher.decrypt(decoded_data), AES.block_size)
+    return decrypted.decode("utf-8")
+
+# --------------------------------------------------------------------------- #
