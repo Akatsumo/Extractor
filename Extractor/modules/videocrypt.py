@@ -74,6 +74,8 @@ class VideoCryptExtractor:
         url = f"{self.API_BASE}/{endpoint}"
         enc = main_func.encrypt(key, iv, json.dumps(data))
         res = requests.post(url, headers=headers, data=enc)
+        if response.status != 200:
+            return {'status': False, 'message': 'something went wrong!'}
         text = res.text
         try:
             return json.loads(main_func.decrypt(key, iv, text))
@@ -160,7 +162,9 @@ class VideoCryptExtractor:
                 email, password = raw.split("*")
                 login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
                 result = self.fetch("data_model/users/login_auth", self.HEADERS, login_data, key, iv)
-                token = result["data"]["jwt"] 
+                if result.get("status") == False:
+                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+                token = result["data"].get("jwt")
             else:
                 token = raw
 
@@ -170,7 +174,9 @@ class VideoCryptExtractor:
 
             data = {"user_id": userId}
             courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
-            courses = courses_data["data"]
+            courses = courses_data.get("data", [])
+            if not courses:
+                return await msg.edit_text("No Batch Data found!!")
 
             course_batches = "📚 **Available Batches:**\n\n"
             for c in courses:
@@ -181,6 +187,8 @@ class VideoCryptExtractor:
             batch_id = input2.text.strip()
             await input2.delete()
             batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
+            if batch_name == "Unknown Batch":
+                return await msg.edit_text("Only valid batch IDs are accepted")
 
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
             start = time.time()
