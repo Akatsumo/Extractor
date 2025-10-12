@@ -81,7 +81,7 @@ class VideoCryptExtractor:
         url = f"{self.API_BASE}/{endpoint}"
         enc = main_func.encrypt(key, iv, json.dumps(data))
         res = self.session.post(url, headers=headers, data=enc)
-        if response.status != 200:
+        if res.status_code != 200:
             return {'status': False, 'message': 'something went wrong!'}
         text = res.text
         try:
@@ -207,7 +207,7 @@ class VideoCryptExtractor:
 
             elapsed = main_func.get_time(time.time() - start)
     
-            caption = f"**App Name** : `{self.name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(all_contents)}`\n🍿 **Videos** : {self.v_count} | 📝 **PDFs** : {self.p_count}\n⌚️ **Time Taken** : `{elapsed} sec`"
+            caption = f"**App Name** : `{self.name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(all_contents.split("\n"))}`\n🍿 **Videos** : {self.v_count} | 📝 **PDFs** : {self.p_count}\n⌚️ **Time Taken** : `{elapsed} sec`"
 
             me = await app.get_me()
             big_file_id = me.photo.big_file_id
