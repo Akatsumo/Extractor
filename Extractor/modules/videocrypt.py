@@ -6,13 +6,46 @@ from pyrogram import filters
 from Extractor.core import main_func
 
 
-
+def header_definer(name):
+    if name == "abhinaymaths":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_586"
+        version = "103"
+        appid = "586"
+        return authorization, version, appid
+    elif name == "eduteria":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_166"
+        version = "40"
+        appid = "166"
+        return authorization, version, appid
+    elif name == "kotamentors":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_675"
+        version = "3"
+        appid = "675"
+        return authorization, version, appid
+    elif name == "missionselection":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_746"
+        version = "23"
+        appid = "746"
+        return authorization, version, appid
+    elif name == "rankbuddy":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_583"
+        version = "4"
+        appid = "583"
+        return authorization, version, appid
+    elif name == "rajputtutorials":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_681"
+        version = "50"
+        appid = "681"
+        return authorization, version, appid
+    else:
+        return None, None, None
+        
 
 
 # --------------- AbhinayMaths Extractor --------------- #
 
-class AbhinayMaths:
-    def __init__(self):
+class VideoCryptExtractor:
+    def __init__(self, name):
         self.v_count = 0
         self.p_count = 0
         self.DEFAULT_BASE = "0117108641864451"
@@ -22,7 +55,7 @@ class AbhinayMaths:
             "userid": "0",
             "devicetype": "1",
             "lang": "1",
-            "authorization": "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_586",
+            "authorization": ,
             "version": "103",
             "appid": "586",
             "user-agent": "okhttp/4.11.0",
