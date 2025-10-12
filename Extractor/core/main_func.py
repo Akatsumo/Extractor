@@ -1,4 +1,6 @@
 import time
+import base64
+import json
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad, pad
 from base64 import b64decode, b64encode
@@ -161,5 +163,16 @@ def videocrypt_decrypt(key, iv, encoded_data):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     decrypted = unpad(cipher.decrypt(decoded_data), AES.block_size)
     return decrypted.decode("utf-8")
+
+
+def jwt_decoder(token):
+    try:
+        payload_part = token.split('.')[1]
+        padding = '=' * (-len(payload_part) % 4)
+        payload_bytes = base64.urlsafe_b64decode(payload_part + padding)
+        return json.loads(payload_bytes)
+    except Exception as e:
+        return {"error": str(e)}
+
 
 # --------------------------------------------------------------------------- #
