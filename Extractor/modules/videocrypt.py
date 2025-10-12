@@ -28,35 +28,25 @@ class AbhinayMaths:
             "user-agent": "okhttp/4.11.0",
         }
         self.LOGIN_DATA = {
-            "c_code": "+91",
             "device_id": "e0d97edefabd9635",
             "device_token": "f9c8b1a4d7e34c1aa6e89f17e5b2d3c76a5e8d9f12a34b6c8d0e1f2a3b4c5d6e",
             "is_social": "0",
-            "location": {
-                "device_model": "SM-F9360",
-                "ip": "",
-                "lat": "N/A",
-                "lng": "N/A",
-                "manufacturer": "samsung",
-                "os_version": "14",
-            },
         }
 
     def fetch(self, endpoint, headers, data, key, iv):
         url = f"{self.API_BASE}/{endpoint}"
-        enc = encrypt(key, iv, json.dumps(data))
+        enc = main_func.encrypt(key, iv, json.dumps(data))
         res = requests.post(url, headers=headers, data=enc)
         text = res.text
         try:
-            return json.loads(decrypt(key, iv, text))
+            return json.loads(main_func.decrypt(key, iv, text))
         except Exception:
             try:
-                # fallback for dynamic key responses
                 part = text.split(":")
                 if len(part) == 2:
                     dyn_base = b64decode(part[1]).decode("utf-8")
-                    k, v = gen_key_iv(self.BASE, dyn_base)
-                    dec = decrypt(k, v, part[0])
+                    k, v = main_func.gen_key_iv(self.BASE, dyn_base)
+                    dec = main_func.decrypt(k, v, part[0])
                     return json.loads(dec)
             except Exception:
                 pass
@@ -118,11 +108,15 @@ class AbhinayMaths:
                     results += self.process_topic(course_id, batch_id, subtopic["id"], topic["id"], tile["type"], tile["id"], tile["revert_api"], headers, key, iv)
         return results
 
+
+
+
+    
     def start(self):
         print("🔑 Enter login credentials (Mobile*Password or Token): ")
         raw = input("> ").strip()
 
-        key, iv = gen_key_iv(self.DEFAULT_BASE)
+        key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
 
         if "*" in raw:
             email, password = raw.split("*")
