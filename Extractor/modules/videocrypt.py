@@ -157,7 +157,7 @@ class VideoCryptExtractor:
         return results
 
 
-    async def videocrypt_login(self, app, message, user_id=None):
+    async def start_login(self, app, message, user_id=None):
         user_id = user_id if user_id else message.from_user.id
         try:
             msg = await message.reply_text("🔑 Enter login credentials (Mobile*Password or Token): ")
