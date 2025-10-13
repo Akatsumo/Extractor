@@ -10,6 +10,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 def header_definer(name):
+    name = name.replace(" ", "").lower()
     if name == "abhinaymaths":
         authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_586"
         version = "103"
