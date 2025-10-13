@@ -14,11 +14,11 @@ appNameDict = {
 }
 
 videoDecryptDict = {
-    "abhinaymaths_": {"name": "Abhinay Maths", "func": videoDecrypt}
-    "eduteria_": {"name": "Eduteria", "func": videoDecrypt}
-    "kotamentors_": {"name": "Kota Mentors", "func": videoDecrypt}
-    "missionselection_": {"name": "Mission Selection", "func": videoDecrypt}
-    "rankbuddy_": {"name": "Rank Buddy", "func": videoDecrypt}
-    "rajputtutorials_": {"name": "Rajput Tutorials", "func": videoDecrypt}
-    "pateltutorials_": {"name": "Patel Tutorials", "func": videoDecrypt}
+    "abhinaymaths_": {"name": "Abhinay Maths", "func": videoDecrypt},
+    "eduteria_": {"name": "Eduteria", "func": videoDecrypt},
+    "kotamentors_": {"name": "Kota Mentors", "func": videoDecrypt},
+    "missionselection_": {"name": "Mission Selection", "func": videoDecrypt},
+    "rankbuddy_": {"name": "Rank Buddy", "func": videoDecrypt},
+    "rajputtutorials_": {"name": "Rajput Tutorials", "func": videoDecrypt},
+    "pateltutorials_": {"name": "Patel Tutorials", "func": videoDecrypt},
 }
