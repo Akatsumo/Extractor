@@ -220,7 +220,7 @@ class VideoCryptExtractor:
         except Exception as e:
             await message.reply_text(f"Error: `{str(e)}`")
         
-asyn def videocryptButtons():
+async def videocryptButtons():
     buttons = await main_func.get_page(0, main_func.videoDecryptDict, DictID="VideoDecrypt1", back_data="tools_")
     await message.edit_text(script.TOOLS_TEXT, reply_markup=buttons)
     
