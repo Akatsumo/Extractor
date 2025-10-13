@@ -1,4 +1,4 @@
-from Extractor.modules import vajiramias, khan, careerwill, adda247, kpias, classplus, cdsjourney, videodecrypt
+from Extractor.modules import vajiramias, khan, careerwill, adda247, kpias, classplus, cdsjourney, videocrypt
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
@@ -10,15 +10,15 @@ appNameDict = {
     "classplus_": {"name": "Classplus", "func": classplus.classplus_login},
     "vajiram_": {"name": "Vajiram", "func": vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": kpias.kpias_login},
-    "videodecrypt_": {"name": "VideoDecrypt", "func": videodecrypt.videoDecryptButtons},
+    "videocrypt_": {"name": "Videocrypt", "func": videocrypt.videocryptButtons},
 }
 
-videoDecryptDict = {
-    "abhinaymaths_": {"name": "Abhinay Maths", "func": videoDecrypt},
-    "eduteria_": {"name": "Eduteria", "func": videoDecrypt},
-    "kotamentors_": {"name": "Kota Mentors", "func": videoDecrypt},
-    "missionselection_": {"name": "Mission Selection", "func": videoDecrypt},
-    "rankbuddy_": {"name": "Rank Buddy", "func": videoDecrypt},
-    "rajputtutorials_": {"name": "Rajput Tutorials", "func": videoDecrypt},
-    "pateltutorials_": {"name": "Patel Tutorials", "func": videoDecrypt},
+videoCryptDict = {
+    "abhinaymaths_": {"name": "Abhinay Maths", "func": videocrypt},
+    "eduteria_": {"name": "Eduteria", "func": videocrypt},
+    "kotamentors_": {"name": "Kota Mentors", "func": videocrypt},
+    "missionselection_": {"name": "Mission Selection", "func": videocrypt},
+    "rankbuddy_": {"name": "Rank Buddy", "func": videocrypt},
+    "rajputtutorials_": {"name": "Rajput Tutorials", "func": videocrypt},
+    "pateltutorials_": {"name": "Patel Tutorials", "func": videocrypt},
 }
