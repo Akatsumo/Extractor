@@ -74,12 +74,19 @@ async def handle_callback(_, query):
         )
     elif query.data.startswith("autoCallback#"):
         data = query.data.split("#")[1]
-        if data in core_func.appNameDict or data in appxmethod.appxapis:
-            if data in appxmethod.appxapis and data not in core_func.appNameDict:
-                await query.answer(f"You clicked {appxmethod.appxapis[f"{data}"]["name"]}", show_alert=True)
-                api = appxmethod.appxapis[f"{data}"]["api"]
+        if data in core_func.appNameDict or data in appxmethod.appxapis or data in core_func.videoCryptDict:
+            if data in appxmethod.appxapis:
                 name = appxmethod.appxapis[f"{data}"]["name"]
+                await query.answer(f"You clicked {name}", show_alert=True)
+                api = appxmethod.appxapis[f"{data}"]["api"]
                 await appx.appx_logins(_, query.message, user_id, True, api, name)
+                
+            elif data in core_func.videoCryptDict:
+                name = core_func.videoCryptDict[f"{data}"]["name"]
+                await query.answer(f"You clicked {name}", show_alert=True)
+                vdocrypt = core_func.videoCryptDict[f"{data}"]["func"](name)
+                await vdocrypt.start_login(_, query.message, user_id)
+                
             else:
                 await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
                 await core_func.appNameDict[f"{data}"]["func"](_, query.message, user_id)
