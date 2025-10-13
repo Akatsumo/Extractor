@@ -10,7 +10,7 @@ appNameDict = {
     "classplus_": {"name": "Classplus", "func": classplus.classplus_login},
     "vajiram_": {"name": "Vajiram", "func": vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": kpias.kpias_login},
-    "videodecrypt_": {"name": "VideoDecrypt", "func": None},
+    "videodecrypt_": {"name": "VideoDecrypt", "func": videodecrypt.videoDecryptButtons},
 }
 
 videoDecryptDict = {
