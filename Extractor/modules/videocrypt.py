@@ -5,7 +5,8 @@ import requests
 from Extractor import app
 from pyrogram import filters
 from base64 import b64decode
-from Extractor.core import main_func
+from Extractor.core import main_func, script
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 def header_definer(name):
@@ -219,3 +220,7 @@ class VideoCryptExtractor:
         except Exception as e:
             await message.reply_text(f"Error: `{str(e)}`")
         
+asyn def videoDecryptButtons():
+    buttons = await main_func.get_page(0, main_func.videoDecryptDict, DictID="VideoDecrypt1", back_data="tools_")
+    await message.edit_text(script.TOOLS_TEXT, reply_markup=buttons)
+    
