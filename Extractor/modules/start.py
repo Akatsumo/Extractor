@@ -84,7 +84,7 @@ async def handle_callback(_, query):
             elif data in core_func.videoCryptDict:
                 name = core_func.videoCryptDict[f"{data}"]["name"]
                 await query.answer(f"You clicked {name}", show_alert=True)
-                vdocrypt = core_func.videoCryptDict[f"{data}"]["func"](name)
+                vdocrypt = core_func.videoCryptDict[f"{data}"]["func"].VideoCryptExtractor(name)
                 await vdocrypt.start_login(_, query.message, user_id)
                 
             else:
