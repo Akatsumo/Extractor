@@ -222,8 +222,11 @@ class VideoCryptExtractor:
             await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
         except Exception as e:
             await message.reply_text(f"Error: `{str(e)}`")
-        
-async def videocryptButtons(_, message, user_id):
+
+
+
+@app.on_message(filters.command("vdocrypt"))
+async def videocrypt_login(_, message, user_id=None):
     buttons = main_func.get_page(0, core_func.videoCryptDict, DictID="VideoDecrypt1", back_data="tools_")
     await message.edit_text(script.TOOLS_TEXT, reply_markup=buttons)
     
