@@ -230,5 +230,6 @@ async def videocrypt_login(_, message, user_id=None):
     buttons = main_func.get_page(0, core_func.videoCryptDict, DictID="VideoDecrypt1", back_data="tools_")
     if user_id:
         await message.edit_text(script.TOOLS_TEXT, reply_markup=buttons)
-    await message.reply_text(script.TOOLS_TEXT, reply_markup=buttons)
+    else:
+        await message.reply_text(script.TOOLS_TEXT, reply_markup=buttons)
     
