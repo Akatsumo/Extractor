@@ -4,6 +4,7 @@ import aiohttp
 from Extractor import app
 from pyrogram import filters
 from Extractor.core import main_func
+from pyromod.exceptions import ListenerTimeout
 
 
 class KhanExtractor:
