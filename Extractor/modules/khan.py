@@ -103,10 +103,11 @@ class KhanExtractor:
                 await msg.delete()
                 await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
-        except Exception as e:
-            await message.reply_text(f"Error: `{e}`")
         except ListenerTimeout:
             await message.reply_text("⏳ Timeout! Please try again.")
+        except Exception as e:
+            await message.reply_text(f"Error: `{e}`")
+        
 
 
 @app.on_message(filters.command("khan"))
