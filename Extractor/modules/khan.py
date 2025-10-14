@@ -1,10 +1,9 @@
-import os
+import os, time
 import asyncio
 import aiohttp
-import time
 from Extractor import app
 from pyrogram import filters
-from Extractor.core.main_func import get_time
+from Extractor.core import main_func
 
 
 class KhanExtractor:
@@ -50,7 +49,7 @@ class KhanExtractor:
             batch_map[batch_id] = {"name": batch_name, "slug": slug}
         return batch_courses, batch_map
 
-    async def start_login(self, message, user_id=None):
+    async def start_login(self, app, message, user_id=None):
         user_id = user_id or message.from_user.id
         try:
             async with aiohttp.ClientSession() as session:
@@ -86,9 +85,9 @@ class KhanExtractor:
                 await msg.edit_text(f"**Extracting Course Content for `{batch_name}` Please Wait 📥**")
 
                 start_time = time.time()
-                lectures = await self.extract_lessons(session, headers, slug)
+                lectures = await asyncio.create_task(self.extract_lessons(session, headers, slug))
                 end_time = time.time()
-                elapsed = get_time(end_time - start_time)
+                elapsed = main_func.get_time(end_time - start_time)
 
                 file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
                 with open(file_name, "w", encoding="utf-8") as f:
@@ -111,4 +110,4 @@ class KhanExtractor:
 @app.on_message(filters.command("khan"))
 async def khan_handler(_, message, user_id=None):
     extractor = KhanExtractor()
-    await extractor.start_login(message, user_id)
+    await extractor.start_login(_, message, user_id)
