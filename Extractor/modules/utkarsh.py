@@ -248,7 +248,7 @@ class UtkarshExtractor:
                 )
                 await message.reply_document(filename)
         except Exception as e:
-            await message.reply_text(f"Error: {e)}")
+            await message.reply_text(f"Error: {e}")
 
 
 
