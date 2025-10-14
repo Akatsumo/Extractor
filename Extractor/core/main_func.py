@@ -38,38 +38,6 @@ def appx_decrypt(encoded_data):
     except Exception as e:
         raise ValueError(f"Error decrypting data: {str(e)}")
 
-
-# --------------------------------------------------------------------------- #
-def unpad2(s):
-    return s[:-ord(s[len(s) - 1:])]
-
-def utkarsh_decrypt(encrypted_string):
-    try:
-        key = b'%!$!%_$&!%F)&^!^'
-        iv = b'#*y*#2yJ*#$wJv*v'
-        cipher = AES.new(key, AES.MODE_CBC, iv)
-        encrypted_bytes = b64decode(encrypted_string)
-        decrypted_bytes = unpad(cipher.decrypt(encrypted_bytes), AES.block_size)
-        return decrypted_bytes.decode('utf-8')
-    except:
-        data_key = b'%!$!%_$&!%F)&^!^'
-        data_vector = b'#*y*#2yJ*#$wJv*v'
-        encrypted_data = b64decode(encrypted_string)
-        cipher = AES.new(data_key, AES.MODE_CBC, data_vector)
-        decrypted_data = cipher.decrypt(encrypted_data)
-        decrypted_data = unpad2(decrypted_data)
-        decrypted_text = decrypted_data.decode('latin-1')
-        return decrypted_text
-        
-# --------------------------------------------------------------------------- #        
-
-def utkarsh_encrypt(plain_text):
-    key = b'%!$!%_$&!%F)&^!^'
-    iv = b'#*y*#2yJ*#$wJv*v'
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    cipher_text = cipher.encrypt(pad(plain_text.encode(), AES.block_size))
-    return b64encode(cipher_text).decode()
-
 # --------------------------------------------------------------------------- #
 
 def encode_base64(data):
@@ -164,6 +132,7 @@ def decrypt(key, iv, encoded_data):
     decrypted = unpad(cipher.decrypt(decoded_data), AES.block_size)
     return decrypted.decode("utf-8")
 
+# --------------------------------------------------------------------------- #
 
 def jwt_decoder(token):
     try:
@@ -173,6 +142,11 @@ def jwt_decoder(token):
         return json.loads(payload_bytes)
     except Exception as e:
         return {"error": str(e)}
+
+# --------------------------------------------------------------------------- #
+
+
+
 
 
 # --------------------------------------------------------------------------- #
