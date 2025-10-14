@@ -8,7 +8,6 @@ from Extractor.core.main_func import get_time
 
 
 async def khan_extract(session, headers, slug):
-    # https://api.khanglobalstudies.com/cms/lessons/lession_id
     lesson_url = f"https://api.khanglobalstudies.com/cms/user/courses/{slug}/lessons"
     response = await session.get(lesson_url, headers=headers)
     
@@ -28,13 +27,13 @@ async def khan_extract(session, headers, slug):
             for video in lesson.get("videos", []):
                 video_title = video.get("name", "No Title")
                 video_url = video.get("video_url", "No URL")
-                lectures.append(f"{video_title}: {video_url}\n")
+                lectures.append(f"{video_title}: {video_url}")
 
                 pdfs = video.get("pdfs") or []
                 for pdf in pdfs:
                     title = pdf.get("title", "No Title")
                     url = pdf.get("url", "No URL")
-                    lectures.append(f"{title}: {url}\n")
+                    lectures.append(f"{title}: {url}")
         
         return lectures
     
@@ -117,7 +116,7 @@ async def khan_handler(_, message, user_id=None):
 
             file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w") as f:
-                f.write("\n".join(lectures))
+                f.write("\n".join(lectures.reverse()))
 
             caption = f"**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
             me = await app.get_me()
