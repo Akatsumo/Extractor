@@ -140,25 +140,11 @@ class UtkarshExtractor:
                 if '*' in raw_text:
                     email, password = raw_text.split("*")
                     key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
-                    # login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
-                    login_data = {
-                        "device_id": gen_device_id(),
-                        "device_token": "utkarsh_device",
-                        "is_social": "0",
-                        "mobile": email.strip(),
-                        "password": password.strip(),
-                        "location": {
-                            "device_model": "SM-F9360",
-                            "ip": "",
-                            "lat": "N/A",
-                            "lng": "N/A",
-                            "manufacturer": "samsung",
-                            "os_version": "14"
-                        },
-                    }
+                    login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
                     encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data))
                     result = await self.fetch(session, f"{self.API_BASE}/data_model/users/login_auth", self.HEADERS, encrypted_data, key, iv)
                     token = result.get("data").get("jwt")
+                    print("login Successfully")
                 else:
                     token = raw_text.strip()
 
