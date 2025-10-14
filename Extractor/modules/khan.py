@@ -11,7 +11,7 @@ class KhanExtractor:
     def __init__(self):
         self.login_url = "https://api.khanglobalstudies.com/cms/login"
         self.paid_courses_url = "https://api.khanglobalstudies.com/v1/courses/paid"
-        self.lessons_url = "https://api.khanglobalstudies.com/cms/user/courses/{{slug}}/lessons"
+        self.lessons_url = f"https://api.khanglobalstudies.com/cms/user/courses/{slug}/lessons"
 
     async def extract_lessons(self, session, headers, slug):
         try:
