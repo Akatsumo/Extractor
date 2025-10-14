@@ -161,7 +161,7 @@ class UtkarshExtractor:
                         session,
                         f"{self.API_BASE}/data_model/users/login_auth",
                         self.HEADERS,
-                        main_func.encrypted_data,
+                        encrypted_data,
                         key, iv
                     )
                     token = result['data']['jwt']
@@ -179,7 +179,7 @@ class UtkarshExtractor:
                     session,
                     f"{self.API_BASE}/data_model/course/get_my_courses",
                     headers,
-                    main_func.encrypted_data,
+                    encrypted_data,
                     key, iv
                 )
                 courses = courses_data['data']
@@ -211,7 +211,7 @@ class UtkarshExtractor:
                     session,
                     f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
                     headers,
-                    main_func.encrypted_data,
+                    encrypted_data,
                     key, iv
                 )
 
