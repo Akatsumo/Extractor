@@ -176,5 +176,5 @@ class CareerwillExtractor:
 extractor = CareerwillExtractor()
 
 @app.on_message(filters.command("cw"))
-async def careerwill_command(_, message, user_id=None):
+async def careerwill_login(_, message, user_id=None):
     await extractor.start_login(_, message, user_id)
