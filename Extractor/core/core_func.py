@@ -3,7 +3,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
     # "utkarsh_": {"name": "Utkarsh", "func": utkarsh.handle_utk_logic},
-    "khan_": {"name": "Khan", "func": khan.khan_login},
+    "khan_": {"name": "Khan", "func": khan.khan_handler},
     "careerwill_": {"name": "Careerwill", "func": careerwill.careerwill_login},
     "cdsjourney_": {"name": "CdsJourney", "func": cdsjourney.cdsjourney_login},
     "adda247_": {"name": "Adda 247", "func": adda247.adda_login},
