@@ -145,7 +145,7 @@ class UtkarshExtractor:
                     email, password = raw_text.split("*")
                     key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
                     login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
-                    encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data)
+                    encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data))
                     result = await self.fetch(session, f"{self.API_BASE}/data_model/users/login_auth", self.HEADERS, encrypted_data, key, iv)
                     token = result.get("data").get("jwt")
                 else:
