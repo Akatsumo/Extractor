@@ -104,12 +104,8 @@ class CareerwillExtractor:
             self.headers["cwkey"] = main_func.get_enc_key()
 
             msg = await message.reply_text("🔑 Enter login credentials (Mobile*Password or Token)")
-            try:
-                input1 = await app.listen(user_id=user_id, timeout=30)
-            except asyncio.TimeoutError:
-                return await msg.edit_text("⏳ Timeout! Please try again.")
-
-            token = None
+            input1 = await app.listen(user_id=user_id, timeout=30)
+            
             if "*" in input1.text:
                 userid, password = input1.text.split("*")
                 response = session.post(login_url, headers=self.headers, json={"userid": userid, "pwd": password})
@@ -138,13 +134,10 @@ class CareerwillExtractor:
                 batch_list += f"`{data['id']}`  -   **{data['batchName']}**\n"
             await msg.edit_text(f"{batch_list}\n**📊 Now send the Batch ID to Download**")
 
-            try:
-                input2 = await app.listen(user_id=user_id, timeout=30)
-                course_id = input2.text.strip()
-                await input2.delete()
-            except asyncio.TimeoutError:
-                return await msg.edit_text("⏳ Timeout! Please try again.")
-
+            input2 = await app.listen(user_id=user_id, timeout=30)
+            course_id = input2.text.strip()
+            await input2.delete()
+            
             batch_name = next((course["batchName"] for course in batch_data if int(course["id"]) == int(course_id)), "")
             if not batch_name:
                 return await msg.edit_text("**Invalid Batch ID. Please try again.**")
@@ -168,6 +161,8 @@ class CareerwillExtractor:
             await msg.delete()
             await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
+        except ListenerTimeout:
+            await message.reply_text("⏳ Timeout! Please try again.")
         except Exception as e:
             await message.reply_text(f"Error: `{e}`")
            
