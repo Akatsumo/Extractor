@@ -3,6 +3,9 @@ import aiohttp
 from datetime import datetime
 from Extractor.core import main_func
 
+def gen_device_id(length=16):
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 
 class UtkarshExtractor:
@@ -23,10 +26,7 @@ class UtkarshExtractor:
             'user-agent': 'okhttp/4.11.0',
         }
 
-    def gen_device_id(length=16):
-        alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
-        return ''.join(secrets.choice(alphabet) for _ in range(length))
-
+    
     async def fetch(self, session: aiohttp.ClientSession, url, headers, data, key, iv):
         async with self.semaphore:
             async with session.post(url, headers=headers, data=data) as resp:
@@ -39,7 +39,7 @@ class UtkarshExtractor:
             if content.get('file_type') == '3': 
                 data = {
                     "course_id": course_id,
-                    "device_id": self.gen_device_id(),
+                    "device_id": gen_device_id(),
                     "device_name": "samsungSM-F9360",
                     "download_click": "0",
                     "name": content['file_url'],
@@ -141,7 +141,7 @@ class UtkarshExtractor:
                     
                     key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
                     login_data = {
-                        "device_id": self.gen_device_id(),
+                        "device_id": gen_device_id(),
                         "device_token": "utkarsh_device",
                         "is_social": "0",
                         "mobile": email.strip(),
