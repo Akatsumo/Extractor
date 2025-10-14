@@ -1,4 +1,4 @@
-import os, time, re, asyncio, secrets, ujson as json
+import os, time, re, asyncio, secrets, json
 import aiohttp
 from datetime import datetime
 from Extractor.core import main_func
