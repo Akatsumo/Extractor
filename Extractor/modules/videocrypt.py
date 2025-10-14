@@ -192,7 +192,7 @@ class VideoCryptExtractor:
                 course_batches += f"`{c['id']}` - **{c['title']}**\n"
 
             await msg.edit_text(f"{course_batches}\n**📊 Now send the Batch ID to Download**")
-            input2 = await app.listen(user_id=user_id)
+            input2 = await app.listen(user_id=user_id, timeout=30)
             batch_id = input2.text.strip()
             await input2.delete()
             batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
@@ -220,6 +220,9 @@ class VideoCryptExtractor:
             os.remove(file_name)
             await msg.delete()
             await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+
+        except ListenerTimeout:
+            await message.reply_text("⏳ Timeout! Please try again.")
         except Exception as e:
             await message.reply_text(f"Error: `{str(e)}`")
 
