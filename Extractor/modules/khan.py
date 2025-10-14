@@ -87,6 +87,7 @@ class KhanExtractor:
 
                 start_time = time.time()
                 lectures = await self.extract_lessons(session, headers, slug)
+                print(lectures)
                 end_time = time.time()
                 elapsed = get_time(end_time - start_time)
 
