@@ -223,7 +223,7 @@ class VideoCryptExtractor:
             await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
         except ListenerTimeout:
-            await message.reply_text("⏳ Timeout! Please try again.")
+            await message.reply_text("Oops! You didn't reply in time. ⏰")
         except Exception as e:
             await message.reply_text(f"Error: `{str(e)}`")
 
