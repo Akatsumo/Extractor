@@ -27,7 +27,7 @@ class UtkarshExtractor:
         }
         self.LOGIN_DATA = {
             "device_id": gen_device_id(),
-            "device_token": "f9c8b1a4d7e34c1aa6e89f17e5b2d3c76a5e8d9f12a34b6c8d0e1f2a3b4c5d6e",
+            "device_token": "utkarsh_device",
             "is_social": "0",
         }
 
