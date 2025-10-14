@@ -36,6 +36,7 @@ class UtkarshExtractor:
         async with self.semaphore:
             async with session.post(url, headers=headers, data=data) as resp:
                 response_data = await resp.text()
+                print(response_data)
                 decrypted = main_func.decrypt(key, iv, response_data.split(':', 1)[0])
                 return json.loads(decrypted)
 
