@@ -141,6 +141,7 @@ class UtkarshExtractor:
             async with aiohttp.ClientSession() as session:
                 if '*' in raw_text:
                     email, password = raw_text.split("*")
+                    
                     self.device_id = main_func.gen_device_id()
 
                     key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
@@ -250,6 +251,4 @@ class UtkarshExtractor:
             await message.reply_text(f"Error: {e)}")
 
 
-async def utkarsh(app, query, message):
-    extractor = UtkarshExtractor()
-    return await extractor.extract_content(app, query, message)
+
