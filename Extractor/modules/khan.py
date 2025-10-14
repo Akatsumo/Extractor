@@ -1,127 +1,134 @@
 import os
-import time
-import aiohttp
 import asyncio
-from pyrogram import filters
+import aiohttp
+import time
 from Extractor import app
+from pyrogram import filters
 from Extractor.core.main_func import get_time
 
 
-class KhanExtractor:
-    BASE_URL = "https://api.khanglobalstudies.com"
-    LOGIN_URL = f"{BASE_URL}/cms/login"
-    COURSES_URL = f"{BASE_URL}/v1/courses/paid"
-    LESSON_URL_TEMPLATE = f"{BASE_URL}/cms/user/courses/{{slug}}/lessons"
+async def khan_extract(session, headers, slug):
+    # https://api.khanglobalstudies.com/cms/lessons/lession_id
+    lesson_url = f"https://api.khanglobalstudies.com/cms/user/courses/{slug}/lessons"
+    response = await session.get(lesson_url, headers=headers)
+    
+    try:
+        output = await response.json()
+        lessons = output.get("lessons", [])
 
-    def __init__(self):
-        self.session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=1000))
-
-    async def close(self):
-        await self.session.close()
-
-    async def _request(self, method: str, url: str, **kwargs):
-        for attempt in range(3):
-            try:
-                async with self.session.request(method, url, timeout=aiohttp.ClientTimeout(total=30), **kwargs) as res:
-                    if res.status == 200:
-                        return await res.json()
-                    else:
-                        text = await res.text()
-                        raise Exception(f"HTTP {res.status}: {text[:150]}")
-            except asyncio.TimeoutError:
-                if attempt == 2:
-                    raise Exception("Request timed out.")
-                await asyncio.sleep(1)
-            except Exception as e:
-                if attempt == 2:
-                    raise
-                await asyncio.sleep(1)
-        return None
-
-    async def login(self, phone: str, password: str):
-        data = {"phone": phone, "password": password, "remember": True}
-        output = await self._request("POST", self.LOGIN_URL, json=data)
-        return output.get("token")
-
-    async def get_batches(self, headers):
-        return await self._request("GET", self.COURSES_URL, headers=headers)
-
-    async def extract_lessons(self, headers, slug):
-        url = self.LESSON_URL_TEMPLATE.format(slug=slug)
-        data = await self._request("GET", url, headers=headers)
-        lessons = data.get("lessons", [])
+        if not lessons:
+            print("No lessons found.")
+            return []
+        
         lectures = []
+        
         for lesson in lessons:
-            lesson_name = lesson.get("name", "Unnamed Lesson")
+            lesson_name = lesson.get("name", "No Lesson Name") 
+            
             for video in lesson.get("videos", []):
-                title = video.get("name", "Untitled Video")
+                video_title = video.get("name", "No Title")
                 video_url = video.get("video_url", "No URL")
-                lectures.append(f"{lesson_name} - {title}: {video_url}")
-                for pdf in video.get("pdfs", []):
-                    pdf_title = pdf.get("title", "Untitled PDF")
-                    pdf_url = pdf.get("url", "No URL")
-                    lectures.append(f"{pdf_title}: {pdf_url}")
+                lectures.append(f"{video_title}: {video_url}\n")
+
+                pdfs = video.get("pdfs") or []
+                for pdf in pdfs:
+                    title = pdf.get("title", "No Title")
+                    url = pdf.get("url", "No URL")
+                    lectures.append(f"{title}: {url}\n")
+        
         return lectures
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+
+
 
 
 @app.on_message(filters.command("khan"))
 async def khan_handler(_, message, user_id=None):
-    extractor = KhanExtractor()
-    user_id =  user_id if user_id else message.from_user.id
-    msg = await message.reply_text("**🔑 Please send your credentials in this format:**\n`phone*password`")
+    user_id = user_id if user_id else message.from_user.id
     try:
-        user_input = await app.listen(user_id=user_id, timeout=45)
-        if "*" not in user_input.text:
-            await msg.edit_text("❌ Invalid format! Use `phone*password`.")
-            return
-        phone, password = user_input.text.strip().split("*")
-        await user_input.delete()
-        await msg.edit_text("🔐 Logging in...")
-        token = await extractor.login(phone, password)
-        if not token:
-            return await msg.edit_text("😒 **Login failed. Invalid credentials.**")
-        headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-        await msg.edit_text("✅ Login successful!\nFetching your batches...")
-        batch_data = await extractor.get_batches(headers)
-        if not batch_data or not isinstance(batch_data, list):
-            return await msg.edit_text("❌ No paid batches found.")
-        batch_map = {}
-        batch_list = "**BATCH ID  -  BATCH NAME**\n\n"
-        for item in batch_data:
-            batch_id = str(item.get("id"))
-            name = item.get("title", "Unnamed Batch")
-            slug = item.get("slug", "")
-            batch_map[batch_id] = {"name": name, "slug": slug}
-            batch_list += f"`{batch_id}`  -  **{name}**\n\n"
-        await msg.edit_text(f"{batch_list}\n\n📊 **Send a Batch ID to extract content.**")
-        batch_input = await app.listen(user_id=user_id, timeout=45)
-        batch_id = batch_input.text.strip()
-        await batch_input.delete()
-        if batch_id not in batch_map:
-            return await msg.edit_text("❌ Invalid Batch ID. Try again.")
-        batch_info = batch_map[batch_id]
-        slug = batch_info["slug"]
-        batch_name = batch_info["name"]
-        await msg.edit_text(f"📥 Extracting `{batch_name}` content... Please wait.")
-        start = time.time()
-        lectures = await extractor.extract_lessons(headers, slug)
-        elapsed = get_time(time.time() - start)
-        if not lectures:
-            return await msg.edit_text("⚠️ No materials found for this batch.")
-        safe_name = batch_name.replace("/", "_").strip()
-        file_name = f"{safe_name}_{user_id}.txt"
-        with open(file_name, "w", encoding="utf-8") as f:
-            f.write("\n".join(lectures))
-        caption = f"**Batch:** `{batch_name}`\n📚 **Total Materials:** `{len(lectures)}`\n⏱ **Time Taken:** `{elapsed}`"
-        me = await app.get_me()
-        thumb = await app.download_media(me.photo.big_file_id)
-        await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-        os.remove(file_name)
-        await msg.delete()
-        await message.reply_text(f"✅ Done\n\n🔑 **Token:** `{token}`")
-    except asyncio.TimeoutError:
-        await msg.edit_text("⌛ Timeout! Please send details within 45 seconds.")
+        async with aiohttp.ClientSession() as session:
+            login_url = "https://api.khanglobalstudies.com/cms/login"
+            data = {
+                "phone": "",
+                "password": "",
+                "remember": True
+            }
+
+            msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")
+            try:
+                input1 = await app.listen(user_id=user_id, timeout=30)
+                if "*" in input1.text:
+                    phone, password = input1.text.split("*")
+                    async with session.post(login_url, json={"phone": phone, "password": password}) as response:
+                        if response.status != 200:
+                            return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+
+                        output = await response.json()
+                        token = output.get("token", "")
+                else:
+                    token = input1.text.strip()
+            except asyncio.TimeoutError:
+                return await msg.edit_text("⏳ Timeout! Please try again.")
+
+            await input1.delete()
+
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/json",
+            }
+
+            await msg.edit_text("✅ **Login Successful**")
+
+            async with session.get("https://api.khanglobalstudies.com/v1/courses/paid", headers=headers) as response:
+                batch_data = await response.json()
+                print(batch_data)
+
+            batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
+            batch_map = {}
+            for data in batch_data:
+                batch_id = str(data["id"])
+                batch_name = data["title"]
+                slug = data["slug"]
+                batch_list += f"`{batch_id}`  -   **{batch_name}**\n\n"
+                batch_map[batch_id] = {"name": batch_name, "slug": slug}
+
+            await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+
+            input2 = await app.listen(user_id=user_id)
+            course_id = input2.text.strip()
+            await input2.delete()
+
+            batch_info = batch_map.get(course_id)
+            if not batch_info:
+                return await msg.edit_text("❌ Invalid Batch ID. Please try again.")
+
+            slug = batch_info["slug"]
+            batch_name = batch_info["name"]
+
+            await msg.edit_text(f"**Extracting Course Content for `{batch_name}` Please Wait 📥**")
+
+            start_time = time.time()
+            lectures = await asyncio.create_task(khan_extract(session, headers, slug))
+            end_time = time.time()
+            elapsed = get_time(end_time - start_time)
+
+            file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            with open(file_name, "w") as f:
+                f.write("\n".join(lectures))
+
+            caption = f"**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
+            me = await app.get_me()
+            big_file_id = me.photo.big_file_id
+            thumb = await asyncio.create_task(app.download_media(big_file_id))
+
+            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
+            os.remove(file_name)
+            await msg.delete()
+            await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
+
+        await session.close()
     except Exception as e:
-        await message.reply_text(f"❌ Error: `{e}`")
-    finally:
-        await extractor.close()
+        await message.reply_text(f"Error: `{str(e)}`")
