@@ -116,7 +116,7 @@ async def khan_handler(_, message, user_id=None):
 
             file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w") as f:
-                f.write("\n".join(lectures.reverse()))
+                f.write("\n".join(lectures[::-1]))
 
             caption = f"**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
             me = await app.get_me()
