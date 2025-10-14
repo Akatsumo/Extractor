@@ -25,6 +25,11 @@ class UtkarshExtractor:
             'version': '199',
             'user-agent': 'okhttp/4.11.0',
         }
+        self.LOGIN_DATA = {
+            "device_id": gen_device_id(),
+            "device_token": "f9c8b1a4d7e34c1aa6e89f17e5b2d3c76a5e8d9f12a34b6c8d0e1f2a3b4c5d6e",
+            "is_social": "0",
+        }
 
     
     async def fetch(self, session: aiohttp.ClientSession, url, headers, data, key, iv):
@@ -138,34 +143,11 @@ class UtkarshExtractor:
             async with aiohttp.ClientSession() as session:
                 if '*' in raw_text:
                     email, password = raw_text.split("*")
-                    
                     key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
-                    login_data = {
-                        "device_id": gen_device_id(),
-                        "device_token": "utkarsh_device",
-                        "is_social": "0",
-                        "mobile": email.strip(),
-                        "password": password.strip(),
-                        "location": {
-                            "device_model": "SM-F9360",
-                            "ip": "",
-                            "lat": "N/A",
-                            "lng": "N/A",
-                            "manufacturer": "samsung",
-                            "os_version": "14"
-                        },
-                    }
-                    encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data))
-
-                    result = await self.fetch(
-                        session,
-                        f"{self.API_BASE}/data_model/users/login_auth",
-                        self.HEADERS,
-                        encrypted_data,
-                        key, iv
-                    )
-                    token = result['data']['jwt']
-                    await message.reply_text(f"ʏᴏᴜʀ ᴛᴏᴋᴇɴ:\n`{token}`")
+                    login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
+                    encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data)
+                    result = await self.fetch(session, f"{self.API_BASE}/data_model/users/login_auth", self.HEADERS, encrypted_data, key, iv)
+                    token = result.get("data").get("jwt")
                 else:
                     token = raw_text.strip()
 
@@ -175,45 +157,30 @@ class UtkarshExtractor:
 
                 data = {"user_id": userId}
                 encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
-                courses_data = await self.fetch(
-                    session,
-                    f"{self.API_BASE}/data_model/course/get_my_courses",
-                    headers,
-                    encrypted_data,
-                    key, iv
-                )
-                courses = courses_data['data']
+                courses_data = await self.fetch(session, f"{self.API_BASE}/data_model/course/get_my_courses", self.HEADERS, encrypted_data, key, iv)
+                courses = courses_data.get("data")
+                if not courses:
+                    return await msg.edit_text("No Batch Data found!!")
 
-                batch_list = "\n".join(
-                    f"<code>{batch['id']}</code> - <b>{batch['title']}</b>"
-                    for batch in courses
-                )
-                await msg.edit_text(
-                    f"<b>📚 Available Batches:</b>\n\n{batch_list}\n\n"
-                    "<b>Send Batch ID to download:</b>",
-                    parse_mode=ParseMode.HTML
-                )
-                
-
-                batch_msg = await app.listen(user_id=user_id, timeout=30)
-                batch_id = batch_msg.text.strip()
-                await batch_msg.delete()
+                course_batches = "📚 **Available Batches:**\n\n"
+                for c in courses:
+                    course_batches += f"`{c['id']}` - **{c['title']}**\n"
+                await msg.edit_text(f"{course_batches}\n**📊 Now send the Batch ID to Download**")
+                input2 = await app.listen(user_id=user_id, timeout=30)
+                batch_id = input2.text.strip()
+                await input2.delete()
 
                 batch_name = next((c['title'] for c in courses if str(c['id']) == batch_id), None)
+                if not batch_name:
+                    return await msg.edit_text("Only valid batch IDs are accepted")
 
                 await msg.edit_text("**Extracting Videos Links Please Wait  📥**")
+                
                 start_time = time.time()
-
                 data = {"course_id": batch_id, "parent_id": ""}
                 encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
 
-                course_data = await self.fetch(
-                    session,
-                    f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
-                    headers,
-                    encrypted_data,
-                    key, iv
-                )
+                course_data = await self.fetch(session, f"{self.API_BASE}/data_model/course_deprecated/get_course_detail", self.HEADERS, encrypted_data, key, iv)
 
                 all_contents = []
                 tasks = []
