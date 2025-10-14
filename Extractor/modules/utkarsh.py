@@ -5,11 +5,6 @@ from Extractor.core import main_func
 
 
 
-def gen_device_id(length=16):
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
-    
-
 class UtkarshExtractor:
     def __init__(self):
         self.v_count = 0
@@ -17,6 +12,7 @@ class UtkarshExtractor:
         self.DEFAULT_BASE = "0199456706643659"
         self.BASE = "1994567066436599"
         self.API_BASE = "https://application.utkarshapp.com/index.php"
+        self.semaphore = asyncio.Semaphore(30)
 
         self.HEADERS = {
             'userid': '0',
@@ -27,8 +23,9 @@ class UtkarshExtractor:
             'user-agent': 'okhttp/4.11.0',
         }
 
-        self.device_id = None
-        self.semaphore = asyncio.Semaphore(30)
+    def gen_device_id(length=16):
+        alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+        return ''.join(secrets.choice(alphabet) for _ in range(length))
 
     async def fetch(self, session: aiohttp.ClientSession, url, headers, data, key, iv):
         async with self.semaphore:
@@ -39,10 +36,10 @@ class UtkarshExtractor:
 
     async def get_content_url(self, session, content, course_id, headers, key, iv):
         try:
-            if content.get('file_type') == '3':  # video
+            if content.get('file_type') == '3': 
                 data = {
                     "course_id": course_id,
-                    "device_id": self.device_id,
+                    "device_id": self.gen_device_id(),
                     "device_name": "samsungSM-F9360",
                     "download_click": "0",
                     "name": content['file_url'],
@@ -68,7 +65,7 @@ class UtkarshExtractor:
                     self.v_count += 1
                     return link if link.startswith("https") else f"https://youtu.be/{link}"
 
-            else:  # pdf / doc
+            else: 
                 self.p_count += 1
                 return re.sub(r'\\/', '/', content['file_url']).replace("https\\:", "https:")
 
@@ -142,11 +139,9 @@ class UtkarshExtractor:
                 if '*' in raw_text:
                     email, password = raw_text.split("*")
                     
-                    self.device_id = main_func.gen_device_id()
-
                     key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
                     login_data = {
-                        "device_id": self.device_id,
+                        "device_id": self.gen_device_id(),
                         "device_token": "utkarsh_device",
                         "is_social": "0",
                         "mobile": email.strip(),
