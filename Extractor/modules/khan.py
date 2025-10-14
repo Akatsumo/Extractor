@@ -105,6 +105,8 @@ class KhanExtractor:
 
         except Exception as e:
             await message.reply_text(f"Error: `{e}`")
+        except ListenerTimeout:
+            await message.reply_text("⏳ Timeout! Please try again.")
 
 
 @app.on_message(filters.command("khan"))
