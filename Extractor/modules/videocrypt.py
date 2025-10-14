@@ -5,6 +5,7 @@ import requests
 from Extractor import app
 from pyrogram import filters
 from base64 import b64decode
+from pyromod.exceptions import ListenerTimeout
 from Extractor.core import main_func, script, core_func
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
