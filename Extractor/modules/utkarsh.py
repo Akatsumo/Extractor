@@ -131,11 +131,7 @@ class UtkarshExtractor:
     async def start_login(self, app, message, user_id=None):
         user_id = user_id if user_id else message.from_user.id
         try:
-            msg = await message.reply_text(
-                "**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n"
-                "🔒 Send like this: ID*Password\n\nOr Send Token....**"
-            )
-
+            msg = await message.reply_text("🔑 Enter login credentials (Mobile*Password or Token)")
             input1 = await app.listen(user_id=user_id, timeout=30)
             raw_text = input1.text
             await input1.delete()
@@ -144,7 +140,22 @@ class UtkarshExtractor:
                 if '*' in raw_text:
                     email, password = raw_text.split("*")
                     key, iv = main_func.gen_key_iv(self.DEFAULT_BASE)
-                    login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
+                    # login_data = {**self.LOGIN_DATA, "mobile": email.strip(), "password": password.strip()}
+                    login_data = {
+                        "device_id": gen_device_id(),
+                        "device_token": "utkarsh_device",
+                        "is_social": "0",
+                        "mobile": email.strip(),
+                        "password": password.strip(),
+                        "location": {
+                            "device_model": "SM-F9360",
+                            "ip": "",
+                            "lat": "N/A",
+                            "lng": "N/A",
+                            "manufacturer": "samsung",
+                            "os_version": "14"
+                        },
+                    }
                     encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data))
                     result = await self.fetch(session, f"{self.API_BASE}/data_model/users/login_auth", self.HEADERS, encrypted_data, key, iv)
                     token = result.get("data").get("jwt")
