@@ -18,17 +18,19 @@ async def gen_link(app,chat_id):
    return link
   
 
-async def subscribe(app, message):
+async def subscribe(app, message, user_id=None, name=None):
    update_channel = CHANNEL_ID
+   user_id = user_id if user_id else message.from_user.id
+   name = name if name else message.from_user.mention
    url = await gen_link(app, update_channel)
    if update_channel:
       try:
-         user = await app.get_chat_member(update_channel, message.from_user.id)
+         user = await app.get_chat_member(update_channel, user_id)
          if user.status == "kicked":
             await message.reply_text("Sorry Sir, You are Banned. Contact My Support Group @DiabloForge")
             return 1
       except UserNotParticipant:
-         await message.reply_photo(photo="https://telegra.ph/file/b7a933f423c153f866699.jpg",caption=script.FORCE_MSG.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🤖 ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇs ᴄʜᴀɴɴᴇʟ 🤖", url=f"{url}")]]))
+         await message.reply_photo(photo="https://telegra.ph/file/b7a933f423c153f866699.jpg",caption=script.FORCE_MSG.format(name), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🤖 ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇs ᴄʜᴀɴɴᴇʟ 🤖", url=f"{url}")]]))
          return 1
       except Exception:
          await message.reply_text("Something Went Wrong. Contact My Support Group")
