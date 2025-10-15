@@ -3,7 +3,7 @@ import base64
 import json
 from Crypto.Cipher import AES
 from config import CHANNEL_ID
-from FileSwoop.core import script
+from Extractor.core import script
 from base64 import b64decode, b64encode
 from Crypto.Util.Padding import unpad, pad
 from pyrogram.errors import UserNotParticipant
