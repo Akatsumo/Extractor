@@ -29,6 +29,9 @@ keyboard = InlineKeyboardMarkup([
 
 @app.on_message(filters.command("start"))
 async def start_(_, message):
+    join = await main_func.subscribe(_, message)
+    if join == 1:
+        return
     name = message.from_user.mention
     if message.chat.type == enums.ChatType.PRIVATE:
         await message.reply_photo(
@@ -47,6 +50,9 @@ async def start_(_, message):
 async def handle_callback(_, query):
     name = query.from_user.mention
     user_id = query.from_user.id
+    join = await main_func.subscribe(_, query.message, user_id)
+    if join == 1:
+        return
 
     if query.data == "home_":
         await query.message.edit_text(
