@@ -50,7 +50,7 @@ async def start_(_, message):
 async def handle_callback(_, query):
     name = query.from_user.mention
     user_id = query.from_user.id
-    join = await main_func.subscribe(_, query.message, user_id)
+    join = await main_func.subscribe(_, query.message, user_id, name)
     if join == 1:
         return
 
