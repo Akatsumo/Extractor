@@ -77,8 +77,7 @@ async def studyiq_access(_, message, user_id=None):
             batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
             with open(batch_list_name, "w", encoding="utf-8") as f:
                 f.write(batch_list)
-            batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
-            await msg.edit_text()
+            batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb, parse_mode=ParseMode.HTML)
             os.remove(batch_list_name)
         else:
             await msg.edit_text(f"{batch_list}\n{caption}")
