@@ -107,7 +107,7 @@ async def studyiq_access(_, message, user_id=None):
             f"**App Name** : `Study IQ`\n"
             f"**Batch Name** : `{batch_name}`\n\n"
             f"📜 **Total Materials** : `{len(lectures)}`\n"
-            f"🍿 **Videos** : {v_count} | 📝 **PDFs** : {p_count}\n"
+            f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
         await main_func.send_file(app, file_name, user_id, caption, thumb)
