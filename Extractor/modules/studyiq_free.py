@@ -23,25 +23,27 @@ def get_headers(session):
 
 
 async def course_content(session, batch_id, msg):
+    lectures, v_count, p_count = [], 0, 0
     response_data = session.get(
         f"https://backend.studyiq.net/app-content-ws/v2/course/getDetails?courseId={batch_id}",
         headers=get_headers(session)
     )
     fetch_data = response_data.json().get("data", [])
     if not fetch_data:
-        return []
+        return lectures, v_count, p_count
         
-    lectures = []
     for item in fetch_data:
         name = item.get("name", "")
         video = item.get("videoUrl")
         pdf = item.get("textUploadUrl")
         if video:
+            v_count += 1
             lectures.append(f"{name}: {video}")
         if pdf:
+            p_count += 1
             lectures.append(f"{name}: {pdf}")
 
-    return lectures
+    return lectures, v_count, p_count
 
 
 async def studyiq_access(_, message, user_id=None):
@@ -88,7 +90,7 @@ async def studyiq_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures = await asyncio.create_task(course_content(session, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
         end_time = time.time()
 
         if not lectures:
@@ -103,6 +105,7 @@ async def studyiq_access(_, message, user_id=None):
             f"**App Name** : `Study IQ`\n"
             f"**Batch Name** : `{batch_name}`\n\n"
             f"📜 **Total Materials** : `{len(lectures)}`\n"
+            f"🍿 **Videos** : {v_count} | 📝 **PDFs** : {p_count}"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
 
