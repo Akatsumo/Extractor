@@ -1,95 +1,114 @@
-import re, time
+import os, time, re
 import asyncio
 import requests 
 from Extractor import app
-from urllib.parse import urlparse
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
 
-
-def clean_video_url(video_html):
-    if not video_html:
+def clean_video_url(video_url):
+    if not video_url:
         return None
-    match = re.search(r'src="([^"]+)"', video_html)
-    if match:
-        return match.group(1)
-    return video_html.split()[0] if video_html.strip() else None
+    match = re.search(r'src="([^"]+)"', video_url)
+    return match.group(1).split("?")[0]
 
-def extract_url_parts(original_url):
-    parsed = urlparse(original_url)
-    parts = parsed.path.strip("/").split("/")
-    if len(parts) != 3 or parts[0] != "package":
-        raise ValueError("Invalid Civil Guruji URL format.")
-    return parts[1], parts[2]
-
-async def parse_package_data(courses):
+async def course_content(session, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
-    for course_wrapper in courses:
-        course = course_wrapper.get("course", {})
-        course_name = course.get("name")
-        if not course_name:
-            continue
-        course_contents = course.get("courseDetail", {}).get("courseContents", [])
-        for content in course_contents:
-            for sub in content.get("courseSubContents", []):
-                sub_name = sub.get("name")
-                video_src = clean_video_url(sub.get("videoUrl"))
-                if video_src:
-                    lectures.append(f"{course_name} | {sub_name}: {video_src.split("?")[0]}")
+    url = f"https://civilguruji.com/api/course/getPreFetchedCourseData/{batch_id}"
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9"
+    }
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    course = data.get("courseData", {})
+    details = course.get("courseDetail", {})
+    contents = details.get("courseContents", [])
+    
+    for content in contents:
+        module_name = content.get("courseContentName", "Unnamed Module")
+        for sub in content.get("courseSubContents", []):
+            sub_name = sub.get("name", "No Title")
+            video_url = sub.get("videoUrl", "No Video URL")
+            v_count += 1
+            lecture.append(f"{module_name}|{sub_name}: {clean_video_url(video_url)}")
+  
     return lectures, v_count, p_count
 
-
-async def civilGuruji_access(_, message, user_id=None):
+async def civilguriji_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
+
     try:
-        msg = await message.reply_text("🔗 Send the Civil Guruji course URL:")
-        input1 = await app.listen(user_id=user_id, timeout=30)
-        original_url = input1.text.strip()
-        await input1.delete()
-        try:
-          slug, course_id = extract_url_parts(original_url)
-        except ValueError as e:
-          return await msg.edit_text(f"❌ Error: {e}")
-          
-        await msg.edit_text(f"✅ Extracted → url: {slug} | id: {course_id}")
-        api_url = f"https://civilguruji.com/_next/data/d25i7ctvZnLYFXs1xZbVS/package/{slug}/{course_id}.json"
-        params = {"url": slug, "id": course_id}
-        headers = {"Accept": "*/*", "User-Agent": "Mozilla/5.0", "x-nextjs-data": "1"}
-        response = session.get(api_url, headers=headers, params=params)
+        url = "https://civilguruji.com/api/course/landing-page-courses"
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        }
+        response = session.get(url, headers=headers)
         if response.status_code != 200:
-            return await msg.edit_text("Failed to fetch Civil Guruji batches")
-          
-        data = response.json()
-        package_data = data.get("pageProps", {}).get("packageDataz", {}).get("packageData", {})
-        batch_name = package_data.get("name", "unknown_batch").replace("/", "-")
-        batch_courses = package_data.get("courses", [])
+            return await message.reply_text("Failed to fetch course data. Try again later.")
 
-        if not batch_name and not batch_courses:
-            return await msg.edit_text("No course data found.")
+        batch_data = response.json().get("explorePageData", {}).get("data", {})
+        if not batch_data:
+            return await msg.edit_text("Not Found Any Batches")
+            
+        batch_list = "📚 **Available Batches:**\n\n"
+        batch_index = {}
+        for category, cat_data in batch_data.items():
+            for course in cat_data.get("data", []):
+                course_id = course.get("_id")
+                course_name = course.get("name")
+                if course_id and course_name:
+                    batch_list += f"🆔 `{course_id}`  |  🎓 {course_name}\n"
+                    batch_index[course_id] = course_name
 
-        await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+        thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
+        caption = "**📊 Now send the Batch ID to Download**"
+
+        if len(batch_list) > 4000:
+            batch_list_name = f"civilguruji_batchList_{user_id}.txt"
+            with open(batch_list_name, "w", encoding="utf-8") as f:
+                f.write(batch_list)
+            batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
+            os.remove(batch_list_name)
+        else:
+            msg = await message.reply_text(f"{batch_list}\n{caption}")
+            batch_file = None
+
+        input2 = await app.listen(user_id=user_id, timeout=30)
+        batch_id = input2.text.strip()
+        await input2.delete()
+        if batch_file:
+            await batch_file.delete()
+
+        batch_name = batch_index.get(batch_id)
+        if not batch_name:
+            return await message.reply_text("**❌ Invalid Batch ID. Please try again.**")
+
+        msg = await message.reply_text(f"**Extracting Course Content for:** `{batch_name}`\n📥 Please wait...")
+
         start_time = time.time()
-        lectures, p_count, v_count = await asyncio.create_task(parse_package_data(batch_courses))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
         end_time = time.time()
 
         if not lectures:
             return await msg.edit_text("No Batch Content found.")
 
-        file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+        file_name = f"{batch_name.replace('/', '_')}_{user_id}.txt"
         with open(file_name, "w", encoding="utf-8") as f:
             f.write("\n".join(lectures[::-1]))
 
         elapsed = main_func.get_time(end_time - start_time)
         caption = (
-            f"**App Name** : `Study IQ`\n"
+            f"**App Name** : `Civil Guruji`\n"
             f"**Batch Name** : `{batch_name}`\n\n"
             f"📜 **Total Materials** : `{len(lectures)}`\n"
             f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
-        await main_func.send_file(app, file_name, user_id, caption)
+
+        await main_func.send_file(app, file_name, user_id, caption, thumb)
         await msg.delete()
 
     except ListenerTimeout:
