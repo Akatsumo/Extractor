@@ -11,7 +11,6 @@ loop = asyncio.get_event_loop()
 async def sumit_boot():
     for all_module in ALL_MODULES:
         importlib.import_module("Extractor.modules." + all_module)
-        importlib.import_module("Extractor.modules.FreeAccess." + all_module)
 
     print("» ʙᴏᴛ ᴅᴇᴘʟᴏʏ sᴜᴄᴄᴇssғᴜʟʟʏ ✨ 🎉")
     await idle()
