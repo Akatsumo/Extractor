@@ -86,7 +86,7 @@ async def civilguriji_access(_, message, user_id=None):
         if not batch_name:
             return await message.reply_text("**Invalid Batch ID. Please try again.**")
 
-        msg = await message.reply_text(f"**Extracting Course Content 📥 Please wait...")
+        msg = await message.reply_text(f"**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
         lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
