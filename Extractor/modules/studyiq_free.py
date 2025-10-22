@@ -29,7 +29,7 @@ async def course_content(session, batch_id, msg):
     )
     fetch_data = response_data.json().get("data", [])
     if not fetch_data:
-        return await msg.edit_text("No Batch Content found.")
+        return []
         
     lectures = []
     for item in fetch_data:
