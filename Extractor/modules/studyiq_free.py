@@ -111,7 +111,7 @@ async def studyiq_access(_, message, user_id=None):
             f"🍿 **Videos** : {v_count} | 📝 **PDFs** : {p_count}\n"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
-        await main_func.send_file(app, file_name, user_id, caption, thumb))
+        await main_func.send_file(app, file_name, user_id, caption, thumb)
         await msg.delete()
 
     except ListenerTimeout:
