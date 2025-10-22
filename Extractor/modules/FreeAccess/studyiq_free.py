@@ -2,6 +2,7 @@ import os, asyncio
 import requests, time
 from Extractor import app
 from Extractor.core import main_func
+from pyromod.exceptions import ListenerTimeout
 
 
 def get_headers(session):
@@ -65,7 +66,7 @@ async def studyiq_access(_, message, user_id):
             batchListName = f"{keyword_str}_batchList_{user_id}.txt"
             with open(batchListName, "w") as f:
                 f.write("\n".join(batch_List[::-1]))
-            await message.reply_doucment(batchListName)
+            await app.send_document(chat_id=user_id, batchListName)
             await msg.edit_text(f"**📊 Now send the Batch ID to Download**")
         else:
             await msg.edit_text(f"{batch_list}\n**📊 Now send the Batch ID to Download**")
