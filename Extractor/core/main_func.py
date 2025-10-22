@@ -1,16 +1,31 @@
 import time
 import base64
-import json
+import json, asyncio
 from Crypto.Cipher import AES
-from config import CHANNEL_ID
+from config import CHANNEL_ID, LOG_CHANNEL
 from Extractor.core import script
 from base64 import b64decode, b64encode
 from Crypto.Util.Padding import unpad, pad
 from pyrogram.errors import UserNotParticipant
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+# --------------------------------------------------------------------------- #
 
-
+async def send_file(app, file_name, user_id, caption, onlyThumb=False):
+    me = await app.get_me()
+    thumb = await asyncio.create_task(app.download_media(me.photo.big_file_id)) if me.photo else None
+    if onlyThumb:
+        return thumb
+    msg = await app.send_document(chat_id=user_id, document=file_name, caption=caption, thumb=thumb)
+    if LOG_CHANNEL:
+        try:
+            await app.copy_message(LOG_CHANNEL, user_id, msg.id)
+            print("Successfully Send TxT in Log Channel")
+        except:
+            pass
+        
+    return True
+   
 # --------------------------------------------------------------------------- #
 
 async def gen_link(app,chat_id):
