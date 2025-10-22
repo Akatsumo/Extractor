@@ -15,7 +15,6 @@ async def send_file(app, file_name, user_id, caption, onlyThumb=False):
     me = await app.get_me()
     thumb = await asyncio.create_task(app.download_media(me.photo.big_file_id)) if me.photo else None
     if onlyThumb:
-        os.remove(thumb)
         return thumb
     msg = await app.send_document(chat_id=user_id, document=file_name, caption=caption, thumb=thumb)
     if LOGS_CHANNEL:
