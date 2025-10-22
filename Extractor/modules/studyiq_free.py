@@ -69,8 +69,7 @@ async def studyiq_access(_, message, user_id=None):
         for course in data:
             batch_list += f"<code>{course.get('course_id')}</code> - <b>{course.get('course_title')}</b>\n"
             
-        me = await app.get_me()
-        thumb = await app.download_media(me.photo.big_file_id) if me.photo else None
+        thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None onlyThumb=True)
         caption = "</b>📊 Now send the Batch ID to Download</b>"
         
         if len(batch_list) > 4000:
@@ -112,9 +111,7 @@ async def studyiq_access(_, message, user_id=None):
             f"🍿 **Videos** : {v_count} | 📝 **PDFs** : {p_count}\n"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
-        await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-        os.remove(file_name)
-        os.remove(thumb)
+        await main_func.send_file(app, file_name, user_id, caption, thumb))
         await msg.delete()
 
     except ListenerTimeout:
