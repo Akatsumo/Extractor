@@ -69,7 +69,7 @@ async def studyiq_access(_, message, user_id=None):
         for course in data:
             batch_list += f"<code>{course.get('course_id')}</code> - <b>{course.get('course_title')}</b>\n"
             
-        thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None onlyThumb=True)
+        thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "</b>📊 Now send the Batch ID to Download</b>"
         
         if len(batch_list) > 4000:
