@@ -31,7 +31,7 @@ async def course_content(session, batch_id, msg):
             sub_name = sub.get("name", "No Title")
             video_url = sub.get("videoUrl", "No Video URL")
             v_count += 1
-            lecture.append(f"{module_name}|{sub_name}: {clean_video_url(video_url)}")
+            lectures.append(f"{module_name}|{sub_name}: {clean_video_url(video_url)}")
   
     return lectures, v_count, p_count
 
@@ -40,6 +40,7 @@ async def civilguriji_access(_, message, user_id=None):
     session = requests.Session()
 
     try:
+        msg = await message.reply_text("Fetching Civil Guruji All Batches, Please Wait... ")
         url = "https://civilguruji.com/api/course/landing-page-courses"
         headers = {
             "Accept": "application/json, text/plain, */*",
@@ -91,7 +92,6 @@ async def civilguriji_access(_, message, user_id=None):
         start_time = time.time()
         lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
         end_time = time.time()
-
         if not lectures:
             return await msg.edit_text("No Batch Content found.")
 
