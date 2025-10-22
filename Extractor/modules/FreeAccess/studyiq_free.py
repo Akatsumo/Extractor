@@ -2,7 +2,6 @@ import os, time
 import asyncio
 import requests 
 from Extractor import app
-from pyrogram.enums import ParseMode
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
@@ -65,20 +64,18 @@ async def studyiq_access(_, message, user_id=None):
         if not data:
             return await msg.edit_text("No course data found.")
 
-        batch_list = "📚 <b>Available Batches:</b>\n\n"
+        batch_list = "📚 **Available Batches:**\n\n"
         for course in data:
-            batch_list += f"<code>{course.get('course_id')}</code> - <b>{course.get('course_title')}</b>\n"
+            batch_list += f"`{course.get('course_id')}` - **{course.get('course_title')}**\n"
             
-        me = await app.get_me()
-        thumb = await app.download_media(me.photo.big_file_id) if me.photo else None
-        caption = "</b>📊 Now send the Batch ID to Download</b>"
+        thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
+        caption = "**📊 Now send the Batch ID to Download**"
         
         if len(batch_list) > 4000:
             batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
             with open(batch_list_name, "w", encoding="utf-8") as f:
                 f.write(batch_list)
             batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
-            await msg.edit_text()
             os.remove(batch_list_name)
         else:
             await msg.edit_text(f"{batch_list}\n{caption}")
@@ -110,12 +107,10 @@ async def studyiq_access(_, message, user_id=None):
             f"**App Name** : `Study IQ`\n"
             f"**Batch Name** : `{batch_name}`\n\n"
             f"📜 **Total Materials** : `{len(lectures)}`\n"
-            f"🍿 **Videos** : {v_count} | 📝 **PDFs** : {p_count}\n"
+            f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
-        await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-        os.remove(file_name)
-        os.remove(thumb)
+        await main_func.send_file(app, file_name, user_id, caption, thumb)
         await msg.delete()
 
     except ListenerTimeout:
