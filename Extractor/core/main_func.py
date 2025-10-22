@@ -2,7 +2,7 @@ import time
 import base64
 import json, asyncio
 from Crypto.Cipher import AES
-from config import CHANNEL_ID, LOG_CHANNEL
+from config import CHANNEL_ID, LOGS_CHANNEL
 from Extractor.core import script
 from base64 import b64decode, b64encode
 from Crypto.Util.Padding import unpad, pad
@@ -17,9 +17,9 @@ async def send_file(app, file_name, user_id, caption, onlyThumb=False):
     if onlyThumb:
         return thumb
     msg = await app.send_document(chat_id=user_id, document=file_name, caption=caption, thumb=thumb)
-    if LOG_CHANNEL:
+    if LOGS_CHANNEL:
         try:
-            await app.copy_message(LOG_CHANNEL, user_id, msg.id)
+            await app.copy_message(LOGS_CHANNEL, user_id, msg.id)
             print("Successfully Send TxT in Log Channel")
         except Exception as e:
             print(f"Failed to send message to log channel: {e}")
