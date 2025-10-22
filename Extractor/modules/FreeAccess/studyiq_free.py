@@ -1,8 +1,8 @@
-import os
+import os, time
 import asyncio
-import requests
-import time
+import requests 
 from Extractor import app
+from pyrogram.enums import ParseMode
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
@@ -65,13 +65,13 @@ async def studyiq_access(_, message, user_id=None):
         if not data:
             return await msg.edit_text("No course data found.")
 
-        batch_list = "📚 **Available Batches:**\n\n"
+        batch_list = "📚 <b>Available Batches:</b>\n\n"
         for course in data:
-            batch_list += f"`{course.get('course_id')}` - **{course.get('course_title')}**\n"
+            batch_list += f"<code>{course.get('course_id')}</code> - <b>{course.get('course_title')}</b>\n"
             
         me = await app.get_me()
         thumb = await app.download_media(me.photo.big_file_id) if me.photo else None
-        caption = "**📊 Now send the Batch ID to Download**"
+        caption = "</b>📊 Now send the Batch ID to Download</b>"
         
         if len(batch_list) > 4000:
             batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
