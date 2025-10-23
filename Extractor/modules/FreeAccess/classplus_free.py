@@ -37,23 +37,17 @@ async def format_urls(content_name, video_thumb, video_type):
             video_id = parts[-2]
             video_url = f'https://tencdn.classplusapp.com/{video_id}/master.m3u8'
 
-        elif "cc" in video_thumb:
-            video_id = "/".join(parts[:-1])
-            video_url = f"{video_id}/master.m3u8"
-
-        elif "lc" in video_thumb:
-            parts[-1] = "master.m3u8"
-            video_url = "/".join(parts)
-
+        elif "cc" in video_thumb or "lc" in video_thumb:
+            video_url = video_thumb.replace("thumbnail.png", "master.m3u8")
+            
         elif "snapshots" in video_thumb and len(parts) >= 8:
             parts[3] = "alisg-cdn-a.classplusapp.com"
             parts = [p for i, p in enumerate(parts) if i not in [4, 6, 7]]
             video_url = f"{'/'.join(parts)}/master.m3u8"
 
-        elif "videos" in video_thumb and len(parts) == 7:
-            parts[3] = "alisg-cdn-a.classplusapp.com"
-            parts[-1] = "master.m3u8"
-            video_url = "/".join(parts)
+        elif "vod-9a3dfb" in video_thumb:
+            video_id = url.split('/')[5]
+            video_url = f'https://media-cdn.classplusapp.com/alisg-cdn-a.classplusapp.com/{video_id}/master.m3u8'
 
         elif "videos" in video_thumb and len(parts) == 6 and "4b06bf8d61c41f8310af9b2624459378203740932b456b07fcf817b737fbae27" in video_thumb:
             parts[3] = "alisg-cdn-a.classplusapp.com"
