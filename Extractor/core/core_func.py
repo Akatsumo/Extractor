@@ -14,7 +14,7 @@ appNameDict = {
 }
 
 WithoutAppDict = {
-    "wcdsjourney_": {"name": "CdsJourney", "func": cdsjourney_free.cdsjourney_access},
+    "wcdsjourney_": {"name": "Cds Journey", "func": cdsjourney_free.cdsjourney_access},
     "wclassplus_": {"name": "Classplus", "func": classplus_free.classplus_access},
     "wcivilguruji_": {"name": "Civil Guruji", "func": civilguruji_free.civilguruji_access},
     "wstudyiq_": {"name": "Study IQ, "func": studyiq_free.studyiq_access},
