@@ -100,7 +100,7 @@ def decode_base64(encoded_data):
 allDics = {}
 PER_PAGE = 15
 
-def get_page(page: int, appNameDict, DictID="Dic1", back_data="tools_", query=None, appx=False, withoutIdPass=True. page_row=3):
+def get_page(page: int, appNameDict, DictID="Dic1", back_data="tools_", query=None, appx=False, withoutIdPass=True, page_row=3):
     keys = list(appNameDict.keys())  
     start = page * PER_PAGE
     end = start + PER_PAGE
