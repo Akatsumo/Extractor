@@ -80,8 +80,8 @@ async def course_extract(session, batch_url, headers, cookies):
 # ----------------------- Cdsjourney-Command ----------------------- #
 
 @app.on_message(filters.command("cds"))
-async def cdsjourney_login(_, message):
-    user_id = message.from_user.id
+async def cdsjourney_login(_, message, user_id=None):
+    user_id = user_id if user_id else message.from_user.id
     try:
         session = requests.Session()
         csrf_token = await gen_csrftoken(session)
