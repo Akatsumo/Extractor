@@ -13,6 +13,13 @@ appNameDict = {
     "videocrypt_": {"name": "Videocrypt", "func": videocrypt.videocrypt_login},
 }
 
+WithoutAppDict = {
+    "wcdsjourney_": {"name": "CdsJourney", "func": cdsjourney_free.cdsjourney_access},
+    "wclassplus_": {"name": "Classplus", "func": classplus_free.classplus_access},
+    "wcivilguruji_": {"name": "Civil Guruji", "func": civilguruji_free.civilguruji_access},
+    "wstudyiq_": {"name": "Study IQ, "func": studyiq_free.studyiq_access},
+}
+
 videoCryptDict = {
     "abhinaymaths_": {"name": "Abhinay Maths", "func": videocrypt},
     "eduteria_": {"name": "Eduteria", "func": videocrypt},
