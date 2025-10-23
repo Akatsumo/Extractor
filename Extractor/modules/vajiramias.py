@@ -64,8 +64,8 @@ async def course_extract(session, batch_url):
 # ----------------------- Vajiram-Command ----------------------- #
 
 @app.on_message(filters.command("vajiram"))
-async def vajiram_login(_, message):
-    user_id = message.from_user.id
+async def vajiram_login(_, message, user_id=None):
+    user_id = user_id if user_id else message.from_user.id
     try:
         session = requests.Session()
         login_url = 'https://vajiramias.com/accounts/login/'
