@@ -70,6 +70,7 @@ async def studyiq_access(_, message, user_id=None):
             
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
+        batch_file = None
         
         if len(batch_list) > 4000:
             batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
