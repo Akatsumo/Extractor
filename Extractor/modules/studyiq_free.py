@@ -70,6 +70,7 @@ async def studyiq_access(_, message, user_id=None):
             
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
+        batch_file = None
         
         if len(batch_list) > 4000:
             batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
@@ -82,8 +83,9 @@ async def studyiq_access(_, message, user_id=None):
 
         input2 = await app.listen(user_id=user_id, timeout=30)
         batch_id = input2.text.strip()
-        await batch_file.delete()
         await input2.delete()
+        if batch_file:
+            await batch_file.delete()
 
         batch_name = next((course["course_title"] for course in data if str(course["course_id"]) == batch_id), None)
         if not batch_name:
@@ -117,3 +119,4 @@ async def studyiq_access(_, message, user_id=None):
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
         await message.reply_text(f"⚠️ Error: `{e}`")
+
