@@ -12,7 +12,7 @@ core_func.appNameDict["appx_"] = {"name": "Appx", "func": appx.appx_logins}
 buttons = InlineKeyboardMarkup([
     [
         InlineKeyboardButton("🧰 Tools", callback_data="tools_"),
-        InlineKeyboardButton("Contact ☎️", user_id=int("8062189975"))
+        InlineKeyboardButton("Contact ☎️", url="https://t.me/Vivan_Official"))
     ]])
 
 button = InlineKeyboardMarkup([
