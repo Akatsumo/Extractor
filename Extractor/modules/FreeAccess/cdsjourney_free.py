@@ -97,7 +97,7 @@ async def cdsjourney_access(_, message, user_id=None):
             batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
             os.remove(batch_list_name)
         else:
-            batch_file = await msg.edit_text(f"{batch_list}\n\n{caption}")
+            await msg.edit_text(f"{batch_list}\n\n{caption}")
 
         input3 = await app.listen(user_id=user_id, timeout=30)
         batch_id = input3.text.strip()
