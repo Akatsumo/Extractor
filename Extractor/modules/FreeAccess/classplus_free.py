@@ -19,18 +19,18 @@ async def classplus_org_id(org_id, session):
         return org_id, name
 
 
-async def format_urls(content_name, video_thumb, video_type):
+async def format_urls(content_name, video_thumb, drm_procted):
     global lectures
 
     if "cpvideocdn.testbook.com" in video_thumb:
-        video_id = video_thumb.split('/')[-2]
+        video_id = video_thumb.split('/')[4]
         video_url = f"https://cpvod.testbook.com/{video_id}/playlist.m3u8"
 
     elif "media-cdn.classplusapp.com" in video_thumb:
         parts = video_thumb.split('/')
 
         if "drm" in video_thumb:
-            video_id = parts[-2]
+            video_id = video_thumb.split('/')[5]
             video_url = f"https://media-cdn.classplusapp.com/drm/{video_id}/playlist.m3u8"
             
         elif "tencdn" in video_thumb:
@@ -92,8 +92,8 @@ async def course_content(session, headers, batch_id, msg, folder_id="0", org_id=
         elif content_type == 2:
             print("----- > Video")
             video_thumb = content.get("thumbnailUrl")
-            video_type = content.get("videoType")
-            if not video_thumb or not video_type:
+            video_type = content.get("drmProtected")
+            if not video_thumb:
                 continue
             v_count += 1
             await format_urls(content_name, video_thumb, video_type)
@@ -204,5 +204,3 @@ async def classplus_access(_, message, user_id=None):
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
         await message.reply_text(f"⚠️ Error: `{e}`")
-
-
