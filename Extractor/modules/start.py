@@ -68,7 +68,7 @@ async def handle_callback(_, query):
         await query.answer("You clicked Manual Login", show_alert=True)
         await appx.appx_logins(_, query.message, user_id, False, None, None, True)
         
-    elif query.data == "withoutIdPass":
+    elif query.data == "without_pass":
         await query.answer("You clicked Without ID Pass", show_alert=True)
         buttons = main_func.get_page(0, core_func.WithoutAppDict, DictID="WithoutID-Pass", back_data="tools_", query=query)
         await query.message.edit_text(script.TOOLS_TEXT, reply_markup=buttons)
