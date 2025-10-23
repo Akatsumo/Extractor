@@ -1,4 +1,5 @@
-from Extractor.modules import *
+from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, cdsjourney
+from Extractor.modules import cdsjourney_free, classplus_free, civilguruji_free, studyiq_free
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
