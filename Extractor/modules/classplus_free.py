@@ -1,9 +1,13 @@
-import os, time
+import os
+import time
+import re
 import asyncio
-import requests 
+import requests
 from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
+
+lectures, v_count, p_count = [], 0, 0
 
 async def classplus_org_id(org_id, session):
     async with session.get(f"https://{org_id}.courses.store") as response:
@@ -12,117 +16,149 @@ async def classplus_org_id(org_id, session):
         name_match = re.search(r'"name":"([^"]+)"', html_content)
         org_id = org_id_match.group(1) if org_id_match else None
         name = name_match.group(1) if name_match else None
-    return org_id, name
+        return org_id, name
+
 
 async def format_urls(content_name, video_thumb, video_type):
+    global lectures
+
     if "cpvideocdn.testbook.com" in video_thumb:
         video_id = video_thumb.split('/')[-2]
         video_url = f"https://cpvod.testbook.com/{video_id}/playlist.m3u8"
 
     elif "media-cdn.classplusapp.com" in video_thumb:
         parts = video_thumb.split('/')
+
         if "drm" in video_thumb:
             video_id = parts[-2]
             video_url = f"https://media-cdn.classplusapp.com/drm/{video_id}/playlist.m3u8"
 
-         elif "cc" in video_thumb:
+        elif "cc" in video_thumb:
             video_id = "/".join(parts[:-1])
             video_url = f"{video_id}/master.m3u8"
 
-         elif "lc" in video_thumb:
+        elif "lc" in video_thumb:
             parts[-1] = "master.m3u8"
-            video_url = ("/").join(parts)
+            video_url = "/".join(parts)
 
-         elif "snapshots" in video_thumb and len(parts) >= 8:
+        elif "snapshots" in video_thumb and len(parts) >= 8:
             parts[3] = "alisg-cdn-a.classplusapp.com"
             parts = [p for i, p in enumerate(parts) if i not in [4, 6, 7]]
             video_url = f"{'/'.join(parts)}/master.m3u8"
-         elif "videos" in video_thumb and len(parts) == 7:
+
+        elif "videos" in video_thumb and len(parts) == 7:
             parts[3] = "alisg-cdn-a.classplusapp.com"
             parts[-1] = "master.m3u8"
             video_url = "/".join(parts)
-         elif "videos" in video_thumb and len(parts) == 6 and "4b06bf8d61c41f8310af9b2624459378203740932b456b07fcf817b737fbae27" in video_thumb :
+
+        elif "videos" in video_thumb and len(parts) == 6 and "4b06bf8d61c41f8310af9b2624459378203740932b456b07fcf817b737fbae27" in video_thumb:
             parts[3] = "alisg-cdn-a.classplusapp.com"
             parts[4] = "b08bad9ff8d969639b2e43d5769342cc62b510c4345d2f7f153bec53be84fe35"
             file_name = parts[-1]
             parts[-1] = file_name.replace(".jpeg", "/master.m3u8")
             video_url = "/".join(parts)
-         else:
-            continue
-         lecutres.append(f"{content_name}: {video_url}")
+        else:
+            return
+
+    else:
+        return
+
+    lectures.append(f"{content_name}: {video_url}")
 
 
-    
-lectures, v_count, p_count = [], 0, 0
+async def course_content(session, headers, batch_id, msg, folder_id="0", org_id=None):
+    global lectures, v_count, p_count
 
-async def course_content(session, headers, batch_id, msg, folder_id="0"):
-    encode_data = main_func.encode_base64(f'{{"courseId":{batch_id},"tutorId":null,"orgId":{org_id},"categoryId":null}}')
+    encoded_data = main_func.encode_base64(
+        f'{{"courseId":{batch_id},"tutorId":null,"orgId":{org_id},"categoryId":null}}'
+    )
     params = {"folderId": folder_id, "limit": "500", "offset": "0"}
-    response_data = session.get(f"https://api.classplusapp.com/v2/course/preview/content/list/{encode_data}", headers=headers, params=params)
-    content_data = response_data.json().get("data", [])
+    response = session.get(
+        f"https://api.classplusapp.com/v2/course/preview/content/list/{encoded_data}",
+        headers=headers,
+        params=params,
+    )
+
+    content_data = response.json().get("data", [])
     if not content_data:
         return lectures, v_count, p_count
-        
+
     for content in content_data:
         content_id = content.get("id")
         content_name = content.get("name")
         content_type = content.get("contentType")
+
         if content_type == 1:
-            print("----- > folder")
-            await course_content(session, headers, batch_id, msg, content_id)
+            print("----- > Folder")
+            await course_content(session, headers, batch_id, msg, content_id, org_id)
         elif content_type == 2:
-            print("----- > video")
-            video_thumb = content.get('thumbnailUrl', None)
-            video_type = content.get('videoType', None)
+            print("----- > Video")
+            video_thumb = content.get("thumbnailUrl")
+            video_type = content.get("videoType")
             if not video_thumb or not video_type:
                 continue
+            v_count += 1
             await format_urls(content_name, video_thumb, video_type)
         elif content_type == 3:
-            print("----- > pdf")
-            continue
+            print("----- > PDF")
+            p_count += 1
     return lectures, v_count, p_count
 
 
 async def classplus_access(_, message, user_id=None):
-    user_id = user_id if user_id else message.from_user.id
+    user_id = user_id or message.from_user.id
     session = requests.Session()
     headers = {
-       "accept": "application/json, text/plain, */*",
-       "accept-language": "EN",
-       "api-version": "22",
-       "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+        "accept": "application/json, text/plain, */*",
+        "accept-language": "EN",
+        "api-version": "22",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
     }
 
     try:
-        msg = await message.reply_text("**Send Me Only Classplus Apk ORG ID**")
-        input_msg = await app.listen(user_id=message.from_user.id)
-        apk_org_id = input_msg.text
+        msg = await message.reply_text("**Send me the Classplus APK ORG ID**")
+        input_msg = await app.listen(user_id=user_id)
+        apk_org_id = input_msg.text.strip()
         await input_msg.delete()
 
-        org_id, apk_name = await classplus_org_id(apk_org_id, session)
+        import aiohttp
+        async with aiohttp.ClientSession() as aio_session:
+            org_id, apk_name = await classplus_org_id(apk_org_id, aio_session)
+
         if not org_id:
             return await message.reply_text("Invalid APK Org ID.")
 
-        encode_data = main_func.encode_base64(f'{{"tutorId":null,"orgId":{org_id},"categoryId":null}}')
-        url = f"https://api.classplusapp.com/v2/course/preview/similar/{encode_data}"
-        params = {"filterId": "[1]", "sortId": "[7]", "subCatList": "", "mainCategory": "0", "limit": "500", "offset": "0"}
-        
-        response = requests.get(url, headers=headers, params=params)
+        encoded_data = main_func.encode_base64(
+            f'{{"tutorId":null,"orgId":{org_id},"categoryId":null}}'
+        )
+        url = f"https://api.classplusapp.com/v2/course/preview/similar/{encoded_data}"
+        params = {
+            "filterId": "[1]",
+            "sortId": "[7]",
+            "subCatList": "",
+            "mainCategory": "0",
+            "limit": "500",
+            "offset": "0",
+        }
+
+        response = session.get(url, headers=headers, params=params)
         if response.status_code != 200:
-            return await msg.edit_text("Failed to fetch all batches")
-        courses = response.json().get('data', {}).get('coursesData', [])
-        
+            return await msg.edit_text("Failed to fetch batches.")
+
+        courses = response.json().get("data", {}).get("coursesData", [])
+        if not courses:
+            return await msg.edit_text("No batches found for this Org ID.")
+
         batch_list = "📚 **Available Batches:**\n\n"
         for course in courses:
-            name = course.get('name', 'N/A').strip()
-            # price = course.get('finalPrice', 'N/A')
-            course_id = course.get('id', 'N/A')
-            batch_list += f"`{course_id}`- **{name}**\n"
-            
+            name = course.get("name", "N/A").strip()
+            course_id = course.get("id", "N/A")
+            batch_list += f"`{course_id}` - **{name}**\n"
+
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
         batch_file = None
-        
+
         if len(batch_list) > 4000:
             batch_list_name = f"classplus_batchList_{user_id}.txt"
             with open(batch_list_name, "w", encoding="utf-8") as f:
@@ -138,18 +174,18 @@ async def classplus_access(_, message, user_id=None):
         if batch_file:
             await batch_file.delete()
 
-        batch_name = next((course["name"] for course in courses if str(course["id"]) == batch_id), None)
+        batch_name = next((c["name"] for c in courses if str(c["id"]) == batch_id), None)
         if not batch_name:
             return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg, org_id=org_id))
         end_time = time.time()
 
         if not lectures:
-            return await msg.edit_text("No Batch Content found.")
+            return await msg.edit_text("No content found in this batch.")
 
         file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
         with open(file_name, "w", encoding="utf-8") as f:
@@ -170,3 +206,7 @@ async def classplus_access(_, message, user_id=None):
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
         await message.reply_text(f"⚠️ Error: `{e}`")
+
+
+
+
