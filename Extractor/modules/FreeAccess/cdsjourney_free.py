@@ -49,7 +49,6 @@ async def course_content(session, subjects, headers, msg):
 async def cdsjourney_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
-
     try:
         msg = await message.reply_text("Fetching CDS Journey All Batches, Please Wait... ")
         headers = {
@@ -98,7 +97,7 @@ async def cdsjourney_access(_, message, user_id=None):
             batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
             os.remove(batch_list_name)
         else:
-            batch_file = await message.reply_text(f"{batch_list}\n\n{caption}")
+            batch_file = await msg.edit_text(f"{batch_list}\n\n{caption}")
 
         input3 = await app.listen(user_id=user_id, timeout=30)
         batch_id = input3.text.strip()
@@ -108,7 +107,7 @@ async def cdsjourney_access(_, message, user_id=None):
 
         batch_name = batch_data.get(batch_id)
         if not batch_name:
-            return await message.reply_text("Invalid Batch ID. Please try again.")
+            return await msg.edit_text("Invalid Batch ID. Please try again.")
 
         response = session.get(f"https://www.cdsjourney.com/api/batch-subject/{batch_id}/", headers=headers)
         if response.status_code != 200:
@@ -118,7 +117,7 @@ async def cdsjourney_access(_, message, user_id=None):
         if not subjects:
             return await msg.edit_text("No subjects found in this batch, maybe batch not started yet.")
 
-        msg = await message.reply_text("📥 Extracting Course Content, Please Wait...")
+        msg = await msg.edit_text("📥 Extracting Course Content, Please Wait...")
 
         start_time = time.time()
         lectures, v_count, p_count = await course_content(session, subjects, headers, msg)
