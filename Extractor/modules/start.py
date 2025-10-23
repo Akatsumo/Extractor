@@ -61,7 +61,7 @@ async def handle_callback(_, query):
         )
     elif query.data == "tools_":
         await query.message.edit_text(
-            "wew",
+            script.TOOLS_TEXT,
             reply_markup=main_func.get_page(0, core_func.appNameDict, "CoursesName")
         )
     elif query.data == "manual_login":
