@@ -82,8 +82,9 @@ async def studyiq_access(_, message, user_id=None):
 
         input2 = await app.listen(user_id=user_id, timeout=30)
         batch_id = input2.text.strip()
-        await batch_file.delete()
         await input2.delete()
+        if batch_file:
+            await batch_file.delete()
 
         batch_name = next((course["course_title"] for course in data if str(course["course_id"]) == batch_id), None)
         if not batch_name:
