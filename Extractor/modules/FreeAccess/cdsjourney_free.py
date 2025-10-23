@@ -76,7 +76,7 @@ async def cdsjourney_access(_, message, user_id=None):
 
             response = session.post("https://www.cdsjourney.com/api/verify_otp/", data={"email": email, "otp": otp})
             if response.status_code != 200:
-                return await msg.edit_text("❌ OTP verification failed, Try again!")
+                return await msg.edit_text("OTP verification failed, Try again!")
 
             token = response.json().get("access_token")
             await message.reply(f"✅ Login successful.\n\nYour token: `{token}`")
@@ -89,6 +89,7 @@ async def cdsjourney_access(_, message, user_id=None):
 
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
+        batch_file = None
 
         if len(batch_list) > 4000:
             batch_list_name = f"civilguruji_batchList_{user_id}.txt"
