@@ -231,7 +231,7 @@ class VideoCryptExtractor:
 
 @app.on_message(filters.command("vdocrypt"))
 async def videocrypt_login(_, message, user_id=None):
-    buttons = main_func.get_page(0, core_func.videoCryptDict, DictID="VideoDecrypt1", back_data="tools_")
+    buttons = main_func.get_page(0, core_func.videoCryptDict, DictID="VideoDecrypt1", withoutIdPass=False)
     if user_id:
         await message.edit_text(script.TOOLS_TEXT, reply_markup=buttons)
     else:
