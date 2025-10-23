@@ -130,8 +130,8 @@ class ClassplusExtractor:
     def _is_valid_input(org_code, phone):
         return org_code.isalpha() and phone.isdigit() and len(phone) == 10
 
-    async def handle_classplus(self, message):
-        user_id = message.from_user.id
+    async def handle_classplus(self, message, user_id=None):
+        user_id = user_id if user_id else message.from_user.id
         async with aiohttp.ClientSession() as session:
             try:
                 msg = await message.reply_text("**🔑 Send your OrgID & Phone in this format:** `OrgID*Phone`")
