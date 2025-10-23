@@ -32,6 +32,10 @@ async def format_urls(content_name, video_thumb, video_type):
         if "drm" in video_thumb:
             video_id = parts[-2]
             video_url = f"https://media-cdn.classplusapp.com/drm/{video_id}/playlist.m3u8"
+            
+        elif "tencdn" in video_thumb:
+            video_id = parts[-2]
+            video_url = f'https://tencdn.classplusapp.com/{video_id}/master.m3u8'
 
         elif "cc" in video_thumb:
             video_id = "/".join(parts[:-1])
