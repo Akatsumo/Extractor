@@ -59,8 +59,8 @@ async def course_extract(session, cookies, batch_id):
 
 
 @app.on_message(filters.command("kp"))
-async def kpias_login(_, message):
-    user_id = message.from_user.id
+async def kpias_login(_, message, user_id=None):
+    user_id = user_id if user_id else message.from_user.id
     try:
         session = requests.Session()
         login_url = 'https://online.kpiasdelhi.com/login/?next='
