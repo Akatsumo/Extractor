@@ -105,7 +105,7 @@ async def qualityEducation_access(_, message, user_id=None):
 
         await msg.edit_text("📥 Extracting Course Content, please wait...")
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content, session, headers, batch_id, msg)
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
         end_time = time.time()
 
         if not lectures:
