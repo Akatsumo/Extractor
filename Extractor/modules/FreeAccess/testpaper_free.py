@@ -1,6 +1,7 @@
-import os, time
+import os
+import time
 import asyncio
-import requests 
+import requests
 from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
@@ -8,88 +9,110 @@ from pyromod.exceptions import ListenerTimeout
 
 async def course_content(session, headers, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
-    
-    response_data = session.post("https://testpaperlive.com/api/app/v2/package_chapter_list", data=f"package_id={batch_id}", headers=headers)
+
+    response_data = session.post(
+        "https://testpaperlive.com/api/app/v2/package_chapter_list",
+        data=f"package_id={batch_id}",
+        headers=headers
+    )
     if response_data.status_code != 200:
-          return lectures, v_count, p_count
-      
+        return lectures, v_count, p_count
+
     topic_data = response_data.json().get("data", [])
     if not topic_data:
         return lectures, v_count, p_count
-        
+
     for topic in topic_data:
         chapter_id = topic.get("id")
-        response_data = session.post("https://testpaperlive.com/api/app/v2/package_chapter_item_list", data=f"package_ch_id={chapter_id}", headers=headers)
+        response_data = session.post(
+            "https://testpaperlive.com/api/app/v2/package_chapter_item_list",
+            data=f"package_ch_id={chapter_id}",
+            headers=headers
+        )
         if response_data.status_code != 200:
-          return lectures, v_count, p_count
-          
+            return lectures, v_count, p_count
+
         fatch_data = response_data.json().get("data", [])
         if not fatch_data:
-          continue
-          
-         for item in fatch_data:
+            continue
+
+        for item in fatch_data: 
             item_id = item.get("id")
             item_name = item.get("name")
             item_type = item.get("type")
             post_data = {"item_id": item_id, "type": item_type}
-            response = session.get(f"https://testpaperlive.com/api/app/item_data_list", headers=headers, data=post_data)
+
+            response = session.posy(
+                f"https://testpaperlive.com/api/app/item_data_list",
+                headers=headers,
+                data=post_data
+            )
             item_data = response.json()
+
             if item_type == "video":
-              url = f"https://youtu.be/{item_data.get('data').get('video').get('youtube_id')}"
-              v_count += 1
-              lectures.append(f"{item_name}: {url}")
+                url = f"https://youtu.be/{item_data.get('data').get('video').get('youtube_id')}"
+                v_count += 1
+                lectures.append(f"{item_name}: {url}")
             else:
-              url = item_data.get("data").get("notes").get("notes")
-              p_count += 1
-              lectures.append(f"{item_name}: {url}")
-                   
+                url = item_data.get("data").get("notes").get("notes")
+                p_count += 1
+                lectures.append(f"{item_name}: {url}")
+
     return lectures, v_count, p_count
 
 
 async def testpaper_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
-    token = "137653HlQcjwDDHHgnCDXEUqYm5jtPy5ti1FGeCqjBNwMW" 
+    token = "137653HlQcjwDDHHgnCDXEUqYm5jtPy5ti1FGeCqjBNwMW"
+
     headers = {
-      'Content-Type': "application/x-www-form-urlencoded"
-      'User-Agent': "okhttp/4.11.0",
-      'Connection': "Keep-Alive",
-      'Accept-Encoding': "gzip",
+        'Content-Type': "application/x-www-form-urlencoded",
+        'User-Agent': "okhttp/4.11.0",
+        'Connection': "Keep-Alive",
+        'Accept-Encoding': "gzip",
     }
 
     try:
         msg = await message.reply_text("Fetching All Test Paper Batches. Please Wait...")
+
         if not token:
-          await msg.edit_text("🔑 Enter login credentials (Mobile*Password or Token):")
-          input1 = await app.listen(user_id=user_id, timeout=30)
-          raw_text = input1.text.strip()
-          await input1.delete()
-          
-          if "*" in raw_text:
-            user_id, password = raw_text.split("*")
-            payload = f"mobile={user_id}&password={password}&device_type=android&device_token=test&app_version=1.0.42&app_version_code=42"
-            response = session.post("https://testpaperlive.com/api/app/v2/login", data=payload, headers=headers)
-            if response.status_code != 200:
-              return await msg.edit_text("Failed to Fetch Test Paper Token.")
-            token =  response.json().get("data").get("token")
-            
-        header.upadate({"auth": token})
+            await msg.edit_text("🔑 Enter login credentials (Mobile*Password or Token):")
+            input1 = await app.listen(user_id=user_id, timeout=30)
+            raw_text = input1.text.strip()
+            await input1.delete()
+
+            if "*" in raw_text:
+                user_id_input, password = raw_text.split("*")
+                payload = f"mobile={user_id_input}&password={password}&device_type=android&device_token=test&app_version=1.0.42&app_version_code=42"
+                response = session.post(
+                    "https://testpaperlive.com/api/app/v2/login",
+                    data=payload,
+                    headers=headers
+                )
+                if response.status_code != 200:
+                    return await msg.edit_text("Failed to Fetch Test Paper Token.")
+                token = response.json().get("data").get("token")
+
+        headers.update({"auth": token}) 
+
         response_data = session.get("https://testpaperlive.com/api/app/v2/home", headers=headers)
         if response_data.status_code != 200:
             return await msg.edit_text("Failed to fetch Test Paper batches")
-        batch_data = response_data.json().get("data").get("package_list")
-      
+
+        batch_data = response_data.json().get("data", {}).get("package_list", [])
+
         if not batch_data:
-          return await msg.edit_text("No course data found.")
-          
+            return await msg.edit_text("No course data found.")
+
         batch_list = "📚 **Available Batches:**\n\n"
         for course in batch_data:
             batch_list += f"`{course.get('id')}` - **{course.get('name')}**\n"
-            
+
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
         batch_file = None
-        
+
         if len(batch_list) > 4000:
             batch_list_name = f"TestPaper_batchList_{user_id}.txt"
             with open(batch_list_name, "w", encoding="utf-8") as f:
@@ -110,7 +133,7 @@ async def testpaper_access(_, message, user_id=None):
             return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
-      
+
         start_time = time.time()
         lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
         end_time = time.time()
@@ -136,4 +159,4 @@ async def testpaper_access(_, message, user_id=None):
     except ListenerTimeout:
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"Error: `{e}`")
