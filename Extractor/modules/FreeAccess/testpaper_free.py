@@ -40,21 +40,26 @@ async def course_content(session, headers, batch_id, msg):
             item_id = item.get("id")
             item_name = item.get("name")
             item_type = item.get("type")
+            
             post_data = {"item_id": item_id, "type": item_type}
-
-            response = session.posy(
+            response_data = session.post(
                 f"https://testpaperlive.com/api/app/item_data_list",
                 headers=headers,
                 data=post_data
             )
-            item_data = response.json()
+            if response_data.status_code != 200:
+                return lectures, v_count, p_count
+
+            item_data = response_data.json()
+            if not item_data:
+                continue
 
             if item_type == "video":
-                url = f"https://youtu.be/{item_data.get('data').get('video').get('youtube_id')}"
+                url = f"https://youtu.be/{item_data.get('data', {}).get('video', {}).get('youtube_id')}"
                 v_count += 1
                 lectures.append(f"{item_name}: {url}")
-            else:
-                url = item_data.get("data").get("notes").get("notes")
+            elif item_type == "notes":
+                url = item_data.get("data", {}).get("notes", {}).get("notes")
                 p_count += 1
                 lectures.append(f"{item_name}: {url}")
 
@@ -147,7 +152,7 @@ async def testpaper_access(_, message, user_id=None):
 
         elapsed = main_func.get_time(end_time - start_time)
         caption = (
-            f"**App Name** : `Study IQ`\n"
+            f"**App Name** : `Test Paper`\n"
             f"**Batch Name** : `{batch_name}`\n\n"
             f"📜 **Total Materials** : `{len(lectures)}`\n"
             f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
@@ -160,3 +165,8 @@ async def testpaper_access(_, message, user_id=None):
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
         await message.reply_text(f"Error: `{e}`")
+
+
+
+
+  
