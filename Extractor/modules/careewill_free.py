@@ -178,9 +178,7 @@ async def careerwill_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(
-            course_content(base_url, session, cookies, batch_type, batch_id, msg)
-        )
+        lectures, v_count, p_count = await asyncio.create_task(course_content(base_url, session, cookies, batch_type, batch_id, msg))
         end_time = time.time()
 
         if not lectures:
