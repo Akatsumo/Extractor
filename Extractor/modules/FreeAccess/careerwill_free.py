@@ -1,3 +1,4 @@
+
 import os, time
 import asyncio
 import requests
@@ -124,8 +125,6 @@ async def careerwill_access(_, message, user_id=None):
                 await input1.delete()
 
         cookies.update({"token": token})
-
-        # Show categories
         category_text = "📚 **Available Categories:**\n\n"
         for cat in categories:
             category_text += f"`{cat['id']}` - **{cat['batchCat_name']}**\n"
@@ -139,11 +138,13 @@ async def careerwill_access(_, message, user_id=None):
         if not batch_type:
             return await msg.edit_text("**Invalid Category ID. Please try again.**")
 
+        msg = await message.reply_text("Fetching all Careerwill categories... Please wait!")
         params = {"batch_type": batch_type, "view": "Grid", "interface_id": "1", "cat_id": category_id}
         response = session.get(f"{base_url}/live-classes.json", headers=headers, cookies=cookies, params=params)
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch Careerwill batches.")
 
+        await asyncio.sleep(0.5)
         batch_data = response.json().get("pageProps", {}).get("liveClasses", [])
         if not batch_data:
             return await msg.edit_text("No course data found.")
@@ -178,9 +179,7 @@ async def careerwill_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(
-            course_content(base_url, session, cookies, batch_type, batch_id, msg)
-        )
+        lectures, v_count, p_count = await asyncio.create_task(course_content(base_url, session, cookies, batch_type, batch_id, msg))
         end_time = time.time()
 
         if not lectures:
@@ -206,7 +205,3 @@ async def careerwill_access(_, message, user_id=None):
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
         await message.reply_text(f"⚠️ Error: `{e}`")
-
-
-
-
