@@ -1,3 +1,4 @@
+
 import os
 import time
 import asyncio
@@ -104,7 +105,7 @@ async def qualityEducation_access(_, message, user_id=None):
 
         await msg.edit_text("📥 Extracting Course Content, please wait...")
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content, session, headers, batch_id, msg)
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
         end_time = time.time()
 
         if not lectures:
@@ -130,5 +131,6 @@ async def qualityEducation_access(_, message, user_id=None):
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)}`")
+
 
 
