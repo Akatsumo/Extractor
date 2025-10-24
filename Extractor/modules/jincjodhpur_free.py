@@ -100,7 +100,6 @@ async def jincJodhpur_access(_, message, user_id=None):
         )
 
         await main_func.send_file(app, file_name, user_id, caption, thumb)
-        os.remove(file_name)
         await msg.delete()
 
     except ListenerTimeout:
