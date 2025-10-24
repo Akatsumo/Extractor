@@ -70,7 +70,7 @@ async def handle_callback(_, query):
         
     elif query.data == "without_pass":
         await query.answer("You clicked Without ID Pass", show_alert=True)
-        without_buttons = main_func.get_page(0, core_func.WithoutAppDict, DictID="WithoutID-Pass", back_data="tools_", query=query)
+        without_buttons = main_func.get_page(0, core_func.WithoutAppDict, DictID="WithoutID-Pass", back_data="tools_", query=query, withoutIdPass=False)
         await query.message.edit_text(script.TOOLS_TEXT, reply_markup=without_buttons)
     
     elif query.data.startswith("page_"):
