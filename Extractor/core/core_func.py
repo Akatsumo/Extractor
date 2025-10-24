@@ -1,5 +1,5 @@
 from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, cdsjourney
-from Extractor.modules import cdsjourney_free, classplus_free, civilguruji_free, studyiq_free
+from Extractor.modules import cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
@@ -19,6 +19,7 @@ WithoutAppDict = {
     "wclassplus_": {"name": "Classplus", "func": classplus_free.classplus_access},
     "wcivilguruji_": {"name": "Civil Guruji", "func": civilguruji_free.civilguruji_access},
     "wstudyiq_": {"name": "Study IQ", "func": studyiq_free.studyiq_access},
+    "wqualityEducation_": {"name": "Quality Education", "func": qualityEducation_free.qualityEducation_access},
 }
 
 videoCryptDict = {
