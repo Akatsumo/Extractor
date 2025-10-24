@@ -42,7 +42,7 @@ async def course_content(session, headers, batch_id, msg):
             item_type = item.get("type")
             post_data = {"item_id": item_id, "type": item_type}
 
-            response = session.posy(
+            response = session.post(
                 f"https://testpaperlive.com/api/app/item_data_list",
                 headers=headers,
                 data=post_data
