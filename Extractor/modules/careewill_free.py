@@ -137,7 +137,7 @@ async def careerwill_access(_, message, user_id=None):
         if not batch_type:
             return await msg.edit_text("**Invalid Category ID. Please try again.**")
 
-        msg = await message.reply_text("Fetching all Careerwill categories... Please wait!")
+        await msg.edit_text("Fetching all Careerwill categories... Please wait!")
         params = {"batch_type": batch_type, "view": "Grid", "interface_id": "1", "cat_id": category_id}
         response = session.get(f"{base_url}/live-classes.json", headers=headers, cookies=cookies, params=params)
         if response.status_code != 200:
