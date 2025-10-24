@@ -1,6 +1,6 @@
 import os, time
 import asyncio
-import requests
+import requests, json
 from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
@@ -40,7 +40,7 @@ async def jincJodhpur_access(_, message, user_id=None):
 
     try:
         msg = await message.reply_text("Fetching All Jinc Jodhpur Batches. Please Wait...")
-        response = session.post("https://cl4.jinc-jodhpur.com/common", headers=headers, data=payload)
+        response = session.post("https://cl4.jinc-jodhpur.com/common", headers=headers, data=json.dumps(payload))
 
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch Jinc Jodhpur batches")
