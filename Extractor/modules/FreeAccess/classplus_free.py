@@ -99,7 +99,6 @@ async def course_content(session, headers, batch_id, msg, folder_id="0", org_id=
             await format_urls(content_name, video_thumb, video_type)
         elif content_type == 3:
             print("----- > PDF")
-            p_count += 1
     return lectures, v_count, p_count
 
 
