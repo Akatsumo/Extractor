@@ -121,7 +121,7 @@ async def cdsjourney_access(_, message, user_id=None):
         msg = await msg.edit_text("📥 Extracting Course Content, Please Wait...")
 
         start_time = time.time()
-        lectures, v_count, p_count = await course_content(session, subjects, headers, msg)
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, subjects, headers, msg))
         end_time = time.time()
 
         if not lectures:
