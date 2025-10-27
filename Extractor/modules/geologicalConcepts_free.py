@@ -6,8 +6,6 @@ from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
 
-
-
 async def course_content(session, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(f"https://coral-app-eymnu.ondigitalocean.app/api/student/course/public/detail/{batch_id}")
@@ -20,12 +18,12 @@ async def course_content(session, batch_id, msg):
             title = lesson.get("lesson_title", "No Lesson Title")
             for c in lesson.get("lesson_contents", []):
                 if c.get("content_status") != "Queue" and c.get("content_url"):
-                    lectures.append(f"[{title}] {item.get('content_title','No Content')}: https://vz-c8c7763d-df6.b-cdn.net/{c['content_url']}/playlist.m3u8")
+                    lectures.append(f"{title}] | {item.get('content_title','No Content')}: https://vz-c8c7763d-df6.b-cdn.net/{c['content_url']}/playlist.m3u8")
                     p_count += 1
                     
             for rc in lesson.get("lesson_recorded_classes", []):
                 if rc.get("content_status") != "Queue" and rc.get("recording_url"):
-                    lectures.append(f"[{title}] {rc.get('topic','No Topic')}: https://vz-c8c7763d-df6.b-cdn.net/{rc['recording_url']}/playlist.m3u8")
+                    lectures.append(f"{title}] | {rc.get('topic','No Topic')}: https://vz-c8c7763d-df6.b-cdn.net/{rc['recording_url']}/playlist.m3u8")
                     p_count += 1
         
 
