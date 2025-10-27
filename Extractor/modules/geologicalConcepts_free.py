@@ -38,10 +38,6 @@ async def geologicalConcepts_access(_, message, user_id=None):
 
     try:
         msg = await message.reply_text("Fetching All Geological Concepts Batches. Please Wait...")
-        input1 = await app.listen(user_id=user_id, timeout=30)
-        keyword_str = input1.text.strip()
-        await input1.delete()
-
         api_url = f"https://coral-app-eymnu.ondigitalocean.app/api/student/course/public/list"
         response = session.get(api_url)
         if response.status_code != 200:
