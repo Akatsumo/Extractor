@@ -88,7 +88,7 @@ async def geologicalConcepts_access(_, message, user_id=None):
 
         elapsed = main_func.get_time(end_time - start_time)
         caption = (
-            f"**App Name** : `Study IQ`\n"
+            f"**App Name** : `Geological Concepts`\n"
             f"**Batch Name** : `{batch_name}`\n\n"
             f"📜 **Total Materials** : `{len(lectures)}`\n"
             f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
