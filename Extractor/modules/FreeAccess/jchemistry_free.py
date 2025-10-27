@@ -106,7 +106,7 @@ async def jchemistry_access(_, message, user_id=None):
         if not batch_name:
             return await msg.edit_text("Invalid Batch ID. Please try again.")
 
-        await msg.edit_text(f"📥 Extracting **{batch_name}** content. Please wait...")
+        await msg.edit_text(f"📥 Extracting Course Content, Please Wait...")
 
         start_time = time.time()
         lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
