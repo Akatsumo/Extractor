@@ -20,7 +20,7 @@ async def course_content(session, batch_id, msg):
             title = lesson.get("lesson_title", "No Lesson Title")
             for c in lesson.get("lesson_contents", []):
                 if c.get("content_status") != "Queue" and c.get("content_url"):
-                    lectures.append(f"[{title}] {item.get('content_title','No Content')}: https://vz-c8c7763d-df6.b-cdn.net/{c['recording_url']}/playlist.m3u8")
+                    lectures.append(f"[{title}] {item.get('content_title','No Content')}: https://vz-c8c7763d-df6.b-cdn.net/{c['content_url']}/playlist.m3u8")
                     p_count += 1
                     
             for rc in lesson.get("lesson_recorded_classes", []):
