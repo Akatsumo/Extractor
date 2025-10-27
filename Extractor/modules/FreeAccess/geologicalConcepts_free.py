@@ -10,24 +10,24 @@ from pyromod.exceptions import ListenerTimeout
 
 async def course_content(session, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
-    response_data = session.get(
-        f"https://backend.studyiq.net/app-content-ws/v2/course/getDetails?courseId={batch_id}",
-        headers=get_headers(session)
-    )
+    response_data = session.get(f"https://coral-app-eymnu.ondigitalocean.app/api/student/course/public/detail/{batch_id}")
     fetch_data = response_data.json().get("data", [])
     if not fetch_data:
         return lectures, v_count, p_count
         
     for item in fetch_data:
-        name = item.get("name", "")
-        video = item.get("videoUrl")
-        pdf = item.get("textUploadUrl")
-        if video:
-            v_count += 1
-            lectures.append(f"{name}: {video}")
-        if pdf:
-            p_count += 1
-            lectures.append(f"{name}: {pdf}")
+        for lesson in item.get("lessons", []):
+            title = lesson.get("lesson_title", "No Lesson Title")
+            for c in lesson.get("lesson_contents", []):
+                if c.get("content_status") != "Queue" and c.get("content_url"):
+                    lectures.append(f"[{title}] {item.get('content_title','No Content')}: https://vz-c8c7763d-df6.b-cdn.net/{c['recording_url']}/playlist.m3u8")
+                    p_count += 1
+                    
+            for rc in lesson.get("lesson_recorded_classes", []):
+                if rc.get("content_status") != "Queue" and rc.get("recording_url"):
+                    lectures.append(f"[{title}] {rc.get('topic','No Topic')}: https://vz-c8c7763d-df6.b-cdn.net/{rc['recording_url']}/playlist.m3u8")
+                    p_count += 1
+        
 
     return lectures, v_count, p_count
 
@@ -37,15 +37,15 @@ async def geologicalConcepts_access(_, message, user_id=None):
     session = requests.Session()
 
     try:
-        msg = await message.reply_text("Enter a StudyIQ keyword\nExample: upsc, books etc.")
+        msg = await message.reply_text("Fetching All Geological Concepts Batches. Please Wait...")
         input1 = await app.listen(user_id=user_id, timeout=30)
         keyword_str = input1.text.strip()
         await input1.delete()
 
-        api_url = f"https://www.studyiq.net/api/web/searchbycourses?keyword={keyword_str}"
+        api_url = f"https://coral-app-eymnu.ondigitalocean.app/api/student/course/public/list"
         response = session.get(api_url)
         if response.status_code != 200:
-            return await msg.edit_text("Failed to fetch StudyIQ batches")
+            return await msg.edit_text("Failed to fetch Geological Concepts batches")
 
         data = response.json().get("data", [])
         if not data:
@@ -53,7 +53,7 @@ async def geologicalConcepts_access(_, message, user_id=None):
 
         batch_list = "📚 **Available Batches:**\n\n"
         for course in data:
-            batch_list += f"`{course.get('course_id')}` - **{course.get('course_title')}**\n"
+            batch_list += f"`{course.get('course_id')}` - **{course.get('title')}**\n"
             
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
@@ -74,7 +74,7 @@ async def geologicalConcepts_access(_, message, user_id=None):
         if batch_file:
             await batch_file.delete()
 
-        batch_name = next((course["course_title"] for course in data if str(course["course_id"]) == batch_id), None)
+        batch_name = next((course["title"] for course in data if str(course["course_id"]) == batch_id), None)
         if not batch_name:
             return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
