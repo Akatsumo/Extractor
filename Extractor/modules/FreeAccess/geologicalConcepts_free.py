@@ -1,11 +1,10 @@
+
 import os, time
 import asyncio
 import requests 
 from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
-
-
 
 
 async def course_content(session, batch_id, msg):
@@ -20,12 +19,12 @@ async def course_content(session, batch_id, msg):
             title = lesson.get("lesson_title", "No Lesson Title")
             for c in lesson.get("lesson_contents", []):
                 if c.get("content_status") != "Queue" and c.get("content_url"):
-                    lectures.append(f"[{title}] {item.get('content_title','No Content')}: https://vz-c8c7763d-df6.b-cdn.net/{c['recording_url']}/playlist.m3u8")
+                    lectures.append(f"{title}] | {item.get('content_title','No Content')}: https://vz-c8c7763d-df6.b-cdn.net/{c['content_url']}/playlist.m3u8")
                     p_count += 1
                     
             for rc in lesson.get("lesson_recorded_classes", []):
                 if rc.get("content_status") != "Queue" and rc.get("recording_url"):
-                    lectures.append(f"[{title}] {rc.get('topic','No Topic')}: https://vz-c8c7763d-df6.b-cdn.net/{rc['recording_url']}/playlist.m3u8")
+                    lectures.append(f"{title}] | {rc.get('topic','No Topic')}: https://vz-c8c7763d-df6.b-cdn.net/{rc['recording_url']}/playlist.m3u8")
                     p_count += 1
         
 
@@ -38,10 +37,6 @@ async def geologicalConcepts_access(_, message, user_id=None):
 
     try:
         msg = await message.reply_text("Fetching All Geological Concepts Batches. Please Wait...")
-        input1 = await app.listen(user_id=user_id, timeout=30)
-        keyword_str = input1.text.strip()
-        await input1.delete()
-
         api_url = f"https://coral-app-eymnu.ondigitalocean.app/api/student/course/public/list"
         response = session.get(api_url)
         if response.status_code != 200:
@@ -105,4 +100,6 @@ async def geologicalConcepts_access(_, message, user_id=None):
     except ListenerTimeout:
         await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"Error: `{e}`")
+
+
