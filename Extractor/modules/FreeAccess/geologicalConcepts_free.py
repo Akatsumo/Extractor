@@ -54,7 +54,7 @@ async def geologicalConcepts_access(_, message, user_id=None):
         batch_file = None
         
         if len(batch_list) > 4000:
-            batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
+            batch_list_name = f"GeologicalConcepts_batchList_{user_id}.txt"
             with open(batch_list_name, "w", encoding="utf-8") as f:
                 f.write(batch_list)
             batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
