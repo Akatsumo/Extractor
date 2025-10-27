@@ -1,5 +1,5 @@
 from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, cdsjourney
-from Extractor.modules import cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, testpaper_free, jincjodhpur_free, careewill_free
+from Extractor.modules import cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, testpaper_free, jincjodhpur_free, careewill_free, geologicalConcepts_free
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
@@ -23,6 +23,7 @@ WithoutAppDict = {
     "wtestpaper_": {"name": "Test Paper", "func": testpaper_free.testpaper_access},
     "wjincjodhpur_": {"name": "Jinc Jodhpur", "func": jincjodhpur_free.jincJodhpur_access},
     "wcareerwill_": {"name": "Careerwill", "func": careewill_free.careerwill_access},
+    "wgeologicalConcepts_": {"name": "Geological Concepts", "func": geologicalConcepts_free.geologicalConcepts_access},
 }
 
 videoCryptDict = {
