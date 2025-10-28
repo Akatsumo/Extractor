@@ -58,7 +58,7 @@ async def selectionWay_access(_, message, user_id=None):
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch StudyIQ batches")
 
-        batch_data = response.json()get("data", {}).get("courses", [])
+        batch_data = response.json().get("data", {}).get("courses", [])
         if not batch_data:
             return await msg.edit_text("No course data found.")
 
