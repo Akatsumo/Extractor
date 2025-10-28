@@ -88,7 +88,7 @@ async def jincJodhpur_access(_, message, user_id=None):
 
         file_name = f"{batch_name.replace('/', '_')}_{user_id}.txt"
         with open(file_name, "w", encoding="utf-8") as f:
-            f.write("\n".join(lectures[::-1]))
+            f.write("\n".join(lectures))
 
         elapsed = main_func.get_time(end_time - start_time)
         caption = (
