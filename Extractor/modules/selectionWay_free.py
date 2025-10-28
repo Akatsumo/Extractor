@@ -45,7 +45,7 @@ async def selectionWay_access(_, message, user_id=None):
             [InlineKeyboardButton("🔴 Live", callback_data="data_live")]
         ])
         mm = await message.reply_text("🕹 Select Selection Way Batches Mode 👇\n\nLive\nRecording", reply_markup=buttons)
-        r = await mm.wait_for_click(user_id=user_id, timeout=30)
+        r = await mm.wait_for_click(from_user_id=user_id)
         await mm.delete()
         if r.data == 'data_live':
           data.update({"isLive": True})
