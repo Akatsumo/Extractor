@@ -54,7 +54,7 @@ async def course_extract(session, api, headers, token, course_id):
                     ]:
                         if data.get(pdf_link):
                             p_count += 1
-                            doc_url = appx_decrypt(data.get(pdf_link))
+                            doc_url = main_func.appx_decrypt(data.get(pdf_link))
                             parsed = urlparse(doc_url)
                             pdf_url = f"https://{domain_map.get(parsed.netloc, parsed.netloc)}{parsed.path}"
 
@@ -71,7 +71,7 @@ async def course_extract(session, api, headers, token, course_id):
                     if data.get("ytFlag") == 0:
                         durl = f"https://{api}/appx/{data.get('id')}.{course_id}.1.zip?token={token}"
                     elif data.get("ytFlag") == 1 and data.get("file_link"):
-                        durl = appx_decrypt(data.get("file_link"))
+                        durl = main_func.appx_decrypt(data.get("file_link"))
 
                     if durl:
                         lectures.append(f"{title}: {durl}")
@@ -212,7 +212,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
             ]:
                 if data.get(pdf_link):
                     p_count += 1
-                    doc_url = appx_decrypt(data.get(pdf_link))
+                    doc_url = main_func.appx_decrypt(data.get(pdf_link))
                     parsed = urlparse(doc_url)
                     pdf_url = (
                         f"https://{domain_map[parsed.netloc]}{parsed.path}"
@@ -234,7 +234,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
                 durl = f"https://{api}/appx/{data.get('id')}.{course_id}.1.zip?token={token}"
 
             elif data.get("ytFlag") == 1 and data.get("file_link"):
-                durl = appx_decrypt(data.get("file_link"))
+                durl = main_func.appx_decrypt(data.get("file_link"))
 
             if durl:
                 video_url = f"{title}: {durl}"
