@@ -108,10 +108,11 @@ async def appex_v3_txt(app, message, user_id, api, name):
                 userid, token = output["data"]["userid"], output["data"]["token"]
                 if not token or not userid:
                     return await msg.edit_text("😒 **Invalid response from API.**")
-                headers.update({"User-Id": userid, "Authorization": token})      
-               
-            token = input1.text.strip()
+                headers.update({"User-Id": userid, "Authorization": token}) 
+            else:
+                token = input1.text.strip()
             await input1.delete()
+                
             headers.update({"Authorization": token})
             if len(token) <= 100:  
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
@@ -282,7 +283,6 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
                     headers.update({"User-Id": str(userid), "Authorization": token})
                 else:
                     token = input1.text.strip()
-
                 await input1.delete()
 
             headers.update({"Authorization": token})
@@ -290,7 +290,7 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
             if len(token) <= 100:  
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
             else:
-                await msg.edit_text("✅ **Login Successful.**")
+                await msg.edit_text("✅ **Login Successful**")
 
             response = await session.get(f"https://{api}/get/get_all_purchases?userid&item_type=10", headers=headers)
             if response.status != 200:
