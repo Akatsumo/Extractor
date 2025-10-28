@@ -39,6 +39,7 @@ async def course_extract(session, api, headers, token, course_id):
 
             output_topic = json.loads(await response.read()).get("data", [])
             for data in output_topic:
+                print(data)
                 title = data.get("Title", "Unknown Title")
                 material_type = data.get("material_type", "")
 
