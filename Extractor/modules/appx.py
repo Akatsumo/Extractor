@@ -18,7 +18,7 @@ async def course_extract(session, api, headers, token, course_id):
     if response.status != 200:
         return lectures, v_count, p_count
 
-    subject_output = (await response.json()).get("data", [])
+    subject_output = json.loads(await response.read()).get("data", [])
     if not subject_output:
         return lectures, v_count, p_count
 
@@ -27,7 +27,7 @@ async def course_extract(session, api, headers, token, course_id):
         if response.status != 200:
             continue
 
-        output_data = (await response.json()).get("data", [])
+        output_data = json.loads(await response.read()).get("data", [])
         for data in output_data:
             topic_id = data.get("topicid")
             response = await session.get(
@@ -37,7 +37,7 @@ async def course_extract(session, api, headers, token, course_id):
             if response.status != 200:
                 continue
 
-            output_topic = (await response.json()).get("data", [])
+            output_topic = json.loads(await response.read()).get("data", [])
             for data in output_topic:
                 title = data.get("Title", "Unknown Title")
                 material_type = data.get("material_type", "")
@@ -119,7 +119,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
                 await msg.edit_text("✅ **Login Successful.**")
            
             response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
-            batch_data = (await response.json()).get("data", [])
+            batch_data = json.loads(await response.read()).get("data", [])
             if not batch_data:
                 await appex_v2_txt(app, message, user_id, api, name, token, msg)
                 return
