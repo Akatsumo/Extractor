@@ -14,7 +14,7 @@ async def course_content(session, batch_id, msg):
     if not topics_data:
         return lectures, v_count, p_count
         
-    for topics in topics_data:
+    for topic in topics_data:
         topic_name = topic.get("topicName", "Unknown Topic")
         for cls in topic.get("classes", []):
           title = cls.get("title", "No Title")
