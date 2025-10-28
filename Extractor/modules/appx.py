@@ -12,110 +12,81 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # --------------------------- Appex-V3 --------------------------- #
 
 async def course_extract(session, api, headers, token, course_id):
-    try:        
-        lectures = []  
-        response = await session.get(f"https://{api}/get/allsubjectfrmlivecourseclass?courseid={course_id}", headers=headers)
-        subject_output = json.loads(await response.read()).get("data", [])
-        
-        for subject in subject_output: 
-            response = await session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject['subjectid']}", headers=headers)
-            output_data = json.loads(await response.read()).get("data", [])
-                            
-            for data in output_data:
-                topic_id = data.get("topicid")
-                response = await session.get(f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={topic_id}&start=-1&courseid={course_id}&subjectid={subject['subjectid']}", headers=headers)
-                output_topic = json.loads(await response.read()).get("data", [])
-                                         
-                for data in output_topic:
-                    try:
-                        title = data.get("Title", "Unknown Title")
-                        material_type = data.get("material_type", "")
-                        pdf_link = data.get("pdf_link", "")
-                        pdf_key = data.get("pdf_encryption_key", "")
-                        
-                        if material_type == "PDF" and pdf_link:
-                            try:
-                                pdf = appx_decrypt(pdf_link.split(":")[0])
-                                if pdf_key:
-                                    pdf_key = appx_decrypt(pdf_key.split(":")[0])
-                                    lectures.append(f"{title}: {pdf}*{pdf_key}")
-                                else:
-                                    lectures.append(f"{title}: {pdf}")
-                            except Exception as decrypt_error:
-                                print(f"Error decrypting PDF for {title}: {decrypt_error}")
-                    
-                        elif material_type == "VIDEO":
-                            url = f"https://{api}/get/fetchVideoDetailsById"
-                            params = {
-                                "course_id": course_id,
-                                "video_id": data.get("id"),
-                                "ytflag": data.get("ytFlag"),
-                                "folder_wise_course": data.get("folder_wise_course")
-                            }
-                            video_headers = {
-                                "Host": api,
-                                "Authorization": token,
-                                "Auth-Key": "appxapi",
-                                "User-ID": "",
-                                "User-Agent": "Mozilla/5.0 (Linux; Android 15; CPH2585) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.135 Mobile Safari/537.36"
-                            }
-                            response = await session.get(url, headers=video_headers, params=params)
-                            output = (await response.json()).get("data", {})                    
-                        
-                            if not output:
-                                continue
-                        
-                            title = output.get("Title", "Unknown Video")
-                            encrypted_links = output.get("encrypted_links", [])
-                            video_path, video_key = None, None
-                        
-                            try:
-                                if encrypted_links:
-                                    encrypted_video = encrypted_links[0].get("path")
-                                    encrypted_key = encrypted_links[0].get("key")
-                                    video_path = appx_decrypt(encrypted_video.split(":")[0]) if encrypted_video else ""
-                                    video_key = appx_decrypt(encrypted_key.split(":")[0]) if encrypted_key else ""      
-                            except Exception as decrypt_error:
-                                print(f"Error decrypting video for {title}: {decrypt_error}")
-                        
-                            pdf_link = output.get("pdf_link", "")
-                            pdf_key = output.get("pdf_encryption_key", "")
-                        
-                            try:
-                                pdf_link = appx_decrypt(pdf_link.split(":")[0]) if pdf_link else None
-                                pdf_key = appx_decrypt(pdf_key.split(":")[0]) if pdf_key else None
-                            except Exception as decrypt_error:
-                                print(f"Error decrypting PDF for {title}: {decrypt_error}")
-                                pdf_link, pdf_key = None, None
-                        
-                            video_info = f"{title}: {video_path}*{video_key}" if video_path and video_key else f"{title}: {video_path}" if video_path else ""
-                            pdf_info = f"{title}: {pdf_link}*{pdf_key}" if pdf_link and pdf_key else f"{title}: {pdf_link}" if pdf_link else ""
-                        
-                            if video_info and pdf_info:
-                                lectures.append(f"{video_info}\n{pdf_info}")
-                            elif video_info:
-                                lectures.append(video_info)
-                            elif pdf_info:
-                                lectures.append(pdf_info)
-                   #     else:
-                   #         lectures.append(title)
-                    except Exception as e:
-                        print(f"Error processing item {data}: {e}")
-                        continue
-                           
-        return lectures
-    except Exception as e:
-        print(f"Error in course content function: {e}")
-        return []
+    lectures, v_count, p_count = [], 0, 0
+
+    response = await session.get(f"https://{api}/get/allsubjectfrmlivecourseclass?courseid={course_id}", headers=headers)
+    if response.status != 200:
+        return lectures, v_count, p_count
+
+    subject_output = (await response.json()).get("data", [])
+    if not subject_output:
+        return lectures, v_count, p_count
+
+    for subject in subject_output:
+        response = await session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject['subjectid']}", headers=headers)
+        if response.status != 200:
+            continue
+
+        output_data = (await response.json()).get("data", [])
+        for data in output_data:
+            topic_id = data.get("topicid")
+            response = await session.get(
+                f"https://{api}/get/livecourseclassbycoursesubtopconceptapiv3?topicid={topic_id}&start=-1&courseid={course_id}&subjectid={subject['subjectid']}",
+                headers=headers
+            )
+            if response.status != 200:
+                continue
+
+            output_topic = (await response.json()).get("data", [])
+            for data in output_topic:
+                title = data.get("Title", "Unknown Title")
+                material_type = data.get("material_type", "")
+
+                if material_type == "PDF":
+                    domain_map = {
+                        "static-db-v2.appx.co.in": "appx-content-v2.classx.co.in",
+                        "static-db.appx.co.in": "appxcontent.kaxa.in"
+                    }
+
+                    for pdf_link, is_encrypted_key, encryption_key, encryption_version in [
+                        ("pdf_link", "is_pdf_encrypted", "pdf_encryption_key", "pdf_encryption_version"),
+                        ("pdf_link2", "is_pdf2_encrypted", "pdf2_encryption_key", "pdf2_encryption_version"),
+                    ]:
+                        if data.get(pdf_link):
+                            p_count += 1
+                            doc_url = appx_decrypt(data.get(pdf_link))
+                            parsed = urlparse(doc_url)
+                            pdf_url = f"https://{domain_map.get(parsed.netloc, parsed.netloc)}{parsed.path}"
+
+                            if data.get(is_encrypted_key) == "1" and data.get(encryption_key):
+                                pdf_key = data.get(encryption_key)
+                                lectures.append(f"{title}: {pdf_url}*{pdf_key}")
+                            else:
+                                lectures.append(f"{title}: {pdf_url}")
+
+                elif material_type == "VIDEO":
+                    v_count += 1
+                    durl = None
+
+                    if data.get("ytFlag") == 0:
+                        durl = f"https://{api}/appx/{data.get('id')}.{course_id}.1.zip?token={token}"
+                    elif data.get("ytFlag") == 1 and data.get("file_link"):
+                        durl = appx_decrypt(data.get("file_link"))
+
+                    if durl:
+                        lectures.append(f"{title}: {durl}")
+
+    return lectures, v_count, p_count
 
 
 
 
+
+# --------------------------- Appex-Version 3 --------------------------- #
 
 async def appex_v3_txt(app, message, user_id, api, name):
     try:
         async with aiohttp.ClientSession() as session:
-            login_url = f"https://{api}/post/userLogin"
             headers = {
                 "Auth-Key": "appxapi",
                 "User-Id": "",
@@ -125,77 +96,80 @@ async def appex_v3_txt(app, message, user_id, api, name):
                 "User-Agent": "okhttp/4.9.1"
             }
 
-            msg = await message.reply_text("**🔑 For access, please transmit your ID & Password in the correct sequence:\n\n🔒 Send like this: ID*Password**")                                     
-            try:
-                input1 = await app.listen(user_id=user_id, timeout=30)
-                if "*" in input1.text:
-                    email, password = input1.text.split("*")
-                    response = await session.post(login_url, data={"email": email, "password": password}, headers=headers)
-                    if response.status != 200:
-                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            msg = await message.reply_text("🔑 Enter login credentials (Id*Password or Token):")                                     
+            input1 = await app.listen(user_id=user_id, timeout=30)
+            if "*" in input1.text:
+                email, password = input1.text.split("*")
+                response = await session.post(f"https://{api}/post/userLogin", data={"email": email, "password": password}, headers=headers)
+                if response.status != 200:
+                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-                    output = await response.json()
-                    userid, token = output["data"]["userid"], output["data"]["token"]
-                    headers.update({"User-Id": userid, "Authorization": token})      
-                else:
-                    token = input1.text.strip()
-            except:
-                return await message.reply_text("⏳ Timeout! Please try again.")
-
+                output = await response.json()
+                userid, token = output["data"]["userid"], output["data"]["token"]
+                if not token or not userid:
+                    return await msg.edit_text("😒 **Invalid response from API.**")
+                headers.update({"User-Id": userid, "Authorization": token})      
+               
+            token = input1.text.strip()
             await input1.delete()
             headers.update({"Authorization": token})
-            await msg.edit_text("✅ **Login Successful**")
-
+            if len(token) <= 100:  
+                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            else:
+                await msg.edit_text("✅ **Login Successful.**")
+           
             response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
-            batch_data = json.loads(await response.read()).get("data", [])
+            batch_data = (await response.json()).get("data", [])
             if not batch_data:
                 await appex_v2_txt(app, message, user_id, api, name, token, msg)
                 return
                 
-            batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
-            batch_map = {}
+            batch_list = "📚 **Available Batches:**\n\n"
             for data in batch_data:
-                batch_list += f"`{data['id']}`  -   **{data['course_name']}**\n\n"
-                batch_map[data['id']] = data['course_name']
+                batch_list += f"`{data['id']}`  -   **{data['course_name']}**\n"
 
-            await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
-            input2 = await app.listen(user_id=user_id)
+            await msg.edit_text(f"{batch_list}\n**📊 Now send the Batch ID to Download**")
+            input2 = await app.listen(user_id=user_id, timeout=30)
             course_id = input2.text.strip()
             await input2.delete()
 
-            batch_name = batch_map.get(course_id, "Unknown Batch")
+            batch_name = next((course["course_name"] for course in batch_data if str(course["id"]) == course_id), None)
+            if not batch_name:
+                return await msg.edit_text("Invalid Batch ID. Please try again.")
+                
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
             start_time = time.time()
-            lectures = await asyncio.create_task(course_extract(session, api, headers, token, course_id))                                   
+            lectures, v_count, p_count = await asyncio.create_task(course_extract(session, api, headers, token, course_id))                                   
             end_time = time.time()
-            duration_seconds = end_time - start_time
-            elapsed = get_time(duration_seconds)
+
+            if not lectures:
+                return await msg.edit_text("No batch content found.")
 
             file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w") as f:
                 f.write("\n".join(lectures))
 
-            caption = f"**App Name** : `{name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`"
-            me = await app.get_me()
-            big_file_id = me.photo.big_file_id
-            thumb = await asyncio.create_task(app.download_media(big_file_id))
+            elapsed = main_func.get_time(end_time - start_time)
+            caption = (
+                f"**App Name** : `{name.title()}`\n"
+                f"**Batch Name** : `{batch_name}`\n\n"
+                f"📜 **Total Materials** : `{len(lectures)}`\n"
+                f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
+                f"⌚️ **Time Taken** : `{elapsed}`"
+            )
 
-            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-            os.remove(file_name)
+            await main_func.send_file(app, file_name, user_id, caption)
             await msg.delete()
-            await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
         await session.close()
+    except ListenerTimeout:
+        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
     except Exception as e:
         await message.reply_text(f"Error: `{str(e)}`")
 
 
-            
-
-
-
-
+    
 # --------------------------- Appex-V2-Course-Content --------------------------- #
 
 async def course_content(session, api, headers, token, course_id, parent_id=-1):
@@ -209,7 +183,7 @@ async def course_content(session, api, headers, token, course_id, parent_id=-1):
     if response.status != 200:
         return lectures, v_count, p_count
 
-    data_list = await response.json().get("data", [])
+    data_list = (await response.json()).get("data", [])
     if not data_list:
         return lectures, v_count, p_count
 
