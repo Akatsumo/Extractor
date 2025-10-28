@@ -25,7 +25,7 @@ WithoutAppDict = {
     "wjincjodhpur_": {"name": "Jinc Jodhpur", "func": jincjodhpur_free.jincJodhpur_access},
     "wcareerwill_": {"name": "Careerwill", "func": careewill_free.careerwill_access},
     "wgeologicalConcepts_": {"name": "Geological Concepts", "func": geologicalConcepts_free.geologicalConcepts_access},
-    # "wselectionway_": {"name": "Selection Way", "func": selectionWay_free.selectionWay_access},
+    "wselectionway_": {"name": "Selection Way", "func": selectionWay_free.selectionWay_access},
 }
 
 videoCryptDict = {
