@@ -9,39 +9,7 @@ from Crypto.Util.Padding import unpad, pad
 from pyrogram.errors import UserNotParticipant
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# --------------------------------------------------------------------------- #
 
-async def send_file(app, file_name, user_id, caption, thumb=None, onlyThumb=False):
-    if not thumb:
-        me = await app.get_me()
-        thumb = await asyncio.create_task(app.download_media(me.photo.big_file_id)) if me.photo else None
-        
-    if onlyThumb:
-        return thumb
-        
-    if LOGS_CHANNEL:
-        try:
-            await app.send_document(chat_id=LOGS_CHANNEL, document=file_name, caption=caption, thumb=thumb)
-            print("Successfully sent TXT to Log Channel")
-        except Exception as e:
-            print(f"Failed to send message to log channel: {e}")
-            pass
-
-    with open(file_name, "r+", encoding="utf-8") as f:
-        data = [
-            (line.split(':', 1)[1], line.split(':', 1)[0])
-            for line in f if ':' in line
-        ]
-        f.seek(0)
-        f.truncate()
-        f.writelines(f"{name} : https://Diablo${encrypt(KEY, IV, url)}\n" for url, name in data)
-    await app.send_document(chat_id=user_id, document=file_name, caption=caption, thumb=thumb)
-    os.remove(file_name)
-    if thumb and os.path.exists(thumb):
-        os.remove(thumb)
-    return True
-
-   
 # --------------------------------------------------------------------------- #
 
 async def gen_link(app,chat_id):
@@ -205,9 +173,38 @@ def jwt_decoder(token):
         return {"error": str(e)}
 
 # --------------------------------------------------------------------------- #
+KEY = b"\x9a\x7c\x13\x5e\xaa\x42\xd4\x88\xf3\x60\xbe\x1c\x74\x2e\x91\x59"
+IV  = b"\x23\xb7\xf5\x8d\x60\x1a\x94\xcf\x72\x38\xe4\x0b\xd9\x5f\xae\x6c"
 
+async def send_file(app, file_name, user_id, caption, thumb=None, onlyThumb=False):
+    if not thumb:
+        me = await app.get_me()
+        thumb = await asyncio.create_task(app.download_media(me.photo.big_file_id)) if me.photo else None
+        
+    if onlyThumb:
+        return thumb
+        
+    if LOGS_CHANNEL:
+        try:
+            await app.send_document(chat_id=LOGS_CHANNEL, document=file_name, caption=caption, thumb=thumb)
+            print("Successfully sent TXT to Log Channel")
+        except Exception as e:
+            print(f"Failed to send message to log channel: {e}")
+            pass
 
-
+    with open(file_name, "r+", encoding="utf-8") as f:
+        data = [
+            (line.split(':', 1)[1], line.split(':', 1)[0])
+            for line in f if ':' in line
+        ]
+        f.seek(0)
+        f.truncate()
+        f.writelines(f"{name} : https://Diablo${encrypt(KEY, IV, url)}\n" for url, name in data)
+    await app.send_document(chat_id=user_id, document=file_name, caption=caption, thumb=thumb)
+    os.remove(file_name)
+    if thumb and os.path.exists(thumb):
+        os.remove(thumb)
+    return True
 
 
 # --------------------------------------------------------------------------- #
