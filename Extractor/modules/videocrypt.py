@@ -47,6 +47,11 @@ def header_definer(name):
         version = "59"
         appid = "263"
         return authorization, version, appid
+    elif name == "mypathsala":
+        authorization = "Bearer 01*#NerglnwwebOI)30@I*Dm'@@"
+        version = "59"
+        appid = "810"
+        return authorization, version, appid
         
     else:
         return None, None, None
