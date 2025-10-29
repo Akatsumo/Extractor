@@ -173,8 +173,8 @@ def jwt_decoder(token):
         return {"error": str(e)}
 
 # --------------------------------------------------------------------------- #
-KEY = b"\x9a\x7c\x13\x5e\xaa\x42\xd4\x88\xf3\x60\xbe\x1c\x74\x2e\x91\x59"
-IV  = b"\x23\xb7\xf5\x8d\x60\x1a\x94\xcf\x72\x38\xe4\x0b\xd9\x5f\xae\x6c"
+KEY = "Q7x9aW3pN6rT2yV8cJ5kL1zB0dH4mR7s"
+IV  = "P4qT7wY2eU9oK5nL"
 
 async def send_file(app, file_name, user_id, caption, thumb=None, onlyThumb=False):
     if not thumb:
