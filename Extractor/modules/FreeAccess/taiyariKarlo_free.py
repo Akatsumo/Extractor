@@ -43,10 +43,11 @@ async def course_content(session, base_url, batch_id, msg):
           hls_url = class.get("fields").get('hlsUrl', {}).get('stringValue', '')
           zw_url = class.get("fields").get('zw_media_url', {}).get('stringValue', '')
           recordings = class.get("fields").get('recordings', {}).get('arrayValue', {}).get('values', [])
-          
-          lectures.append(f"{lesson_name} | {class_title}: {}")
+          url = hls_url if hls_url else zw_url
+          lectures.append(f"{lesson_name} | {class_title}: {url}")
         
     return lectures, v_count, p_count
+
 
 
 async def taiyarKarlo_access(_, message, user_id=None):
