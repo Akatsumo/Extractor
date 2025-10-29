@@ -1,6 +1,6 @@
 from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, cdsjourney
 from Extractor.modules import (cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, 
-testpaper_free, jincjodhpur_free, careewill_free, geologicalConcepts_free, selectionWay_free)
+testpaper_free, jincjodhpur_free, careewill_free, geologicalConcepts_free, selectionWay_free, taiyariKarlo_free)
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 appNameDict = {
@@ -26,6 +26,7 @@ WithoutAppDict = {
     "wcareerwill_": {"name": "Careerwill", "func": careewill_free.careerwill_access},
     "wgeologicalConcepts_": {"name": "Geological Concepts", "func": geologicalConcepts_free.geologicalConcepts_access},
     "wselectionway_": {"name": "Selection Way", "func": selectionWay_free.selectionWay_access},
+    "wtaiyarikrlo_": {"name": "Taiyari Krlo", "func": taiyariKarlo_free.taiyarKarlo_access},
 }
 
 videoCryptDict = {
