@@ -58,7 +58,7 @@ async def taiyarKarlo_access(_, message, user_id=None):
     try:
         msg = await message.reply_text("Fetching Taiyari Karlo All Batches, Please Wait...")
         base_url = "https://firestore.googleapis.com/v1/projects/taiyari-karlo/databases/(default)/documents/courses"
-        response = session.get(base_url)
+        response = session.get(f"{base_url}?pageSize=5000")
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch Taiyari Krlo batches")
 
