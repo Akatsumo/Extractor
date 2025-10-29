@@ -37,4 +37,5 @@ videoCryptDict = {
     "rankbuddy_": {"name": "Rank Buddy", "func": videocrypt},
     "rajputtutorials_": {"name": "Rajput Tutorials", "func": videocrypt},
     "pateltutorials_": {"name": "Patel Tutorials", "func": videocrypt},
+    "mypathsala_": {"name": "My Pathsala", "func": videocrypt},
 }
