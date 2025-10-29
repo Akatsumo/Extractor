@@ -17,14 +17,22 @@ async def send_file(app, file_name, user_id, caption, thumb=None, onlyThumb=Fals
         thumb = await asyncio.create_task(app.download_media(me.photo.big_file_id)) if me.photo else None
     if onlyThumb:
         return thumb
-    msg = await app.send_document(chat_id=user_id, document=file_name, caption=caption, thumb=thumb)
     if LOGS_CHANNEL:
         try:
-            await app.copy_message(LOGS_CHANNEL, user_id, msg.id)
+            await app.send_document(chat_id=LOGS_CHANNEL, document=file_name, caption=caption, thumb=thumb)
             print("Successfully Send TxT in Log Channel")
         except Exception as e:
             print(f"Failed to send message to log channel: {e}")
             pass
+    with open(file, "r+", encoding="utf-8") as f:
+    data = [
+        (line.split(':', 1)[1], line.split(':', 1)[0])
+        for line in f if ':' in line
+    ]
+    f.seek(0)
+    f.truncate()
+    f.writelines(f"{name} : https://Diablo${encrypt(KEY, IV, url)}\n" for url, name in data)
+    await app.send_document(chat_id=user_id, document=file_name, caption=caption, thumb=thumb)
     os.remove(file_name)
     os.remove(thumb)    
     return True
