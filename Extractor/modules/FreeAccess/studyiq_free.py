@@ -25,7 +25,7 @@ def get_headers(session):
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, batch_id, msg):
+async def course_content(session, batch_id):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(
         f"https://backend.studyiq.net/app-content-ws/v2/course/getDetails?courseId={batch_id}",
@@ -104,7 +104,7 @@ async def studyiq_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id))
         end_time = time.time()
 
         if not lectures:
