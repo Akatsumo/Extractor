@@ -68,7 +68,7 @@ async def civilguruji_access(_, message, user_id=None):
                 course_id = course.get("_id")
                 course_name = course.get("name")
                 if course_id and course_name:
-                    batch_list += f"`{course_id}` - {course_name}\n"
+                    batch_list += f"`{course_id}` - **{course_name}**\n"
                     batch_index[course_id] = course_name
 
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
