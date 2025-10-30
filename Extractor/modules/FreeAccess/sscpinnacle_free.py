@@ -74,7 +74,7 @@ async def sscpinnacle_access(_, message, user_id=None):
           
         await msg.edit_text(f"**Fetching All SSC Pinnacle {categorie_name} Batches, Please Wait..**")
 
-        response = session.get(f"https://auth.ssccglpinnacle.com/mpc/courses?category={categorie_name}")
+        response = session.get(f"https://auth.ssccglpinnacle.com/mpc/courses?category=SSC")
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch SSC Pinnacle batches")
 
