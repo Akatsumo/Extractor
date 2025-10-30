@@ -1,6 +1,7 @@
-from Extractor.modules import FreeAccess
-from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, cdsjourney
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, cdsjourney
+from Extractor.modules.FreeAccess import (cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, 
+testpaper_free, jincjodhpur_free, careewill_free, geologicalConcepts_free, selectionWay_free, taiyariKarlo_free)
 
 appNameDict = {
     # "utkarsh_": {"name": "Utkarsh", "func": utkarsh.handle_utk_logic},
@@ -15,17 +16,17 @@ appNameDict = {
 }
 
 WithoutAppDict = {
-    "wcdsjourney_": {"name": "Cds Journey", "func": FreeAccess.cdsjourney_free.cdsjourney_access},
-    "wclassplus_": {"name": "Classplus", "func": FreeAccess.classplus_free.classplus_access},
-    "wcivilguruji_": {"name": "Civil Guruji", "func": FreeAccess.civilguruji_free.civilguruji_access},
-    "wstudyiq_": {"name": "Study IQ", "func": FreeAccess.studyiq_free.studyiq_access},
-    "wqualityEducation_": {"name": "Quality Education", "func": FreeAccess.qualityEducation_free.qualityEducation_access},
-    "wtestpaper_": {"name": "Test Paper", "func": FreeAccess.testpaper_free.testpaper_access},
-    "wjincjodhpur_": {"name": "Jinc Jodhpur", "func": FreeAccess.jincjodhpur_free.jincJodhpur_access},
-    "wcareerwill_": {"name": "Careerwill", "func": FreeAccess.careewill_free.careerwill_access},
-    "wgeologicalConcepts_": {"name": "Geological Concepts", "func": FreeAccess.geologicalConcepts_free.geologicalConcepts_access},
-    "wselectionway_": {"name": "Selection Way", "func": FreeAccess.selectionWay_free.selectionWay_access},
-    "wtaiyarikrlo_": {"name": "Taiyari Krlo", "func": FreeAccess.taiyariKarlo_free.taiyarKarlo_access},
+    "wcdsjourney_": {"name": "Cds Journey", "func": cdsjourney_free.cdsjourney_access},
+    "wclassplus_": {"name": "Classplus", "func": classplus_free.classplus_access},
+    "wcivilguruji_": {"name": "Civil Guruji", "func": civilguruji_free.civilguruji_access},
+    "wstudyiq_": {"name": "Study IQ", "func": studyiq_free.studyiq_access},
+    "wqualityEducation_": {"name": "Quality Education", "func": qualityEducation_free.qualityEducation_access},
+    "wtestpaper_": {"name": "Test Paper", "func": testpaper_free.testpaper_access},
+    "wjincjodhpur_": {"name": "Jinc Jodhpur", "func": jincjodhpur_free.jincJodhpur_access},
+    "wcareerwill_": {"name": "Careerwill", "func": careewill_free.careerwill_access},
+    "wgeologicalConcepts_": {"name": "Geological Concepts", "func": geologicalConcepts_free.geologicalConcepts_access},
+    "wselectionway_": {"name": "Selection Way", "func": selectionWay_free.selectionWay_access},
+    "wtaiyarikrlo_": {"name": "Taiyari Krlo", "func": taiyariKarlo_free.taiyarKarlo_access},
 }
 
 videoCryptDict = {
@@ -38,3 +39,6 @@ videoCryptDict = {
     "pateltutorials_": {"name": "Patel Tutorials", "func": videocrypt},
     "mypathsala_": {"name": "My Pathsala", "func": videocrypt},
 }
+
+
+
