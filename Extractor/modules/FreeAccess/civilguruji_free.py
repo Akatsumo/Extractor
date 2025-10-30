@@ -16,7 +16,7 @@ def clean_video_url(video_url):
     
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, batch_id, msg):
+async def course_content(session, batch_id):
     lectures, v_count, p_count = [], 0, 0
     url = f"https://civilguruji.com/api/course/getPreFetchedCourseData/{batch_id}"
     headers = {
@@ -97,7 +97,7 @@ async def civilguruji_access(_, message, user_id=None):
         msg = await message.reply_text(f"**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id))
         end_time = time.time()
         if not lectures:
             return await msg.edit_text("No Batch Content found.")
