@@ -13,7 +13,7 @@ async def sumit_boot():
     for all_module in ALL_MODULES:
         importlib.import_module("Extractor.modules." + all_module)
     for all_fmodule in ALL_FMODULES:
-        importlib.import_module("FreeAccess.modules." + all_fmodule)
+        importlib.import_module("Extractor.modules.FreeAccess." + all_fmodule)
 
     print("» ʙᴏᴛ ᴅᴇᴘʟᴏʏ sᴜᴄᴄᴇssғᴜʟʟʏ ✨ 🎉")
     await idle()
