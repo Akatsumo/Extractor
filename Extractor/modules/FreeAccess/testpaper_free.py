@@ -166,9 +166,9 @@ async def testpaper_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ Time Out, You didn’t reply in time.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"Error: `{e}`")
+        await message.reply_text(f"**Error:** `{e}`")
 
 
 
