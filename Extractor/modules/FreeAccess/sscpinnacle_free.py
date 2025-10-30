@@ -60,7 +60,7 @@ async def sscpinnacle_access(_, message, user_id=None):
 
         categorie_text = "📚 **Available Categories:**\n\n"
         for categorie in categories:
-          categorie_text += f"{categorie.get("_id")} - {categorie.get("categoryTitle")}"
+          categorie_text += f"`{categorie.get("_id")}` - **{categorie.get("categoryTitle")}**\n"
           
         await msg.edit_text(f"{categorie_text}\n**📊 Now send the Categorie ID to Download**") 
         input1 = await app.listen(user_id=user_id, timeout=30)
@@ -68,7 +68,7 @@ async def sscpinnacle_access(_, message, user_id=None):
         await input1.delete()
 
         categorie_name = next((categorie.get("categoryTitle") for categorie in categories if str(categorie.get("_id")) == categorie_id), None)
-        if not batch_name:
+        if not categorie_name:
             return await msg.edit_text("**Invalid Categorie ID. Please try again.**")
           
         await msg.edit_text(f"**Fetching All All SSC Pinnacles {categorie_name} Batches, Please Wait..**")
