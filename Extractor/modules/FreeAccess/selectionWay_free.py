@@ -7,6 +7,8 @@ from pyromod.exceptions import ListenerTimeout
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def course_content(session, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(f"https://backend.multistreaming.site/api/courses/{batch_id}/classes?populate=full")
@@ -33,6 +35,8 @@ async def course_content(session, batch_id, msg):
     return lectures, v_count, p_count
 
 
+# --------------------------- SelectionWay-Access --------------------------- #
+
 async def selectionWay_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
@@ -44,7 +48,7 @@ async def selectionWay_access(_, message, user_id=None):
             [InlineKeyboardButton("🔴 Live", callback_data="data_live")]
         ])
         mm = await message.reply_text(
-            "🕹 **Select Selection Way Batches Mode 👇**\n\nLive\nRecording",
+            "🕹 **Select Selection Way Batches Mode 👇**\n\n🔴 Live\n🟢 Recording",
             reply_markup=buttons
         )
         r = await mm.wait_for_click(from_user_id=user_id)
@@ -56,7 +60,7 @@ async def selectionWay_access(_, message, user_id=None):
             data.update({"isRecorded": True})
             mode = "Recording"
             
-        msg = await message.reply_text(f"Fetching All Selection Way {mode} Batches. Please Wait...")
+        msg = await message.reply_text(f"**Fetching All Selection Way {mode} Batches, Please Wait...**")
         response = session.post(api_url, json=data)
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch Selection Way batches")
@@ -116,8 +120,8 @@ async def selectionWay_access(_, message, user_id=None):
         await main_func.send_file(_, file_name, user_id, caption, thumb)
         await msg.delete()
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"**Error:** `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
 
   
