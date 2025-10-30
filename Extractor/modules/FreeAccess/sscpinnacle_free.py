@@ -51,7 +51,7 @@ async def sscpinnacle_access(_, message, user_id=None):
     try:
         msg = await message.reply_text("**Fetching All SSC Pinnacles Categories, Please Wait..**")
         response_data = session.get("https://auth.ssccglpinnacle.com/categories")
-        if response.status_code != 200:
+        if response_data.status_code != 200:
             return await msg.edit_text("Failed to fetch SSC Pinnacles Categories.")
           
         categories = response_data.json()
