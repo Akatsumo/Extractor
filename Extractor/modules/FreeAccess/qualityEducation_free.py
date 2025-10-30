@@ -9,7 +9,7 @@ from pyromod.exceptions import ListenerTimeout
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, headers, batch_id, msg):
+async def course_content(session, headers, batch_id):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(f"https://test.qualityeducation.in/api/combo-get/318096/{batch_id}", headers=headers)
     if response_data.status_code != 200:
@@ -70,7 +70,7 @@ async def qualityEducation_access(_, message, user_id=None):
     }
 
     try:
-        msg = await message.reply_text("**Fetching all Quality Education batches, please wait...**")
+        msg = await message.reply_text("**Fetching all Quality Education Batches, Please Wait...**")
         response = session.get("https://test.qualityeducation.in/api/video-category-get", headers=headers)
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch Quality Education batches.")
@@ -108,7 +108,7 @@ async def qualityEducation_access(_, message, user_id=None):
 
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id))
         end_time = time.time()
 
         if not lectures:
@@ -126,7 +126,6 @@ async def qualityEducation_access(_, message, user_id=None):
             f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
-
         await main_func.send_file(app, file_name, user_id, caption, thumb)
         await msg.delete()
 
