@@ -75,7 +75,7 @@ async def sscpinnacle_access(_, message, user_id=None):
       
         response = session.get(f"https://auth.ssccglpinnacle.com/rc/courses?category={categorie_name}")
         if response.status_code != 200:
-            return await msg.edit_text("Failed to fetch StudyIQ batches")
+            return await msg.edit_text("Failed to fetch SSC Pinnacles batches")
 
         batch_data = response.json()
         if not batch_data:
