@@ -6,6 +6,8 @@ from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def course_content(course_section, msg):
     lectures, v_count, p_count = [], 0, 0
 
@@ -30,6 +32,8 @@ async def course_content(course_section, msg):
     return lectures, v_count, p_count
 
 
+# --------------------------- Jinc-Jodhpur-Access --------------------------- #
+
 async def jincJodhpur_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
@@ -39,7 +43,7 @@ async def jincJodhpur_access(_, message, user_id=None):
     }
 
     try:
-        msg = await message.reply_text("Fetching All Jinc Jodhpur Batches. Please Wait...")
+        msg = await message.reply_text("**Fetching All Jinc Jodhpur Batches, Please Wait...**")
         response = session.post("https://cl4.jinc-jodhpur.com/common", headers=headers, data=payload)
 
         if response.status_code != 200:
@@ -103,9 +107,9 @@ async def jincJodhpur_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
 
 
 
