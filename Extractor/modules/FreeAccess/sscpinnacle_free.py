@@ -42,9 +42,9 @@ async def course_content(session, batch_id):
     return lectures, v_count, p_count
 
 
-# --------------------------- StudyIQ-Access --------------------------- #
+# --------------------------- SSC-Pinnacle-Access --------------------------- #
 
-async def studyiq_access(_, message, user_id=None):
+async def sscpinnacle_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
 
