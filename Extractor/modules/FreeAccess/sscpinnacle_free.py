@@ -49,34 +49,34 @@ async def sscpinnacle_access(_, message, user_id=None):
     session = requests.Session()
 
     try:
-        msg = await message.reply_text("**Fetching All SSC Pinnacles Categories, Please Wait..**")
+        msg = await message.reply_text("**Fetching All SSC Pinnacle Categories, Please Wait..**")
+
         response_data = session.get("https://auth.ssccglpinnacle.com/categories")
         if response_data.status_code != 200:
-            return await msg.edit_text("Failed to fetch SSC Pinnacles Categories.")
+            return await msg.edit_text("Failed to fetch SSC Pinnacle Categories.")
           
         categories = response_data.json()
         if not categories:
-          return await msg.edit_text("No Categories data found.")
+            return await msg.edit_text("No Categories data found.")
 
         categorie_text = "📚 **Available Categories:**\n\n"
-        for categorie in categories:
-          categorie_text += f"`{categorie.get('_id')}` - **{categorie.get('categoryTitle')}**\n"
+        for c in categories:
+            categorie_text += f"`{c.get('_id')}` - **{c.get('categoryTitle')}**\n"
           
-        await msg.edit_text(f"{categorie_text}\n**📊 Now send the Categorie ID to Download**") 
+        await msg.edit_text(f"{categorie_text}\n**📊 Now send the Category ID to Download**") 
         input1 = await app.listen(user_id=user_id, timeout=30)
         categorie_id = input1.text.strip()
         await input1.delete()
 
-        categorie_name = next((categorie.get("categoryTitle") for categorie in categories if str(categorie.get("_id")) == categorie_id), None)
+        categorie_name = next((c.get("categoryTitle") for c in categories if str(c.get("_id")) == categorie_id),None)
         if not categorie_name:
-            return await msg.edit_text("**Invalid Categorie ID. Please try again.**")
+            return await msg.edit_text("**Invalid Category ID. Please try again.**")
           
-        await msg.edit_text(f"**Fetching All All SSC Pinnacles {categorie_name} Batches, Please Wait..**")
+        await msg.edit_text(f"**Fetching All SSC Pinnacle '{categorie_name}' Batches, Please Wait..**")
 
-        print("categorie_name")
-        response = session.get(f"https://auth.ssccglpinnacle.com/mpc/courses?category=SSC")
+        response = session.get(f"https://auth.ssccglpinnacle.com/mpc/courses?category={categorie_name}")
         if response.status_code != 200:
-            return await msg.edit_text("Failed to fetch SSC Pinnacles batches")
+            return await msg.edit_text("Failed to fetch SSC Pinnacle batches")
 
         batch_data = response.json()
         if not batch_data:
@@ -98,7 +98,7 @@ async def sscpinnacle_access(_, message, user_id=None):
             os.remove(batch_list_name)
         else:
             await msg.edit_text(f"{batch_list}\n{caption}")
-
+            
         input2 = await app.listen(user_id=user_id, timeout=30)
         batch_id = input2.text.strip()
         await input2.delete()
