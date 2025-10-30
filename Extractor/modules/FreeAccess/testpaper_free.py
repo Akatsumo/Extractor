@@ -9,7 +9,7 @@ from pyromod.exceptions import ListenerTimeout
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, headers, batch_id, msg):
+async def course_content(session, headers, batch_id):
     lectures, v_count, p_count = [], 0, 0
 
     response_data = session.post(
@@ -144,7 +144,7 @@ async def testpaper_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id))
         end_time = time.time()
 
         if not lectures:
