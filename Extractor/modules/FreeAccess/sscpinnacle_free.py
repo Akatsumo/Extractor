@@ -10,11 +10,11 @@ from pyromod.exceptions import ListenerTimeout
 
 async def course_content(session, batch_id):
     lectures, v_count, p_count = [], 0, 0
-    response_data = session.get(f"https://auth.ssccglpinnacle.com/api/youtubeChapters/course/{batch_id}")
+    response_data = session.get(f"https://auth.ssccglpinnacle.com/api/youtubeChapters/course/{batch_id.strip()}")
     if response_data.status_code != 200:
         return lectures, v_count, p_count
         
-    fetch_data = response_data.json().get("data", [])
+    fetch_data = response_data.json()
     if not fetch_data:
         return lectures, v_count, p_count
         
