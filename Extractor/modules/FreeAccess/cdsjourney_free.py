@@ -23,7 +23,7 @@ batch_data = {
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, headers, batch_id, msg):
+async def course_content(session, headers, batch_id):
     lectures, v_count, p_count = [], 0, 0
 
     response = session.get(f"https://www.cdsjourney.com/api/batch-subject/{batch_id}/", headers=headers)
@@ -125,7 +125,7 @@ async def cdsjourney_access(_, message, user_id=None):
         msg = await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id))
         end_time = time.time()
 
         if not lectures:
