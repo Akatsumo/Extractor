@@ -7,7 +7,9 @@ from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
+
 lectures, v_count, p_count = [], 0, 0
+# --------------------------- Get-Org-ID --------------------------- #
 
 async def classplus_org_id(org_id, session):
     async with session.get(f"https://{org_id}.courses.store") as response:
@@ -18,6 +20,7 @@ async def classplus_org_id(org_id, session):
         name = name_match.group(1) if name_match else None
         return org_id, name
 
+# --------------------------- Formats-Urls --------------------------- #
 
 async def format_urls(content_name, video_thumb, drm_procted):
     global lectures
@@ -64,6 +67,8 @@ async def format_urls(content_name, video_thumb, drm_procted):
     lectures.append(f"{content_name}: {video_url}")
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def course_content(session, headers, batch_id, msg, folder_id="0", org_id=None):
     global lectures, v_count, p_count
 
@@ -101,6 +106,8 @@ async def course_content(session, headers, batch_id, msg, folder_id="0", org_id=
             print("----- > PDF")
     return lectures, v_count, p_count
 
+
+# --------------------------- Classplus-Access --------------------------- #
 
 async def classplus_access(_, message, user_id=None):
     user_id = user_id or message.from_user.id
@@ -200,6 +207,8 @@ async def classplus_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
+
+
