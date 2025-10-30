@@ -8,7 +8,7 @@ from pyromod.exceptions import ListenerTimeout
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, base_url, batch_id, msg):
+async def course_content(session, base_url, batch_id):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(f"{base_url}/{batch_id}/lessons")
     if response_data.status_code != 200:
@@ -53,7 +53,7 @@ async def course_content(session, base_url, batch_id, msg):
     return lectures, v_count, p_count
 
 
-# --------------------------- TaiyariKrlo-Access --------------------------- #
+# --------------------------- Taiyari-Krlo-Access --------------------------- #
 
 async def taiyarKarlo_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
@@ -106,7 +106,7 @@ async def taiyarKarlo_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, base_url, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, base_url, batch_id))
         end_time = time.time()
 
         if not lectures:
