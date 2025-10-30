@@ -60,7 +60,7 @@ async def sscpinnacle_access(_, message, user_id=None):
 
         categorie_text = "📚 **Available Categories:**\n\n"
         for categorie in categories:
-          categorie_text += f"`{categorie.get("_id")}` - **{categorie.get("categoryTitle")}**\n"
+          categorie_text += f"`{categorie.get('_id')}` - **{categorie.get('categoryTitle')}**\n"
           
         await msg.edit_text(f"{categorie_text}\n**📊 Now send the Categorie ID to Download**") 
         input1 = await app.listen(user_id=user_id, timeout=30)
