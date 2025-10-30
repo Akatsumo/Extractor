@@ -6,6 +6,8 @@ from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def course_content(session, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(f"https://coral-app-eymnu.ondigitalocean.app/api/student/course/public/detail/{batch_id}")
@@ -25,17 +27,18 @@ async def course_content(session, batch_id, msg):
                 if rc.get("content_status") != "Queue" and rc.get("recording_url"):
                     lectures.append(f"{title} | {rc.get('topic','No Topic')}: https://vz-c8c7763d-df6.b-cdn.net/{rc['recording_url']}/playlist.m3u8")
                     v_count += 1
-        
-
+                    
     return lectures, v_count, p_count
 
+
+# --------------------------- Geological-Concepts-Access --------------------------- #
 
 async def geologicalConcepts_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
 
     try:
-        msg = await message.reply_text("Fetching Geological Concepts All Batches. Please Wait...")
+        msg = await message.reply_text("**Fetching Geological Concepts All Batches, Please Wait...**")
         api_url = f"https://coral-app-eymnu.ondigitalocean.app/api/student/course/public/list"
         response = session.get(api_url)
         if response.status_code != 200:
@@ -97,6 +100,6 @@ async def geologicalConcepts_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
