@@ -79,7 +79,6 @@ async def sscpinnacle_access(_, message, user_id=None):
             return await msg.edit_text("Failed to fetch SSC Pinnacle batches")
 
         batch_data = response.json()
-        print(batch_data)
         if not batch_data:
             return await msg.edit_text("No course data found.")
 
