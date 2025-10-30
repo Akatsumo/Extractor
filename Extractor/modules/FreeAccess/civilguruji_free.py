@@ -6,11 +6,15 @@ from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
 
+# --------------------------- Clean-Video-Url --------------------------- #
+
 def clean_video_url(video_url):
     if not video_url:
         return None
     match = re.search(r'src="([^"]+)"', video_url)
     return match.group(1).split("?")[0]
+    
+# --------------------------- Course-Content --------------------------- #
 
 async def course_content(session, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
@@ -34,6 +38,9 @@ async def course_content(session, batch_id, msg):
             lectures.append(f"{module_name}|{sub_name}: {clean_video_url(video_url)}")
   
     return lectures, v_count, p_count
+
+
+# --------------------------- Civil-Guruji-Access --------------------------- #
 
 async def civilguruji_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
@@ -61,7 +68,7 @@ async def civilguruji_access(_, message, user_id=None):
                 course_id = course.get("_id")
                 course_name = course.get("name")
                 if course_id and course_name:
-                    batch_list += f"🆔 `{course_id}`  |  🎓 {course_name}\n"
+                    batch_list += f"`{course_id}` - {course_name}\n"
                     batch_index[course_id] = course_name
 
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
@@ -112,8 +119,8 @@ async def civilguruji_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
 
 
