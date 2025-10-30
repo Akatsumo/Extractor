@@ -6,6 +6,8 @@ from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def course_content(session, base_url, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(f"{base_url}/{batch_id}/lessons")
@@ -51,12 +53,14 @@ async def course_content(session, base_url, batch_id, msg):
     return lectures, v_count, p_count
 
 
+# --------------------------- TaiyariKrlo-Access --------------------------- #
+
 async def taiyarKarlo_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
 
     try:
-        msg = await message.reply_text("Fetching Taiyari Karlo All Batches, Please Wait...")
+        msg = await message.reply_text("**Fetching Taiyari Karlo All Batches, Please Wait...**")
         base_url = "https://firestore.googleapis.com/v1/projects/taiyari-karlo/databases/(default)/documents/courses"
         response = session.get(f"{base_url}?pageSize=5000")
         if response.status_code != 200:
@@ -124,8 +128,8 @@ async def taiyarKarlo_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
 
 
