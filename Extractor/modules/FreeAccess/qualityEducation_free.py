@@ -1,4 +1,3 @@
-
 import os
 import time
 import asyncio
@@ -7,6 +6,8 @@ from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
+
+# --------------------------- Course-Content --------------------------- #
 
 async def course_content(session, headers, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
@@ -57,6 +58,8 @@ async def course_content(session, headers, batch_id, msg):
 
 
 
+# --------------------------- Quality-Education-Access --------------------------- #
+
 async def qualityEducation_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
@@ -67,7 +70,7 @@ async def qualityEducation_access(_, message, user_id=None):
     }
 
     try:
-        msg = await message.reply_text("Fetching all Quality Education batches, please wait...")
+        msg = await message.reply_text("**Fetching all Quality Education batches, please wait...**")
         response = session.get("https://test.qualityeducation.in/api/video-category-get", headers=headers)
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch Quality Education batches.")
@@ -101,9 +104,9 @@ async def qualityEducation_access(_, message, user_id=None):
 
         batch_name = next((course["category_name"] for course in data if str(course["id"]) == batch_id), None)
         if not batch_name:
-            return await msg.edit_text("Invalid Batch ID. Please try again.")
+            return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
-        await msg.edit_text("📥 Extracting Course Content, please wait...")
+        await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
         start_time = time.time()
         lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
         end_time = time.time()
@@ -128,9 +131,9 @@ async def qualityEducation_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"Error: `{str(e)}`")
+        await message.reply_text(f"**Error**: `{str(e)}`")
 
 
 
