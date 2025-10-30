@@ -5,6 +5,7 @@ from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
+# --------------------------- Get-Headers --------------------------- #
 
 def get_headers(session):
     url = 'https://backend.studyiq.net/user-auth-ws/v1/auth/generate/admin'
@@ -21,12 +22,17 @@ def get_headers(session):
     return {"Authorization": f"Bearer {token}"}
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def course_content(session, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(
         f"https://backend.studyiq.net/app-content-ws/v2/course/getDetails?courseId={batch_id}",
         headers=get_headers(session)
     )
+    if response_data.status_code != 200:
+        return lectures, v_count, p_count
+        
     fetch_data = response_data.json().get("data", [])
     if not fetch_data:
         return lectures, v_count, p_count
@@ -45,16 +51,19 @@ async def course_content(session, batch_id, msg):
     return lectures, v_count, p_count
 
 
+# --------------------------- StudyIQ-Access --------------------------- #
+
 async def studyiq_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
 
     try:
-        msg = await message.reply_text("Enter a StudyIQ keyword\nExample: upsc, books etc.")
+        msg = await message.reply_text("**Enter a StudyIQ keyword**\n**Example**: upsc, books etc.")
         input1 = await app.listen(user_id=user_id, timeout=30)
         keyword_str = input1.text.strip()
         await input1.delete()
 
+        await msg.edit_text("**Fetching All StudyIQ Batches, Please Wait...**")
         api_url = f"https://www.studyiq.net/api/web/searchbycourses?keyword={keyword_str}"
         response = session.get(api_url)
         if response.status_code != 200:
@@ -116,6 +125,6 @@ async def studyiq_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
