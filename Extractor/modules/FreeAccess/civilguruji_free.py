@@ -35,7 +35,7 @@ async def course_content(session, batch_id):
             sub_name = sub.get("name", "No Title")
             video_url = sub.get("videoUrl", "No Video URL")
             v_count += 1
-            lectures.append(f"{module_name}|{sub_name}: {clean_video_url(video_url)}")
+            lectures.append(f"{module_name} | {sub_name}: {clean_video_url(video_url)}")
   
     return lectures, v_count, p_count
 
