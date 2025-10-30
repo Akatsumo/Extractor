@@ -9,7 +9,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, batch_id, msg):
+async def course_content(session, batch_id):
     lectures, v_count, p_count = [], 0, 0
     response_data = session.get(f"https://backend.multistreaming.site/api/courses/{batch_id}/classes?populate=full")
     topics_data = response_data.json().get("data", {}).get("classes")
@@ -35,7 +35,7 @@ async def course_content(session, batch_id, msg):
     return lectures, v_count, p_count
 
 
-# --------------------------- SelectionWay-Access --------------------------- #
+# --------------------------- Selection-Way-Access --------------------------- #
 
 async def selectionWay_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
@@ -99,7 +99,7 @@ async def selectionWay_access(_, message, user_id=None):
             
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, batch_id))
         end_time = time.time()
         
         if not lectures:
@@ -119,6 +119,7 @@ async def selectionWay_access(_, message, user_id=None):
         )
         await main_func.send_file(_, file_name, user_id, caption, thumb)
         await msg.delete()
+        
     except ListenerTimeout:
         await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
