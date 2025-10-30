@@ -51,7 +51,7 @@ async def course_content(session, headers, batch_id):
             v_count += 1
             name = rec['title'].replace(":", "").replace("::", "").replace("||", "-")
             url = rec.get('file_url', 'N/A')
-            lectures.append(f"[{sub_name}] - {name}: {url}")
+            lectures.append(f"{sub_name} | {name}: {url}")
 
     return lectures, v_count, p_count
 
