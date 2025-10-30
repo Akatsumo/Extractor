@@ -7,6 +7,8 @@ from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def course_content(session, headers, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
 
@@ -66,6 +68,8 @@ async def course_content(session, headers, batch_id, msg):
     return lectures, v_count, p_count
 
 
+# --------------------------- TestPaper-Access --------------------------- #
+
 async def testpaper_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
@@ -79,10 +83,10 @@ async def testpaper_access(_, message, user_id=None):
     }
 
     try:
-        msg = await message.reply_text("Fetching All Test Paper Batches. Please Wait...")
+        msg = await message.reply_text("**Fetching All Test Paper Batches, Please Wait...**")
 
         if not token:
-            await msg.edit_text("🔑 Enter login credentials (Mobile*Password or Token):")
+            await msg.edit_text("**🔑 Enter login credentials (Mobile*Password or Token):**")
             input1 = await app.listen(user_id=user_id, timeout=30)
             raw_text = input1.text.strip()
             await input1.delete()
@@ -162,7 +166,7 @@ async def testpaper_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("⏰ Time Out, You didn’t reply in time.")
     except Exception as e:
         await message.reply_text(f"Error: `{e}`")
 
