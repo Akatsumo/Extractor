@@ -72,7 +72,7 @@ async def sscpinnacle_access(_, message, user_id=None):
         if not categorie_name:
             return await msg.edit_text("**Invalid Category ID. Please try again.**")
           
-        await msg.edit_text(f"**Fetching All SSC Pinnacle '{categorie_name}' Batches, Please Wait..**")
+        await msg.edit_text(f"**Fetching All SSC Pinnacle {categorie_name} Batches, Please Wait..**")
 
         response = session.get(f"https://auth.ssccglpinnacle.com/mpc/courses?category={categorie_name}")
         if response.status_code != 200:
