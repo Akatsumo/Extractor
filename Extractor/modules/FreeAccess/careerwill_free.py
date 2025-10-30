@@ -5,6 +5,9 @@ from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
+
+# --------------------------- Categories-Data --------------------------- #
+
 categories = [
     {"id": 0, "batchCat_name": "All"},
     {"id": 58, "batchCat_name": "SSC"},
@@ -19,8 +22,9 @@ categories = [
     {"id": 42, "batchCat_name": "Free Batches"}
 ]
 
+# --------------------------- Course-Content --------------------------- #
 
-async def course_content(base_url, session, cookies, batch_type, batch_id, msg):
+async def course_content(base_url, session, cookies, batch_type, batch_id):
     lectures, v_count, p_count = [], 0, 0
 
     params = {"batch_type": batch_type, "view": "List", "interface_id": "1", "id": batch_id, "type": "class", "topic_id": ""}
@@ -93,6 +97,8 @@ async def course_content(base_url, session, cookies, batch_type, batch_id, msg):
     return lectures, v_count, p_count
 
 
+# --------------------------- Course-Content --------------------------- #
+
 async def careerwill_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
@@ -108,7 +114,7 @@ async def careerwill_access(_, message, user_id=None):
     token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NjEzMjc3ODQsImNvbiI6eyJpc0FkbWluIjpmYWxzZSwiYXVzZXIiOiIiLCJpZCI6IlVsSm5lRkpyTjNwNVZ6SkdVR1JTVGsweFRucFVRVDA5IiwiZmlyc3RfbmFtZSI6IlExSkNWVEpXYm5CRmJrVlVSM0ZOUWxCVVFUTnVRVDA5IiwiZW1haWwiOiJkbHB1YjFKVFpuWlNVVEpIUW1KaGIyZGxRamNyTjNseFREUnNaMnQyZDFvM2F6TmhOMXBHVDBObmN6MD0iLCJwaG9uZSI6IlowZGpiMkZ6Y0ZaSE5qUnVTWE4wTldKdE9VWm9VVDA5IiwiYXZhdGFyIjoiIiwicmVmZXJyYWxfY29kZSI6IlpIWnlabEJtZUhWSU0xWTRSSEZxV2pKQmVrUjRkejA5IiwiZGV2aWNlX3R5cGUiOiJ3ZWIiLCJkZXZpY2VfdmVyc2lvbiI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNDEuMC4wLjAgU2FmYXJpLzUzNy4zNiIsImRldmljZV9tb2RlbCI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xNDEuMC4wLjAgU2FmYXJpLzUzNy4zNiIsInJlbW90ZV9hZGRyIjoiMTIyLjE2Mi4xNDQuMTA4LDEyMi4xNjIuMTQ0LjEwIn19.LxVcuNucqPgh7W2aUxEkk2ak5Lkf8m67fFmmCk7RQGhL1KWO16f6qE8M88ai_GH9ZzZ23D4Jza9vbYAUGe0Hb17mcpJaAb9Qwzt4x5d1OSqHEbpzwQzfA2dk1vgDFeTMI8H7wVO3UVsHkTsXTQtfFOrcfsA3DLjmRiECfF4U3QnNeLqmIP2ZOyA3_0vFUrGt6u2sHga-EY5AmG6aZSCYurMhmBYLtQy4sceh8yC6B9pwrcishsH96EPiMxn-iJMbDqtcsj3SlTzsgOfaz3Sk6EzLLd-co1duOTQ5eKeE1nC4jVvycMA4QGno4Rkyy1J-7PBPgEZJ6eL9f2I5v8utWQ" 
 
     try:
-        msg = await message.reply_text("Fetching all Careerwill categories... Please wait!")
+        msg = await message.reply_text("**Fetching All Careerwill Categories, Please Wait..**")
 
         if not token:
             login_url = "https://wbspec.crwilladmin.com/api/v1/login"
@@ -137,7 +143,7 @@ async def careerwill_access(_, message, user_id=None):
         if not batch_type:
             return await msg.edit_text("**Invalid Category ID. Please try again.**")
 
-        await msg.edit_text("Fetching all Careerwill categories... Please wait!")
+        await msg.edit_text(f"**Fetching All Careerwill {batch_type} Batches, Please Wait...**")
         params = {"batch_type": batch_type, "view": "Grid", "interface_id": "1", "cat_id": category_id}
         response = session.get(f"{base_url}/live-classes.json", headers=headers, cookies=cookies, params=params)
         if response.status_code != 200:
@@ -178,7 +184,7 @@ async def careerwill_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(base_url, session, cookies, batch_type, batch_id, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(base_url, session, cookies, batch_type, batch_id))
         end_time = time.time()
 
         if not lectures:
@@ -201,8 +207,8 @@ async def careerwill_access(_, message, user_id=None):
         await msg.delete()
 
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
 
 
