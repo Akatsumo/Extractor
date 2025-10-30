@@ -6,6 +6,7 @@ from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
+# --------------------------- Batch-Data --------------------------- #
 batch_data = {
     "29": "Zulu OTA batch (CDS-2 2025)",
     "30": "Zulu MATHS batch (CDS-2 2025)",
@@ -20,16 +21,25 @@ batch_data = {
     "40": "CAPF Paper 2 Delta batch (CAPF 2026)",
 }
 
+# --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, subjects, headers, msg):
+async def course_content(session, headers, batch_id, msg):
     lectures, v_count, p_count = [], 0, 0
+
+    response = session.get(f"https://www.cdsjourney.com/api/batch-subject/{batch_id}/", headers=headers)
+    if response.status_code != 200:
+        return lectures, v_count, p_count
+
+    subjects = response.json().get("list", [])
+    if not subjects:
+        return lectures, v_count, p_count
+        
     for subject in subjects:
         sub_id = subject['subject']['id']
         sub_name = subject['subject']['name']
 
         response = session.get(f"https://www.cdsjourney.com/api/recordings/{sub_id}/", headers=headers)
         if response.status_code != 200:
-            await msg.edit_text("Failed to Fetch Subject Data")
             return [], 0, 0
 
         data = response.json()
@@ -46,11 +56,13 @@ async def course_content(session, subjects, headers, msg):
     return lectures, v_count, p_count
 
 
+# --------------------------- Cds-Journey-Access --------------------------- #
+
 async def cdsjourney_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     session = requests.Session()
     try:
-        msg = await message.reply_text("Fetching CDS Journey All Batches, Please Wait... ")
+        msg = await message.reply_text("**Fetching CDS Journey All Batches, Please Wait...**")
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                           "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
@@ -85,7 +97,7 @@ async def cdsjourney_access(_, message, user_id=None):
 
         batch_list = "📚 **Available Batches:**\n\n"
         for course_id, name in batch_data.items():
-            batch_list += f"🆔 `{course_id}`  |  🎓 {name}\n"
+            batch_list += f"`{course_id}` - **{name}**\n"
 
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
@@ -108,20 +120,12 @@ async def cdsjourney_access(_, message, user_id=None):
 
         batch_name = batch_data.get(batch_id)
         if not batch_name:
-            return await msg.edit_text("Invalid Batch ID. Please try again.")
+            return await msg.edit_text("**Invalid Batch ID. Please try again.**")
 
-        response = session.get(f"https://www.cdsjourney.com/api/batch-subject/{batch_id}/", headers=headers)
-        if response.status_code != 200:
-            return await msg.edit_text("Failed to fetch batch subjects!")
-
-        subjects = response.json().get("list", [])
-        if not subjects:
-            return await msg.edit_text("No subjects found in this batch, maybe batch not started yet.")
-
-        msg = await msg.edit_text("📥 Extracting Course Content, Please Wait...")
+        msg = await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, subjects, headers, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg))
         end_time = time.time()
 
         if not lectures:
@@ -143,6 +147,6 @@ async def cdsjourney_access(_, message, user_id=None):
         await main_func.send_file(app, file_name, user_id, caption, thumb)
         await msg.delete()
     except ListenerTimeout:
-        await message.reply_text("⏰ You didn’t reply in time. Please try again.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"⚠️ Error: `{e}`")
+        await message.reply_text(f"**Error**: `{e}`")
