@@ -8,7 +8,7 @@ from pyromod.exceptions import ListenerTimeout
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(course_section, msg):
+async def course_content(course_section):
     lectures, v_count, p_count = [], 0, 0
 
     for sub in course_section.get("json", {}).get("WslUV", []):
@@ -84,7 +84,7 @@ async def jincJodhpur_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(course_section, msg))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(course_section))
         end_time = time.time()
 
         if not lectures:
@@ -102,7 +102,6 @@ async def jincJodhpur_access(_, message, user_id=None):
             f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
             f"⌚️ **Time Taken** : `{elapsed}`"
         )
-
         await main_func.send_file(app, file_name, user_id, caption, thumb)
         await msg.delete()
 
