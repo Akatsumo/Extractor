@@ -69,7 +69,7 @@ async def format_urls(content_name, video_thumb, drm_procted):
 
 # --------------------------- Course-Content --------------------------- #
 
-async def course_content(session, headers, batch_id, msg, folder_id="0", org_id=None):
+async def course_content(session, headers, batch_id, folder_id="0", org_id=None):
     global lectures, v_count, p_count
 
     encoded_data = main_func.encode_base64(
@@ -185,7 +185,7 @@ async def classplus_access(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         start_time = time.time()
-        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, msg, org_id=org_id))
+        lectures, v_count, p_count = await asyncio.create_task(course_content(session, headers, batch_id, org_id=org_id))
         end_time = time.time()
 
         if not lectures:
