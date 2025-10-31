@@ -10,6 +10,11 @@ from pyromod.exceptions import ListenerTimeout
 
 async def course_content(session, batch_id):
     lectures, v_count, p_count = [], 0, 0
+    headers = {
+        "accept": "*/*",
+        "accept-language": "en-US,en;q=0.9",
+        "origin": "https://videos.ssccglpinnacle.com",
+    }
     response_data = session.get(f"https://auth.ssccglpinnacle.com/api/youtubeChapters/course/{batch_id.strip()}")
     if response_data.status_code != 200:
         return lectures, v_count, p_count
@@ -27,16 +32,22 @@ async def course_content(session, batch_id):
           
         for topic in topics:
           name = topic.get("videoTitle", "N/A")
-          video_url = topic.get("videoYoutubeLink", "N/A")
+          video_url = topic.get("videoYoutubeLink")
           pdf_name = topic.get("pdfTitle", "N/A")
-          pdf_url = topic.get("selectedPdf", "N/A")
+          pdf_id = topic.get("selectedPdf")
           
           if video_url:
             v_count += 1
             lectures.append(f"{chapter_name} | {name}: {video_url}")
             
-          if pdf_url:
+          if pdf_id:
             p_count += 1
+            response_data = session.get(f"https://auth.ssccglpinnacle.com/api/pdfs/{pdf_id}", headers=headers)
+            if response_data.status_code != 200:
+                continue
+            pdf_url = response_data.json().get("cloudFrontUrl")
+            if not pdf_url:
+                continue
             lectures.append(f"{chapter_name} | {pdf_name}: {pdf_url}")
             
     return lectures, v_count, p_count
