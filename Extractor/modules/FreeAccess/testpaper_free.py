@@ -26,6 +26,7 @@ async def course_content(session, headers, batch_id):
 
     for topic in topic_data:
         chapter_id = topic.get("id")
+        chapter_title = topic.get("title")
         response_data = session.post(
             "https://testpaperlive.com/api/app/v2/package_chapter_item_list",
             data=f"package_ch_id={chapter_id}",
@@ -59,11 +60,11 @@ async def course_content(session, headers, batch_id):
             if item_type == "video":
                 url = f"https://youtu.be/{item_data.get('data', {}).get('video', {}).get('youtube_id')}"
                 v_count += 1
-                lectures.append(f"{item_name}: {url}")
+                lectures.append(f"{chapter_title} | {item_name}: {url}")
             elif item_type == "notes":
                 url = item_data.get("data", {}).get("notes", {}).get("notes")
                 p_count += 1
-                lectures.append(f"{item_name}: {url}")
+                lectures.append(f"{chapter_title} | {item_name}: {url}")
 
     return lectures, v_count, p_count
 
