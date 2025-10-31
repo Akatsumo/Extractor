@@ -89,8 +89,8 @@ async def jrfadda_access(_, message, user_id=None):
 
         await msg.edit_text(f"**Fetching All {categorie_name} Batches, Please Wait...**")
 
-        data1 = {**data, "cat_id": categorie_id}
-        response = session.post("https://www.jrfadda.com/app_version_2/allgroups", headers=headers, data=data1)
+        data.update("cat_id": categorie_id})
+        response = session.post("https://www.jrfadda.com/app_version_2/allgroups", headers=headers, data=data)
 
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch group data")
