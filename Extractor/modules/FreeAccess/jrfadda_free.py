@@ -89,7 +89,7 @@ async def jrfadda_access(_, message, user_id=None):
 
         await msg.edit_text(f"**Fetching All {categorie_name} Batches, Please Wait...**")
 
-        data.update("cat_id": categorie_id})
+        data.update({"cat_id": categorie_id})
         response = session.post("https://www.jrfadda.com/app_version_2/allgroups", headers=headers, data=data)
 
         if response.status_code != 200:
@@ -129,6 +129,7 @@ async def jrfadda_access(_, message, user_id=None):
         if not exam_name:
             return await msg.edit_text("**Invalid Exam ID. Please try again.**")
 
+        print(f"{group_id} _ {exam_id}")
         data.update({"groupId": group_id, "examId": exam_id})
         response = session.post("https://www.jrfadda.com/app_version_2/exam/video-series", headers=headers, data=data)
 
