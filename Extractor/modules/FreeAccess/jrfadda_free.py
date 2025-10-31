@@ -105,7 +105,7 @@ async def jrfadda_access(_, message, user_id=None):
         for group in group_data:
             for exam in group.get("exams", []):
                 group_list += f"`{exam.get('dlb_xm_id')}` - **{exam.get('dlb_xm_name')}**\n"
-                exam_list.append({exam.get('dlb_xm_id'): {"name": exam.get('dlb_xm_name'), "group_id": exam.get('dlb_grp_id')}})
+                exam_list.append({exam.get('dlb_xm_id'): {"name": exam.get('dlb_xm_name'), "group_id": group.get('dlb_grp_id')}})
 
         thumb = await main_func.send_file(app, None, None, None, None, onlyThumb=True)
         caption = "**📊 Now send the Exam ID to Download**"
