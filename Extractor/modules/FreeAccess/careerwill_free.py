@@ -97,7 +97,7 @@ async def course_content(base_url, session, cookies, batch_type, batch_id):
     return lectures, v_count, p_count
 
 
-# --------------------------- Course-Content --------------------------- #
+# --------------------------- Careerwill-Access --------------------------- #
 
 async def careerwill_access(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
