@@ -51,7 +51,7 @@ async def course_content(session, headers, userId, batch_id):
     return lectures, v_count, p_count
 
 
-# --------------------------- Chandra-Institute --------------------------- #
+# --------------------------- Chandra-Institute-Access --------------------------- #
 
 async def chandraInstitute_access(_, message, user_id=None):
     user_id = user_id or message.from_user.id
