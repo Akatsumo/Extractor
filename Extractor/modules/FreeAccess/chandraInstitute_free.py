@@ -99,7 +99,7 @@ async def chandraInstitute_access(_, message, user_id=None):
         for course in batch_data:
             batch_list += f"`{course['cp_id']}` - **{course['title']}**\n"
 
-        thumb = await main_func.send_file(app, None, None, None, None, True)
+        thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
         batch_file = None
 
