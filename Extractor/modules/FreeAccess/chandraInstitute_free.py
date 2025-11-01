@@ -100,7 +100,7 @@ async def chandraInstitute_access(_, message, user_id=None):
             batch_list += f"`{course['cp_id']}` - **{course['title']}**\n"
 
         thumb = await main_func.send_file(app, None, None, None, None, True)
-        caption = "**📊 Send Batch ID to Download**"
+        caption = "**📊 Now send the Batch ID to Download**"
 
         if len(batch_list) > 4000:
             fileN = f"ChandraInstitute_batchList_{user_id}.txt"
