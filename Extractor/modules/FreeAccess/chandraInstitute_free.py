@@ -101,6 +101,7 @@ async def chandraInstitute_access(_, message, user_id=None):
 
         thumb = await main_func.send_file(app, None, None, None, None, True)
         caption = "**📊 Now send the Batch ID to Download**"
+        batch_file = None
 
         if len(batch_list) > 4000:
             fileN = f"ChandraInstitute_batchList_{user_id}.txt"
@@ -114,6 +115,8 @@ async def chandraInstitute_access(_, message, user_id=None):
         input2 = await app.listen(user_id=user_id, timeout=30)
         batch_id = input2.text.strip()
         await input2.delete()
+        if batch_file:
+            await batch_file.delete()
 
         batch_name = next((course["title"] for course in batch_data if str(course["cp_id"]) == batch_id), None)
         if not batch_name:
