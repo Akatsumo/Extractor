@@ -87,7 +87,7 @@ async def chandraInstitute_access(_, message, user_id=None):
 
         msg = await message.reply_text("**Fetching All Chandra Institute Batches, Please Wait...**")
 
-        response = session.get("http://api.chandrainstitute.com/live/api.php/app/get/all/course", json=data, headers=headers)
+        response = session.post("http://api.chandrainstitute.com/live/api.php/app/get/all/course", json=data, headers=headers)
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch batches")
 
