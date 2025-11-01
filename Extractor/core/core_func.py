@@ -28,7 +28,7 @@ WithoutAppDict = {
     "wselectionway_": {"name": "Selection Way", "func": selectionWay_free.selectionWay_access},
     "wtaiyarikrlo_": {"name": "Taiyari Krlo", "func": taiyariKarlo_free.taiyarKarlo_access},
     "wsscpinnacle_": {"name": "SSC Pinnacle", "func": sscpinnacle_free.sscpinnacle_access},
-    "wjrfadda_": {"name": "Jrf Adda", "func": jrfadda_free.jrfadda_access},
+    # "wjrfadda_": {"name": "Jrf Adda", "func": jrfadda_free.jrfadda_access},
 }
 
 videoCryptDict = {
