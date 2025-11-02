@@ -187,7 +187,7 @@ class VideoCryptExtractor:
             key, iv = main_func.gen_key_iv(self.BASE, userId)
             headers = {**self.HEADERS, "jwt": token, "userid": userId}
 
-            data = {"user_id": userId}
+            data = {"user_id": userId, "category_id": "1"}
             # courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
             courses_data = self.fetch("data_model/course/get_courses", headers, data, key, iv)
             print(courses_data)
