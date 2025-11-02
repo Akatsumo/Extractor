@@ -209,7 +209,7 @@ class VideoCryptExtractor:
             else:
                 await msg.edit_text("Now Please Provide Batch Name")
                 input3 = await app.listen(user_id=user_id, timeout=30)
-                batch_name = input4.text.strip()
+                batch_name = input3.text.strip()
                 await input3.delete()
                 
             if not batch_name :
