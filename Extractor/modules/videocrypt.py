@@ -163,7 +163,7 @@ class VideoCryptExtractor:
         return results
 
 
-    async def start_login(self, app, message, user_id=None):
+    async def start_login(self, app, message, user_id=None, without=False):
         user_id = user_id if user_id else message.from_user.id
         try:
             msg = await message.reply_text("🔑 Enter login credentials (Mobile*Password or Token): ")
@@ -187,27 +187,36 @@ class VideoCryptExtractor:
             key, iv = main_func.gen_key_iv(self.BASE, userId)
             headers = {**self.HEADERS, "jwt": token, "userid": userId}
 
-            data = {"user_id": userId, "course_type": "7179", }
-            # courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
-            courses_data = self.fetch("data_model/course/get_courses", headers, data, key, iv)
-            print(courses_data)
-            courses = courses_data.get("data", [])
-            if not courses:
-                return await msg.edit_text("No Batch Data found!!")
+            if without:
+                 course_batches = "**Notice**: Please provide the batch ID for the course from which you want to extract the text."
+            else:
+                data = {"user_id": userId}
+                courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
+                courses = courses_data.get("data", [])
+                if not courses:
+                    return await msg.edit_text("No Batch Data found!!")
 
-            course_batches = "📚 **Available Batches:**\n\n"
-            for c in courses:
-                course_batches += f"`{c['id']}` - **{c['title']}**\n"
+                course_batches = "📚 **Available Batches:**\n\n"
+                for c in courses:
+                    course_batches += f"`{c['id']}` - **{c['title']}**\n"
 
             await msg.edit_text(f"{course_batches}\n**📊 Now send the Batch ID to Download**")
             input2 = await app.listen(user_id=user_id, timeout=30)
             batch_id = input2.text.strip()
             await input2.delete()
-            batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
-            if batch_name == "Unknown Batch":
+            if without:
+                batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), None)
+            else:
+                await msg.edit_text("Now Please Provide Batch Name")
+                input3 = await app.listen(user_id=user_id, timeout=30)
+                batch_name = input4.text.strip()
+                await input4.delete()
+                
+            if not batch_name :
                 return await msg.edit_text("Only valid batch IDs are accepted")
 
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+            
             start = time.time()
             all_contents = self.process_course(batch_id, batch_id, headers, key, iv)
             if not all_contents:
@@ -216,16 +225,16 @@ class VideoCryptExtractor:
             file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w", encoding="utf-8") as f:
                 f.write(all_contents)
+            elapsed = main_func.get_time(end_time - start_time)
+            caption = (
+                f"**App Name** : {self.name.title()}\n"
+                f"**Batch Name** : `{batch_name}`\n\n"
+                f"📜 **Total Materials** : `{len(all_contents)}`\n"
+                f"🍿 **Videos** : `{self.v_count}` | 📝 **PDFs** : `{self.p_count}`\n"
+                f"⌚️ **Time Taken** : `{elapsed}`"
+            )
 
-            elapsed = main_func.get_time(time.time() - start)
-    
-            caption = f"**App Name** : `{self.name.title()}`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(all_contents.split("\n"))}`\n🍿 **Videos** : {self.v_count} | 📝 **PDFs** : {self.p_count}\n⌚️ **Time Taken** : `{elapsed} sec`"
-
-            me = await app.get_me()
-            big_file_id = me.photo.big_file_id
-            thumb = await asyncio.create_task(app.download_media(big_file_id))
-            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-            os.remove(file_name)
+            await main_func.send_file(app, file_name, user_id, caption, thumb=None)
             await msg.delete()
             await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
