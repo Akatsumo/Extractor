@@ -202,8 +202,8 @@ class VideoCryptExtractor:
             batch_id = input2.text.strip()
             await input2.delete()
             batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), "Unknown Batch")
-            if batch_name == "Unknown Batch":
-                return await msg.edit_text("Only valid batch IDs are accepted")
+            # if batch_name == "Unknown Batch":
+            #     return await msg.edit_text("Only valid batch IDs are accepted")
 
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
             start = time.time()
