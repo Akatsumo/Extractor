@@ -188,7 +188,8 @@ class VideoCryptExtractor:
             headers = {**self.HEADERS, "jwt": token, "userid": userId}
 
             data = {"user_id": userId}
-            courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
+            # courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
+            courses_data = self.fetch("data_model/course/get_courses", headers, data, key, iv)
             courses = courses_data.get("data", [])
             if not courses:
                 return await msg.edit_text("No Batch Data found!!")
