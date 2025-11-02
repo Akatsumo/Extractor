@@ -204,7 +204,7 @@ class VideoCryptExtractor:
             input2 = await app.listen(user_id=user_id, timeout=30)
             batch_id = input2.text.strip()
             await input2.delete()
-            if without:
+            if not without:
                 batch_name = next((c["title"] for c in courses if str(c["id"]) == batch_id), None)
             else:
                 await msg.edit_text("Now Please Provide Batch Name")
