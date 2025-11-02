@@ -97,7 +97,7 @@ async def handle_callback(_, query):
                 without = core_func.videoCryptDict[f"{data}"].get("BatchAcess")
                 await query.answer(f"You clicked {name}", show_alert=True)
                 vdocrypt = core_func.videoCryptDict[f"{data}"]["func"].VideoCryptExtractor(name)
-                await vdocrypt.start_login(_, query.message, user_id)
+                await vdocrypt.start_login(_, query.message, user_id, True)
                 
             elif data in core_func.WithoutAppDict:
                 name = core_func.WithoutAppDict[f"{data}"]["name"]
