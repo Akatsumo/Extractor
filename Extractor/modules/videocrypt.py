@@ -217,10 +217,11 @@ class VideoCryptExtractor:
 
             await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
             
-            start = time.time()
+            start_time = time.time()
             all_contents = self.process_course(batch_id, batch_id, headers, key, iv)
             if not all_contents:
                 return await msg.edit_text("📭 **No content found in this batch.**")
+            end_time = time.time()
 
             file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w", encoding="utf-8") as f:
