@@ -163,7 +163,7 @@ class VideoCryptExtractor:
         return results
 
 
-    async def start_login(self, app, message, user_id=None, without=False):
+    async def start_login(self, app, message, user_id=None):
         user_id = user_id if user_id else message.from_user.id
         try:
             msg = await message.reply_text("🔑 Enter login credentials (Mobile*Password or Token): ")
@@ -202,7 +202,7 @@ class VideoCryptExtractor:
             headers = {**self.HEADERS, "jwt": token, "userid": userId}
 
             if without:
-                 course_batches = "**Notice**: Please provide the batch ID for the course from which you want to extract the text."
+                 course_batches = "**Notice**: Please provide the batch ID for the course from which you want to extract the text.\n"
             else:
                 data = {"user_id": userId}
                 courses_data = self.fetch("data_model/course/get_my_courses", headers, data, key, iv)
