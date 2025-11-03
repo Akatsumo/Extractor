@@ -107,6 +107,7 @@ class VideoCryptExtractor:
         raise ValueError(f"Failed to decrypt: {text}")
 
     def get_content_url(self, course_id, content, headers, key, iv):
+        print(content)
         url = None
         if content.get("file_type") == "3":
             if content.get("is_drm") == "1":
