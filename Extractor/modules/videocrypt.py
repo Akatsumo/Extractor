@@ -183,6 +183,20 @@ class VideoCryptExtractor:
             else:
                 token = raw
 
+            buttons = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🟢 Purchased", callback_data="data_purchased")],
+                [InlineKeyboardButton("🔴 Paid", callback_data="data_paid")]
+            ])
+            mm = await message.reply_text(f"🕹 **Select {self.name.title()} Batches Mode 👇**\n\n🔴 Paid Batches\n🟢 Purchased Batches\n\n**Notice**: Paid batches selected — all batches can be extracted without payment",
+                reply_markup=buttons
+            )
+            r = await mm.wait_for_click(from_user_id=user_id)
+            await mm.delete()
+            if r.data == "data_purchased":
+                without = False
+            else:
+                without = True
+            
             userId = main_func.jwt_decoder(token).get("id")
             key, iv = main_func.gen_key_iv(self.BASE, userId)
             headers = {**self.HEADERS, "jwt": token, "userid": userId}
