@@ -185,9 +185,9 @@ class VideoCryptExtractor:
 
             buttons = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🟢 Purchased", callback_data="data_purchased")],
-                [InlineKeyboardButton("🔴 Paid", callback_data="data_paid")]
+                [InlineKeyboardButton("🔴 Without Purchased", callback_data="data_paid")]
             ])
-            mm = await message.reply_text(f"🕹 **Select {self.name.title()} Batches Mode 👇**\n\n🔴 Paid Batches\n🟢 Purchased Batches\n\n**Notice**: Paid batches selected — all batches can be extracted without payment",
+            mm = await message.reply_text(f"🕹 **Select {self.name.title()} Batches Mode 👇**\n\n🔴 Without Purchased Batches\n🟢 Purchased Batches\n\n**Notice**: Without Purchased batches selected — all batches can be extracted without payment",
                 reply_markup=buttons
             )
             r = await mm.wait_for_click(from_user_id=user_id)
