@@ -52,6 +52,11 @@ def header_definer(name):
         version = "1"
         appid = "810"
         return authorization, version, appid
+    elif name == "nexttopers":
+        authorization = "Bearer 01*#NerglnwwebOI)30@I*Dm'@@"
+        version = "1"
+        appid = "540"
+        return authorization, version, appid
         
     else:
         return None, None, None
