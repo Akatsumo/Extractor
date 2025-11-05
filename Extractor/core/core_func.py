@@ -41,6 +41,7 @@ videoCryptDict = {
     "rajputtutorials_": {"name": "Rajput Tutorials", "func": videocrypt},
     "pateltutorials_": {"name": "Patel Tutorials", "func": videocrypt},
     "mypathsala_": {"name": "My Pathsala", "func": videocrypt},
+    "nexttoppers_": {"name": "Next Toppers", "func": videocrypt},
 }
 
 
