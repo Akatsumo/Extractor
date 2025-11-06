@@ -113,22 +113,30 @@ class VideoCryptExtractor:
 
     def get_content_url(self, course_id, content, headers, key, iv):
         print(content)
-        url = None
-        if content.get("file_type") == "3":
-            if content.get("is_drm") == "1":
-                url = f"https://abhinaymaths.in/drm/{content.get('vdc_id')}/{headers.get('userid')}" if self.name == "abhinaymaths" else f"https://www.videocrypt.in/drm/{content.get('vdc_id')}/{headers.get('userid')}"
+        file_type = content.get("file_type")
+        file_url = content.get("file_url")
+        join_url = content.get("join_url")
+        vdc_id = content.get("vdc_id")
+        if file_type == "3":
+            if content.get("is_drm") == "1" or not file_url and vdc_id:
+                url = f"https://abhinaymaths.in/drm/{vdc_id}/{headers.get('userid')}" if self.name == "abhinaymaths" else f"https://www.videocrypt.in/drm/{vdc_id}/{headers.get('userid')}"
             elif content.get("video_type") == "1":
                 url = f"https://youtu.be/{content['file_url']}"
             else:
-                url = content["file_url"].replace("\\/", "/").replace("https\\:", "https:")
+                url = file_url.replace("\\/", "/").replace("https\\:", "https:")  
             self.v_count += 1
+            
             if content.get("had_pdf") == "1":
                 data = {"course_id": course_id, "video_id": content.get("id")}
                 result = self.fetch("data_model/poll/get_content_pdf", headers, data, key, iv)
                 for pdf in result["data"]:
+                    self.p_count += 1
                     url += f"\n{pdf['pdf_title']} : {pdf['pdf_url']}"
-        else:
-            url = content["file_url"].replace("\\/", "/").replace("https\\:", "https:")
+        elif file_type == 1:
+            if file_url:
+                url = file_url.replace("\\/", "/").replace("https\\:", "https:")
+            else:
+                url = join_url.replace("\\/", "/").replace("https\\:", "https:")
             self.p_count += 1
         return url
 
