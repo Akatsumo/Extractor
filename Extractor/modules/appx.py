@@ -134,7 +134,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             course_id = input2.text.strip()
             await input2.delete()
 
-            batch_name = next((course["course_name"] for course in batch_data if str(course["id"]) == course_id), None)
+            batch_name = "Testing" #next((course["course_name"] for course in batch_data if str(course["id"]) == course_id), None)
             if not batch_name:
                 return await msg.edit_text("Invalid Batch ID. Please try again.")
                 
