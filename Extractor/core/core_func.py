@@ -2,7 +2,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, cdsjourney
 from Extractor.modules.FreeAccess import (cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, 
 testpaper_free, jincjodhpur_free, careerwill_free, geologicalConcepts_free, selectionWay_free, taiyariKarlo_free, sscpinnacle_free, 
-chandraInstitute_free, jchemistry_free)
+chandraInstitute_free, jchemistry_free, appx_free)
 
 appNameDict = {
     # "utkarsh_": {"name": "Utkarsh", "func": utkarsh.handle_utk_logic},
@@ -31,6 +31,7 @@ WithoutAppDict = {
     "wsscpinnacle_": {"name": "SSC Pinnacle", "func": sscpinnacle_free.sscpinnacle_access},
     "wchandraInstitute_": {"name": "Chandra Institute", "func": chandraInstitute_free.chandraInstitute_access},
     "wjchemistry_": {"name": "J Chemistry", "func": jchemistry_free.jchemistry_access},
+    "wappx_": {"name": "Appx", "func": appx_free.appx_logins},
     # "wjrfadda_": {"name": "Jrf Adda", "func": jrfadda_free.jrfadda_access},
 }
 
