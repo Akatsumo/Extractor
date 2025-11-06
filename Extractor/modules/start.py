@@ -1,4 +1,5 @@
 from Extractor import app
+from config import OWNER_ID as owners
 from pyrogram import filters, enums
 from Extractor.core import script, core_func, main_func, appxmethod
 from Extractor.modules import appx
@@ -50,6 +51,8 @@ async def start_(_, message):
 async def handle_callback(_, query):
     name = query.from_user.mention
     user_id = query.from_user.id
+    if user_id not in owners:
+        return await query.answer("You are not premium user", show_alert=True)
     join = await main_func.subscribe(_, query.message, user_id, name)
     if join == 1:
         return
