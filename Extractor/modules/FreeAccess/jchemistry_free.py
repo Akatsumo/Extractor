@@ -86,12 +86,13 @@ async def jchemistry_access(_, message, user_id=None):
             course_bundle = course.get("course_bundles")
             if not course_bundle:
                 continue
-            batch_data.append({
-                "course_id": course_bundle.get("institution_bundle_id"),
-                "name": course_bundle.get("bundle_name"),
-                "course_ids": course_bundle.get("course_ids"),
-            })
-            batch_list += f"`{course_bundle.get('institution_bundle_id')}` - **{course_bundle.get('bundle_name')}**\n"
+            for bundle in course_bundle:
+                batch_data.append({
+                    "course_id": bundle.get("institution_bundle_id"),
+                    "name": bundle.get("bundle_name"),
+                    "course_ids": bundle.get("course_ids"),
+                })
+                batch_list += f"`{bundle.get('institution_bundle_id')}` - **{bundle.get('bundle_name')}**\n"
 
         thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
         caption = "**📊 Now send the Batch ID to Download**"
