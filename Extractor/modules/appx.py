@@ -10,7 +10,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 
-appx_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjkzNTExOSIsImVtYWlsIjoicGV5YXZhMjI4NUBkcm9wZXNvLmNvbSIsInRpbWVzdGFtcCI6MTc2MTc1MjA4NywidGVuYW50VHlwZSI6InVzZXIiLCJ0ZW5hbnROYW1lIjoicGFybWFyYWNhZGVteV9kYiIsInRlbmFudElkIjoiIiwiZGlzcG9zYWJsZSI6ZmFsc2V9.NQEDBZxK98d2mMhsqnhsk4952XMGzkeyyZJOS9FV_Is"
+token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjkzNTExOSIsImVtYWlsIjoicGV5YXZhMjI4NUBkcm9wZXNvLmNvbSIsInRpbWVzdGFtcCI6MTc2MTc1MjA4NywidGVuYW50VHlwZSI6InVzZXIiLCJ0ZW5hbnROYW1lIjoicGFybWFyYWNhZGVteV9kYiIsInRlbmFudElkIjoiIiwiZGlzcG9zYWJsZSI6ZmFsc2V9.NQEDBZxK98d2mMhsqnhsk4952XMGzkeyyZJOS9FV_Is"
 
 # --------------------------- Appex-V3 --------------------------- #
 async def full_cource(session, headers):
@@ -97,7 +97,7 @@ async def course_extract(session, api, headers, token, course_id):
 
 # --------------------------- Appex-Version 3 --------------------------- #
 
-async def appex_v3_txt(app, message, user_id, api, name):
+async def appex_v3_txt(app, message, user_id, api, name, token=token):
     try:
         async with aiohttp.ClientSession() as session:
             headers = {
@@ -109,7 +109,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
                 "User-Agent": "okhttp/4.9.1"
             }
 
-            if not appx_token:
+            if not token:
                 msg = await message.reply_text("🔑 Enter login credentials (Id*Password or Token):")                                     
                 input1 = await app.listen(user_id=user_id, timeout=30)
                 if "*" in input1.text:
