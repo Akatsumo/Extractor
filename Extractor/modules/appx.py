@@ -13,15 +13,18 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjkzNTExOSIsImVtYWlsIjoicGV5YXZhMjI4NUBkcm9wZXNvLmNvbSIsInRpbWVzdGFtcCI6MTc2MTc1MjA4NywidGVuYW50VHlwZSI6InVzZXIiLCJ0ZW5hbnROYW1lIjoicGFybWFyYWNhZGVteV9kYiIsInRlbmFudElkIjoiIiwiZGlzcG9zYWJsZSI6ZmFsc2V9.NQEDBZxK98d2mMhsqnhsk4952XMGzkeyyZJOS9FV_Is"
 
 # --------------------------- Appex-V3 --------------------------- #
-async def full_cource(session, headers):
-    url = "https://parmaracademyapi.classx.co.in/get/courselist?start=0"
+async def full_cource(session, headers, url=False):
+    if not url:
+        url = "https://parmaracademyapi.classx.co.in/get/courselist?start=0"
+    else:
+        url = "https://sciencemagnetapi.classx.co.in/get/coursecategories?folder_course=1"
     response = await session.get(url, headers=headers)
     if response.status != 200:
-        print("Failed to fetch all batches v3")
+        print("Failed to fetch all batches")
         return None
     full_batch = json.loads(await response.read()).get("data", [])
     return full_batch
-
+    
 
 
 async def course_extract(session, api, headers, token, course_id):
