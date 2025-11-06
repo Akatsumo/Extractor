@@ -13,7 +13,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 async def full_cource(session, headers):
     url = "https://parmaracademyapi.classx.co.in/get/courselist?start=0"
     response = await session.get(url, headers=headers)
-    ifresponse.status != 200:
+    if response.status != 200:
         print("Failed to fetch all batches v3")
         return None
     full_batch = json.loads(await response.read()).get("data", [])
