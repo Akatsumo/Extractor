@@ -123,8 +123,8 @@ async def appex_v3_txt(app, message, user_id, api, name):
                     if not token or not userid:
                         return await msg.edit_text("😒 **Invalid response from API.**")
                     headers.update({"User-Id": userid, "Authorization": token}) 
-                 else:
-                     token = input1.text.strip()
+                else:
+                    token = input1.text.strip()
                  await input1.delete()
                 
             headers.update({"Authorization": token})
