@@ -12,11 +12,11 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # --------------------------- Appex-V3 --------------------------- #
 async def full_cource(session, headers):
     url = "https://parmaracademyapi.classx.co.in/get/courselist?start=0"
-    response = session.get(url, headers=headers)
-    if response.status_code != 200:
+    response = await session.get(url, headers=headers)
+    ifresponse.status != 200:
         print("Failed to fetch all batches v3")
         return None
-    full_batch = response.json().get("data")
+    full_batch = json.loads(await response.read()).get("data", [])
     print(full_batch)
     return full_batch
 
