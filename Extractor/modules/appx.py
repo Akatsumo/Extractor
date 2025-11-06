@@ -17,6 +17,7 @@ async def full_cource(session, headers):
         print("Failed to fetch all batches v3")
         return None
     full_batch = response.json().get("data")
+    print(full_batch)
     return full_batch
 
 
@@ -138,7 +139,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             )
             r = await mm.wait_for_click(from_user_id=user_id)
             await mm.delete()
-            if r.data == "AppxPurchased":
+            if r.data == "data_AppxPaid":
                 batch_data = await full_cource(session, headers)
             else:
                response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
