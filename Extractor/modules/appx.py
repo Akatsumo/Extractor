@@ -10,6 +10,16 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 # --------------------------- Appex-V3 --------------------------- #
+async def full_cource(session, headers):
+    url = "https://parmaracademyapi.classx.co.in/get/courselist?start=0"
+    response = session.get(url, headers=headers)
+    if response.status_code != 200:
+        print("Failed to fetch all batches v3")
+        return None
+    full_batch = response.json().get("data")
+    return full_batch
+
+
 
 async def course_extract(session, api, headers, token, course_id):
     lectures, v_count, p_count = [], 0, 0
@@ -118,9 +128,22 @@ async def appex_v3_txt(app, message, user_id, api, name):
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
             else:
                 await msg.edit_text("✅ **Login Successful.**")
-           
-            response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
-            batch_data = json.loads(await response.read()).get("data", [])
+
+            buttons = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🟢 Purchased", callback_data="data_AppxPurchased")],
+                [InlineKeyboardButton("🔴 Without Purchased", callback_data="data_AppxPaid")]
+            ])
+            mm = await message.reply_text(f"🕹 **Select {name.title()} Batches Mode 👇**\n\n🔴 Without Purchased Batches\n🟢 Purchaseds\n\n**Notice**: Without Purchased batches selected — all batches Batche can be extracted without payment",
+                reply_markup=buttons
+            )
+            r = await mm.wait_for_click(from_user_id=user_id)
+            await mm.delete()
+            if r.data == "AppxPurchased":
+                batch_data = await full_cource(session, headers)
+            else:
+               response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
+               batch_data = json.loads(await response.read()).get("data", [])
+                
             if not batch_data:
                 await appex_v2_txt(app, message, user_id, api, name, token, msg)
                 return
@@ -134,7 +157,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             course_id = input2.text.strip()
             await input2.delete()
 
-            batch_name = "Testing" #next((course["course_name"] for course in batch_data if str(course["id"]) == course_id), None)
+            batch_name = next((course["course_name"] for course in batch_data if str(course["id"]) == course_id), None)
             if not batch_name:
                 return await msg.edit_text("Invalid Batch ID. Please try again.")
                 
