@@ -9,6 +9,9 @@ from Extractor.core import script, core_func, appxmethod, main_func
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+
+appx_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjkzNTExOSIsImVtYWlsIjoicGV5YXZhMjI4NUBkcm9wZXNvLmNvbSIsInRpbWVzdGFtcCI6MTc2MTc1MjA4NywidGVuYW50VHlwZSI6InVzZXIiLCJ0ZW5hbnROYW1lIjoicGFybWFyYWNhZGVteV9kYiIsInRlbmFudElkIjoiIiwiZGlzcG9zYWJsZSI6ZmFsc2V9.NQEDBZxK98d2mMhsqnhsk4952XMGzkeyyZJOS9FV_Is"
+
 # --------------------------- Appex-V3 --------------------------- #
 async def full_cource(session, headers):
     url = "https://parmaracademyapi.classx.co.in/get/courselist?start=0"
@@ -107,22 +110,23 @@ async def appex_v3_txt(app, message, user_id, api, name):
                 "User-Agent": "okhttp/4.9.1"
             }
 
-            msg = await message.reply_text("🔑 Enter login credentials (Id*Password or Token):")                                     
-            input1 = await app.listen(user_id=user_id, timeout=30)
-            if "*" in input1.text:
-                email, password = input1.text.split("*")
-                response = await session.post(f"https://{api}/post/userLogin", data={"email": email, "password": password}, headers=headers)
-                if response.status != 200:
-                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            if not appx_token:
+                msg = await message.reply_text("🔑 Enter login credentials (Id*Password or Token):")                                     
+                input1 = await app.listen(user_id=user_id, timeout=30)
+                if "*" in input1.text:
+                    email, password = input1.text.split("*")
+                    response = await session.post(f"https://{api}/post/userLogin", data={"email": email, "password": password}, headers=headers)
+                    if response.status != 200:
+                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-                output = await response.json()
-                userid, token = output["data"]["userid"], output["data"]["token"]
-                if not token or not userid:
-                    return await msg.edit_text("😒 **Invalid response from API.**")
-                headers.update({"User-Id": userid, "Authorization": token}) 
-            else:
-                token = input1.text.strip()
-            await input1.delete()
+                    output = await response.json()
+                    userid, token = output["data"]["userid"], output["data"]["token"]
+                    if not token or not userid:
+                        return await msg.edit_text("😒 **Invalid response from API.**")
+                    headers.update({"User-Id": userid, "Authorization": token}) 
+                 else:
+                     token = input1.text.strip()
+                 await input1.delete()
                 
             headers.update({"Authorization": token})
             if len(token) <= 100:  
@@ -130,21 +134,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
             else:
                 await msg.edit_text("✅ **Login Successful.**")
 
-            buttons = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🟢 Purchased", callback_data="data_AppxPurchased")],
-                [InlineKeyboardButton("🔴 Without Purchased", callback_data="data_AppxPaid")]
-            ])
-            mm = await message.reply_text(f"🕹 **Select {name.title()} Batches Mode 👇**\n\n🔴 Without Purchased Batches\n🟢 Purchaseds\n\n**Notice**: Without Purchased batches selected — all batches Batche can be extracted without payment",
-                reply_markup=buttons
-            )
-            r = await mm.wait_for_click(from_user_id=user_id)
-            await mm.delete()
-            if r.data == "data_AppxPaid":
-                batch_data = await full_cource(session, headers)
-            else:
-               response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
-               batch_data = json.loads(await response.read()).get("data", [])
-                
+            batch_data = await full_cource(session, headers)
             if not batch_data:
                 await appex_v2_txt(app, message, user_id, api, name, token, msg)
                 return
