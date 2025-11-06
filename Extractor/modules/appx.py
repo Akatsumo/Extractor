@@ -20,7 +20,6 @@ async def full_cource(session, headers):
         print("Failed to fetch all batches v3")
         return None
     full_batch = json.loads(await response.read()).get("data", [])
-    print(full_batch)
     return full_batch
 
 
