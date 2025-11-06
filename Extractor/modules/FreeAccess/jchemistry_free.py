@@ -39,10 +39,10 @@ async def course_content(session, batch_id, course_ids):
 
                 if material_type == "video/mp4":
                     url = (
-                        vimeo_url
-                        or drm_url if is_drm
+                        f"https://jchemistry-api.edmingle.com/vimeo/{vimeo_url}"
+                        or f"https://vz-70c947c6-972.b-cdn.net/{drm_url}/playlist.m3u8" if is_drm
                         else vdocipher_video_id if is_enterprise_drm
-                        else videocrypt_video_id if is_videocrypt_drm
+                        else f"https://www.videocrypt.in/drm/{videocrypt_video_id}" if is_videocrypt_drm
                         else None
                     )
                     if url:
