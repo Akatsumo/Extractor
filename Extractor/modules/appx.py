@@ -13,11 +13,11 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjkzNTExOSIsImVtYWlsIjoicGV5YXZhMjI4NUBkcm9wZXNvLmNvbSIsInRpbWVzdGFtcCI6MTc2MTc1MjA4NywidGVuYW50VHlwZSI6InVzZXIiLCJ0ZW5hbnROYW1lIjoicGFybWFyYWNhZGVteV9kYiIsInRlbmFudElkIjoiIiwiZGlzcG9zYWJsZSI6ZmFsc2V9.NQEDBZxK98d2mMhsqnhsk4952XMGzkeyyZJOS9FV_Is"
 
 # --------------------------- Appex-V3 --------------------------- #
-async def full_cource(session, headers, url=False):
+async def full_cource(session, headers, api, url=False):
     if not url:
-        url = "https://parmaracademyapi.classx.co.in/get/courselist?start=0"
+        url = f"https://{api}/get/courselist?start=0"
     else:
-        url = "https://sciencemagnetapi.classx.co.in/get/coursecategories?folder_course=1"
+        url = f"https://{api}/get/coursecategories?folder_course=1"
     response = await session.get(url, headers=headers)
     if response.status != 200:
         print("Failed to fetch all batches")
@@ -137,7 +137,7 @@ async def appex_v3_txt(app, message, user_id, api, name, token=token):
             else:
                 await msg.edit_text("✅ **Login Successful.**")
 
-            batch_data = await full_cource(session, headers)
+            batch_data = await full_cource(session, headers, api)
             if not batch_data:
                 await appex_v2_txt(app, message, user_id, api, name, token, msg)
                 return
@@ -309,7 +309,7 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
             else:
                 await msg.edit_text("✅ **Login Successful**")
 
-            batch_data = full_cource(session, headers, True)
+            batch_data = full_cource(session, headers, api, True)
             if not batch_data:
                 return await msg.edit_text("No Batch Data found!!")
 
