@@ -309,31 +309,21 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
             else:
                 await msg.edit_text("✅ **Login Successful**")
 
-            response = await session.get(f"https://{api}/get/get_all_purchases?userid&item_type=10", headers=headers)
-            if response.status != 200:
-                return await msg.edit_text("Failed to fetch batch data.")
-
-            json_data = await response.json()
-            batch_data = json_data.get("data", [])
+            batch_data = full_cource(session, headers, True)
             if not batch_data:
                 return await msg.edit_text("No Batch Data found!!")
 
             
             batch_list = "📚 **Available Batches:**\n\n"
-            batch_map = {}
             for data in batch_data:
-                for cdata in data.get("coursedt", []):
-                    cid = str(cdata.get("id"))
-                    cname = cdata.get("course_name", "Unnamed Course")
-                    batch_list += f"`{cid}` - **{cname}**\n"
-                    batch_map[cid] = cname
+                batch_list += f"`{data['id']}`  -   **{data['course_name']}**\n"
 
             await msg.edit_text(f"{batch_list}\n**📊 Now send the Batch ID to Download**")
             input2 = await app.listen(user_id=user_id, timeout=30)
             course_id = input2.text.strip()
             await input2.delete()
 
-            batch_name = batch_map.get(course_id)
+            batch_name = next((course["course_name"] for course in batch_data if str(course["id"]) == course_id), None)
             if not batch_name:
                 return await msg.edit_text("**Batch ID Not Found!!**")
 
