@@ -127,7 +127,7 @@ async def appex_v3_txt(app, message, user_id, api, name):
                     token = input1.text.strip()
                 await input1.delete()
                 
-            msg = await message.reply_text(f"Fetching All {name.title)()} Batches, Please Wait...")    
+            msg = await message.reply_text(f"Fetching All {name.title()} Batches, Please Wait...")    
             headers.update({"Authorization": token})
             if len(token) <= 100:  
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
