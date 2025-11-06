@@ -309,7 +309,7 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
             else:
                 await msg.edit_text("✅ **Login Successful**")
 
-            batch_data = full_cource(session, headers, api, True)
+            batch_data = await full_cource(session, headers, api, True)
             if not batch_data:
                 return await msg.edit_text("No Batch Data found!!")
 
