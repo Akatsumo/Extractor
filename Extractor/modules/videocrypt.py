@@ -113,6 +113,7 @@ class VideoCryptExtractor:
 
     def get_content_url(self, course_id, content, headers, key, iv):
         print(content)
+        url = None
         file_type = content.get("file_type")
         file_url = content.get("file_url")
         join_url = content.get("join_url")
