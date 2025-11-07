@@ -19,7 +19,7 @@ async def course_content(session, batch_id, parent_id):
     }
     response_data = session.post("http://onlineclass.pathfinderacademy.in/api/category/getcategory", data=data)
 
-    if response.status_code != 200 or response.status_code != 201:
+    if response.status_code != 200 and response.status_code != 201:
         return lectures, v_count, p_count
 
     content_data = response_data.json().get("message", [])
@@ -46,7 +46,7 @@ async def course_content(session, batch_id, parent_id):
                 "categorymainid": parent_id
             }
             response_video = session.post("http://onlineclass.pathfinderacademy.in/api/video/getvideo", data=data)
-            if response.status_code != 200 or response.status_code != 201:
+            if response.status_code != 200 and response.status_code != 201:
                 continue
 
             video_data = response_video.json().get("message", [])
@@ -76,7 +76,7 @@ async def patherfinder_access(_, message, user_id=None):
         
         data = {"loggedinkey": "", "loginid": "", "categoryparentid": 0}
         response = session.post("http://onlineclass.pathfinderacademy.in/api/category/gethead", data=data)
-        if response.status_code != 200 or response.status_code != 201:
+        if response.status_code != 200 and response.status_code != 201:
             return await msg.edit_text("Failed to fetch Path Finder Category")
 
         category_data = response.json().get("message", [])
@@ -100,7 +100,7 @@ async def patherfinder_access(_, message, user_id=None):
 
         data = {"loggedinkey": "", "loginid": "", "headid": category_id}
         response = session.post("http://onlineclass.pathfinderacademy.in/api/plan/getplanbyhead", data=data)
-        if response.status_code != 200 or response.status_code != 201:
+        if response.status_code != 200 and response.status_code != 201:
             return await msg.edit_text("Failed to fetch Path Finder batches")
 
         batch_data = response.json().get("message", [])
