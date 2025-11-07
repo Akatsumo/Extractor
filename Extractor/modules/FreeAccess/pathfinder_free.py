@@ -76,6 +76,7 @@ async def patherfinder_access(_, message, user_id=None):
         data = {"loggedinkey": "", "loginid": "", "categoryparentid": 0}
         response = session.post("http://onlineclass.pathfinderacademy.in/api/category/gethead", data=data)
 
+        print(response.json())
         if response.status_code != 200:
             return await msg.edit_text("Failed to fetch Path Finder Category")
 
