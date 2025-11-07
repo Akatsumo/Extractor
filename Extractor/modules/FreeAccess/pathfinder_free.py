@@ -19,7 +19,7 @@ async def course_content(session, batch_id, parent_id):
     }
     response_data = session.post("http://onlineclass.pathfinderacademy.in/api/category/getcategory", data=data)
 
-    if response.status_code != 200 and response.status_code != 201:
+    if response_data.status_code != 200 and response_data.status_code != 201:
         return lectures, v_count, p_count
 
     content_data = response_data.json().get("message", [])
@@ -46,7 +46,7 @@ async def course_content(session, batch_id, parent_id):
                 "categorymainid": parent_id
             }
             response_video = session.post("http://onlineclass.pathfinderacademy.in/api/video/getvideo", data=data)
-            if response.status_code != 200 and response.status_code != 201:
+            if response_video.status_code != 200 and response_video.status_code != 201:
                 continue
 
             video_data = response_video.json().get("message", [])
