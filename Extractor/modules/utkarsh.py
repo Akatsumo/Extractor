@@ -223,7 +223,7 @@ class UtkarshExtractor:
                 
             
             end_time = time.time()
-           file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w", encoding="utf-8") as f:
                 f.write(all_contents)
                 
