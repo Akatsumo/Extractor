@@ -48,22 +48,7 @@ async def course_content(session, batch_id, course_ids):
                     )
                     if url:
                         v_count += 1
-                        lectures.append(f"{section_name} | {material_name}: {url}")
-
-                elif material_type == "application/pdf":
-                    url = f"https://jchemistry-api.edmingle.com/nuSource/api/v1/student/materials/{material_id}"
-                    params = {"class_id": id}
-                    headers = {
-                        "apikey": "22ed8e8b83fced47fdc6f317dbbae9ad",
-                        "orgid": "267"
-                    }
-                    response = session.get(url, headers=headers, params=params)
-                    if response.status_code != 200:
-                        continue
-                    pdf_url = response.json().get("material", {}).get("url")
-                    if pdf_url:
-                        p_count += 1
-                        lectures.append(f"{section_name} | {material_name}: {pdf_url}")
+                        lectures.append(f"{section_name} | {material_name}: {url}"
 
     return lectures, v_count, p_count
 
