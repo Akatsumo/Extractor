@@ -48,7 +48,7 @@ async def course_content(session, batch_id, course_ids):
                     )
                     if url:
                         v_count += 1
-                        lectures.append(f"{section_name} | {material_name}: {url}"
+                        lectures.append(f"{section_name} | {material_name}: {url}")
 
     return lectures, v_count, p_count
 
