@@ -269,7 +269,7 @@ class VideoCryptExtractor:
             caption = (
                 f"**App Name** : {self.name.title()}\n"
                 f"**Batch Name** : `{batch_name}`\n\n"
-                f"📜 **Total Lines** : `{len(all_contents.splitlines())}`\n"
+                f"📜 **Total Materials** : `{len(all_contents.splitlines())}`\n"
                 f"🍿 **Videos** : `{self.v_count}` | 📝 **PDFs** : `{self.p_count}`\n"
                 f"⌚️ **Time Taken** : `{elapsed}`"
             )
@@ -290,3 +290,6 @@ async def videocrypt_login(_, message, user_id=None):
         await message.edit_text(script.TOOLS_TEXT, reply_markup=buttons)
     else:
         await message.reply_text(script.TOOLS_TEXT, reply_markup=buttons)
+
+
+
