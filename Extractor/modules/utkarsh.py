@@ -100,7 +100,7 @@ class UtkarshExtractor:
                         self.v_count += 1
                         url = link if link.startswith("https") else f"https://youtu.be/{link}"
                         lectures.append(f"{subject_name}: {url}")
-s
+
             else:
                 self.p_count += 1
                 url = re.sub(r'\\/', '/', content['file_url']).replace("https\\:", "https:")
