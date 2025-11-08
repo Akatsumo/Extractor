@@ -10,6 +10,58 @@ from Extractor.core import main_func, script, core_func
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+def header_definer(name):
+    name = name.replace(" ", "").lower()
+    if name == "abhinaymaths":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_586"
+        version = "103"
+        appid = "586"
+        return authorization, version, appid
+    elif name == "eduteria":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_166"
+        version = "40"
+        appid = "166"
+        return authorization, version, appid
+    elif name == "kotamentors":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_675"
+        version = "3"
+        appid = "675"
+        return authorization, version, appid
+    elif name == "missionselection":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_746"
+        version = "23"
+        appid = "746"
+        return authorization, version, appid
+    elif name == "rankbuddy":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_583"
+        version = "4"
+        appid = "583"
+        return authorization, version, appid
+    elif name == "rajputtutorials":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_681"
+        version = "50"
+        appid = "681"
+        return authorization, version, appid
+    elif name == "pateltutorials":
+        authorization = "Bearer 117#Nerglnw3@@OI)30@I*Dm'@@_263"
+        version = "59"
+        appid = "263"
+        return authorization, version, appid
+    elif name == "mypathsala":
+        authorization = "Bearer 01*#NerglnwwebOI)30@I*Dm'@@"
+        version = "1"
+        appid = "810"
+        return authorization, version, appid
+    elif name == "nexttopers":
+        authorization = "Bearer 01*#NerglnwwebOI)30@I*Dm'@@"
+        version = "1"
+        appid = "540"
+        return authorization, version, appid
+        
+    else:
+        return None, None, None
+        
+
 
 class VideoCryptExtractor:
     def __init__(self, name):
