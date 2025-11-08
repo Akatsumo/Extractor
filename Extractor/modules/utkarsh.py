@@ -84,7 +84,6 @@ class UtkarshExtractor:
                     main_func.encrypt(key, iv, json.dumps(data)),
                     key, iv
                 )
-
                 if not result:
                     continue
 
@@ -180,7 +179,7 @@ class UtkarshExtractor:
             )
 
             if not courses_data or not courses_data.get("data"):
-                return await msg.edit_text("❌ No Batch Data found!!")
+                return await msg.edit_text("No Batch Data found!!")
 
             courses = courses_data["data"]
             course_batches = "📚 **Available Batches:**\n\n"
@@ -194,11 +193,10 @@ class UtkarshExtractor:
 
             batch_name = next((c['title'] for c in courses if str(c['id']) == batch_id), None)
             if not batch_name:
-                return await msg.edit_text("❌ Only valid batch IDs are accepted")
+                return await msg.edit_text("Only valid batch IDs are accepted")
 
-            await msg.edit_text("⏳ **Extracting Video Links... Please Wait 📥**")
+            await msg.edit_text("📥 Extracting Course Content, Please Wait...")
             start_time = time.time()
-
             data = {"course_id": batch_id, "parent_id": ""}
             encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
             course_data = await self.fetch(
@@ -208,7 +206,7 @@ class UtkarshExtractor:
 
             lectures = []
             if not course_data or 'data' not in course_data:
-                return await msg.edit_text("❌ No course data found.")
+                return await msg.edit_text("No course data found.")
 
             for tile in course_data["data"].get("tiles", []):
                 if tile.get("type") != "course_combo":
@@ -220,20 +218,26 @@ class UtkarshExtractor:
                     )
                     lectures.extend(sub_lectures)
 
-            filename = f"{batch_name.replace('/', '')}_{int(time.time())}.txt"
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write("\n".join(lectures))
-
-            elapsed = main_func.get_time(time.time() - start_time)
+            if not lectures:
+                return await msg.edit_text("📭 **No content found in this batch.**")
+                
+            
+            end_time = time.time()
+           file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            with open(file_name, "w", encoding="utf-8") as f:
+                f.write(all_contents)
+                
+            elapsed = main_func.get_time(end_time - start_time)
             caption = (
-                f"**App Name:** Utkarsh\n"
-                f"**Batch Name:** `{batch_name}`\n\n"
-                f"🍿 **Total Videos:** `{self.v_count}`\n"
-                f"📝 **Total PDFs:** `{self.p_count}`\n"
-                f"⌚️ **Time Taken:** `{elapsed}`"
+                f"**App Name** : `Utkarsh`\n"
+                f"**Batch Name** : `{batch_name}`\n\n"
+                f"📜 **Total Materials** : `{len(lectures)}`\n"
+                f"🍿 **Videos** : `{self.v_count}` | 📝 **PDFs** : `{self.p_count}`\n"
+                f"⌚️ **Time Taken** : `{elapsed}`"
             )
-
-            await message.reply_document(filename, caption=caption)
+            await main_func.send_file(app, file_name, user_id, caption, thumb=None)
+            await msg.delete()
+            await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
         except ListenerTimeout:
             await message.reply_text("⏰ Timeout! You took too long to reply.")
