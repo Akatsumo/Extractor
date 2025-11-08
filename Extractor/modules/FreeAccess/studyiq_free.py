@@ -39,6 +39,7 @@ async def course_content(session, batch_id):
         return lectures, v_count, p_count
         
     for item in fetch_data:
+        print(item)
         name = item.get("name", "")
         video = item.get("videoUrl")
         pdf = item.get("textUploadUrl")
