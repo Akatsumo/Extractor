@@ -9,23 +9,7 @@ from Extractor.core import script, core_func, appxmethod, main_func
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-
-token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjkzNTExOSIsImVtYWlsIjoicGV5YXZhMjI4NUBkcm9wZXNvLmNvbSIsInRpbWVzdGFtcCI6MTc2MTc1MjA4NywidGVuYW50VHlwZSI6InVzZXIiLCJ0ZW5hbnROYW1lIjoicGFybWFyYWNhZGVteV9kYiIsInRlbmFudElkIjoiIiwiZGlzcG9zYWJsZSI6ZmFsc2V9.NQEDBZxK98d2mMhsqnhsk4952XMGzkeyyZJOS9FV_Is"
-
 # --------------------------- Appex-V3 --------------------------- #
-async def full_cource(session, headers, api, url=False):
-    if not url:
-        url = f"https://{api}/get/courselist?start=0"
-    else:
-        url = f"https://{api}/get/coursecategories?folder_course=1"
-    response = await session.get(url, headers=headers)
-    if response.status != 200:
-        print("Failed to fetch all batches")
-        return None
-    full_batch = json.loads(await response.read()).get("data", [])
-    return full_batch
-    
-
 
 async def course_extract(session, api, headers, token, course_id):
     lectures, v_count, p_count = [], 0, 0
@@ -100,7 +84,7 @@ async def course_extract(session, api, headers, token, course_id):
 
 # --------------------------- Appex-Version 3 --------------------------- #
 
-async def appex_v3_txt(app, message, user_id, api, name, token=token):
+async def appex_v3_txt(app, message, user_id, api, name):
     try:
         async with aiohttp.ClientSession() as session:
             headers = {
@@ -112,32 +96,31 @@ async def appex_v3_txt(app, message, user_id, api, name, token=token):
                 "User-Agent": "okhttp/4.9.1"
             }
 
-            if not token:
-                msg = await message.reply_text("🔑 Enter login credentials (Id*Password or Token):")                                     
-                input1 = await app.listen(user_id=user_id, timeout=30)
-                if "*" in input1.text:
-                    email, password = input1.text.split("*")
-                    response = await session.post(f"https://{api}/post/userLogin", data={"email": email, "password": password}, headers=headers)
-                    if response.status != 200:
-                        return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+            msg = await message.reply_text("🔑 Enter login credentials (Id*Password or Token):")                                     
+            input1 = await app.listen(user_id=user_id, timeout=30)
+            if "*" in input1.text:
+                email, password = input1.text.split("*")
+                response = await session.post(f"https://{api}/post/userLogin", data={"email": email, "password": password}, headers=headers)
+                if response.status != 200:
+                    return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
 
-                    output = await response.json()
-                    userid, token = output["data"]["userid"], output["data"]["token"]
-                    if not token or not userid:
-                        return await msg.edit_text("😒 **Invalid response from API.**")
-                    headers.update({"User-Id": userid, "Authorization": token}) 
-                else:
-                    token = input1.text.strip()
-                await input1.delete()
+                output = await response.json()
+                userid, token = output["data"]["userid"], output["data"]["token"]
+                if not token or not userid:
+                    return await msg.edit_text("😒 **Invalid response from API.**")
+                headers.update({"User-Id": userid, "Authorization": token}) 
+            else:
+                token = input1.text.strip()
+            await input1.delete()
                 
-            msg = await message.reply_text(f"Fetching All {name.title()} Batches, Please Wait...")    
             headers.update({"Authorization": token})
             if len(token) <= 100:  
                 return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
             else:
                 await msg.edit_text("✅ **Login Successful.**")
-
-            batch_data = await full_cource(session, headers, api)
+           
+            response = await session.get(f"https://{api}/get/mycourseweb?userid", headers=headers)
+            batch_data = json.loads(await response.read()).get("data", [])
             if not batch_data:
                 await appex_v2_txt(app, message, user_id, api, name, token, msg)
                 return
@@ -309,21 +292,31 @@ async def appex_v2_txt(app, message, user_id, api, name, token=None, msg=None):
             else:
                 await msg.edit_text("✅ **Login Successful**")
 
-            batch_data = await full_cource(session, headers, api, True)
+            response = await session.get(f"https://{api}/get/get_all_purchases?userid&item_type=10", headers=headers)
+            if response.status != 200:
+                return await msg.edit_text("Failed to fetch batch data.")
+
+            json_data = await response.json()
+            batch_data = json_data.get("data", [])
             if not batch_data:
                 return await msg.edit_text("No Batch Data found!!")
 
             
             batch_list = "📚 **Available Batches:**\n\n"
+            batch_map = {}
             for data in batch_data:
-                batch_list += f"`{data['id']}`  -   **{data['course_name']}**\n"
+                for cdata in data.get("coursedt", []):
+                    cid = str(cdata.get("id"))
+                    cname = cdata.get("course_name", "Unnamed Course")
+                    batch_list += f"`{cid}` - **{cname}**\n"
+                    batch_map[cid] = cname
 
             await msg.edit_text(f"{batch_list}\n**📊 Now send the Batch ID to Download**")
             input2 = await app.listen(user_id=user_id, timeout=30)
             course_id = input2.text.strip()
             await input2.delete()
 
-            batch_name = next((course["course_name"] for course in batch_data if str(course["id"]) == course_id), None)
+            batch_name = batch_map.get(course_id)
             if not batch_name:
                 return await msg.edit_text("**Batch ID Not Found!!**")
 
@@ -399,4 +392,5 @@ async def appx_logins(_, message, user_id=None, callback=False, api=None, name=N
             return await msg.edit_text("❌ **Invalid API URL! Please try again.**")
         await appex_v3_txt(app, message, user_id, api, name)
         await msg.delete()
-            
+
+
