@@ -2,8 +2,9 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill
 from Extractor.modules.FreeAccess import (cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, 
 testpaper_free, jincjodhpur_free, careerwill_free, geologicalConcepts_free, selectionWay_free, taiyariKarlo_free, sscpinnacle_free, 
-chandraInstitute_free, jchemistry_free, appx_free, pathfinder_free)
+chandraInstitute_free, jchemistry_free, pathfinder_free)
 
+# ---------------------------------- AppName-Dict ---------------------------------- #
 appNameDict = {
     # "utkarsh_": {"name": "Utkarsh", "func": utkarsh.handle_utk_logic},
     "khan_": {"name": "Khan", "func": khan.khan_handler},
@@ -15,6 +16,7 @@ appNameDict = {
     "videocrypt_": {"name": "Videocrypt", "func": videocrypt.videocrypt_login},
 }
 
+# ---------------------------------- WithoutApp-Dict ---------------------------------- #
 WithoutAppDict = {
     "wcdsjourney_": {"name": "Cds Journey", "func": cdsjourney_free.cdsjourney_access},
     "wclassplus_": {"name": "Classplus", "func": classplus_free.classplus_access},
@@ -30,11 +32,12 @@ WithoutAppDict = {
     "wsscpinnacle_": {"name": "SSC Pinnacle", "func": sscpinnacle_free.sscpinnacle_access},
     "wchandraInstitute_": {"name": "Chandra Institute", "func": chandraInstitute_free.chandraInstitute_access},
     "wjchemistry_": {"name": "J Chemistry", "func": jchemistry_free.jchemistry_access},
-    "wappx_": {"name": "Appx", "func": appx_free.appx_logins},
     "wpathfinder_": {"name": "Path Finder", "func": pathfinder_free.patherfinder_access},
     # "wjrfadda_": {"name": "Jrf Adda", "func": jrfadda_free.jrfadda_access},
 }
 
+
+# ---------------------------------- VideocryptApp-Dict ---------------------------------- #
 videoCryptDict = {
     "abhinaymaths_": {"name": "Abhinay Maths", "func": videocrypt},
     "eduteria_": {"name": "Eduteria", "func": videocrypt},
