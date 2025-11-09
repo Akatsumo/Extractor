@@ -14,7 +14,7 @@ appNameDict = {
     "vajiram_": {"name": "Vajiram", "func": vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": kpias.kpias_login},
     "videocrypt_": {"name": "Videocrypt", "func": videocrypt.videocrypt_login},
-    "utkaarsh_": {"name": "Utkarsh", "func": utkarsh.utkarsh_start},
+    "utkarsh_": {"name": "Utkarsh", "func": utkarsh.utkarsh_start},
 }
 
 # ---------------------------------- WithoutApp-Dict ---------------------------------- #
