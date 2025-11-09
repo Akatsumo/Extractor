@@ -81,7 +81,7 @@ class UtkarshExtractor:
         for sub in all_cats:
             m_id = sub.get("master_type")
             parent_id = str(sub.get("parent_id", "")).strip()
-           if not parent_id or parent_id == "0" or m_id not in master_dict:
+            if not parent_id or parent_id == "0" or m_id not in master_dict:
                continue
                
            master_dict[m_id]["sub_categories"].append({
