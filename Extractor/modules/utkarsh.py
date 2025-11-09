@@ -60,10 +60,10 @@ class UtkarshExtractor:
         if response_data.get("status") is not True:
             return None
         return response_data
-        
-    def get_master_courses(session):
-        r = session.get("https://online.utkarsh.com/web/Home/getMasterCat")
-        response_data = json.loads(crypto.decrypt(r.json().get("response")))
+
+    def get_master_courses(self):
+        r = self.session.get("https://online.utkarsh.com/web/Home/getMasterCat")
+        response_data = json.loads(main_func.decrypt("key", "iv", r.json().get("response")))
         master_cats = response_data["data"]["master_cat"]
         all_cats = response_data["data"]["all_cat"]
 
@@ -82,19 +82,18 @@ class UtkarshExtractor:
             m_id = sub.get("master_type")
             parent_id = str(sub.get("parent_id", "")).strip()
             if not parent_id or parent_id == "0" or m_id not in master_dict:
-               continue
-               
-           master_dict[m_id]["sub_categories"].append({
-            "sub_id": sub["id"],
-            "sub_name": sub["name"],
-            "parent_id": parent_id,
-            "is_child": sub.get("is_child", "0")
-           })
+                continue
+            master_dict[m_id]["sub_categories"].append({
+                "sub_id": sub["id"],
+                "sub_name": sub["name"],
+                "parent_id": parent_id,
+                "is_child": sub.get("is_child", "0")
+            })
+
         final_output = list(master_dict.values())
         return json.dumps(final_output, indent=4, ensure_ascii=False)
 
-
-    def get_courses(session, cat_id, sub_cat_id, page=1):
+    def get_courses(self, cat_id, sub_cat_id, page=1):
         cookies = {
             "csrf_name": "efcded0e551a154f509163c665fb7cec",
             "ci_session": "irkdqsvrd1ketajm4g8b0beics2ko3na",
@@ -108,8 +107,8 @@ class UtkarshExtractor:
             "course_type": "0",
             "page": page,
         }
-        response = session.post(url, cookies=cookies, data=data)
-        response_data = json.loads(crypto.decrypt(response.json().get("response").split(":")[0]))
+        response = self.session.post(url, cookies=cookies, data=data)
+        response_data = json.loads(main_func.decrypt("key", "iv", response.json().get("response")))
         return response_data
 
     async def process_topic(self, course_id, batch_id, subject_id, topic_id, key, iv):
@@ -126,7 +125,7 @@ class UtkarshExtractor:
             "type": "content"
         }
 
-        topic_data = await self.fetch(
+        topic_data = self.fetch(
             f"{self.API_BASE}/data_model/course/get_master_data",
             main_func.encrypt(key, iv, json.dumps(data)),
             key, iv
@@ -151,7 +150,7 @@ class UtkarshExtractor:
                     "type": "video"
                 }
 
-                result = await self.fetch(
+                result = self.fetch(
                     f"{self.API_BASE}/data_model/meta_distributer/on_request_meta_source",
                     main_func.encrypt(key, iv, json.dumps(data)),
                     key, iv
@@ -171,7 +170,6 @@ class UtkarshExtractor:
                         self.v_count += 1
                         url = link if link.startswith("https") else f"https://youtu.be/{link}"
                         lectures.append(f"{subject_name}: {url}")
-
             else:
                 self.p_count += 1
                 url = re.sub(r'\\/', '/', content['file_url']).replace("https\\:", "https:")
@@ -182,7 +180,7 @@ class UtkarshExtractor:
     async def process_course(self, course_id, batch_id, key, iv):
         data = {"course_id": course_id, "parent_id": batch_id}
         encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
-        course_detail = await self.fetch(
+        course_detail = self.fetch(
             f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
             encrypted_data, key, iv
         )
@@ -224,7 +222,7 @@ class UtkarshExtractor:
                 }
 
                 encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data))
-                response = await self.fetch(
+                response = self.fetch(
                     f"{self.API_BASE}/data_model/users/login_auth",
                     encrypted_data, key, iv
                 )
@@ -235,68 +233,49 @@ class UtkarshExtractor:
             else:
                 token = raw_text
 
-            await msg.edit_text("Login Successfull")
+            await msg.edit_text("✅ Login Successful")
             user_data = main_func.jwt_decoder(token)
             user_id_api = user_data.get('id')
             self.headers.update({"jwt": token, "userid": str(user_id_api)})
-            
+
             key, iv = main_func.gen_key_iv(self.BASE, user_id_api)
             data = {"user_id": user_id_api}
             encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
 
-            # courses_data = await self.fetch(
-            #     f"{self.API_BASE}/data_model/course/get_my_courses",
-            #     encrypted_data, key, iv
-            # )
-            
-            # if not courses_data or not courses_data.get("data"):
-            #     return await msg.edit_text("No Batch Data found!!")
-
-            # courses = courses_data["data"]
-            
-            master_data = get_master_courses(session)
+            master_data = json.loads(self.get_master_courses())
             if not master_data:
                 return await msg.edit_text("Master course not found !!")
 
-            master_list = "📚 **Available Masters:**\n\n"
-            for master in master_list:
-                master_list += f"{master.get('master_id')} - {master.get('master_name')}\n"
+            master_list_text = "📚 **Available Masters:**\n\n"
+            for master in master_data:
+                master_list_text += f"{master.get('master_id')} - {master.get('master_name')}\n"
 
-            await msg.edit_text(f"{master_list}\n\n📊 **Now send the Master ID to Download**")
+            await msg.edit_text(f"{master_list_text}\n\n📊 **Now send the Master ID to Download**")
             input2 = await app.listen(user_id=user_id, timeout=30)
             master_id = input2.text.strip()
             await input2.delete()
 
-            master_name sub_content = next(((c['master_name'], c['sub_categories']) for c in master_data if str(c['master_data']) == master_id), (None, None))
+            master_name, sub_content = next(
+                ((c['master_name'], c['sub_categories']) for c in master_data if str(c['master_id']) == master_id),
+                (None, None)
+            )
+
             if not master_name:
                 return await msg.edit_text("Only valid Master IDs are accepted")
 
             batch_list = []
             course_batches = "📚 **Available Batches:**\n\n"
             for sub in sub_content:
-                course_data = get_courses(session, sub.get("parent_id"), sub.get("sub_id")).get("data")
+                course_response = self.get_courses(sub.get("parent_id"), sub.get("sub_id"))
+                course_data = course_response.get("data", [])
                 for course in course_data:
                     course_batches += f"`{course.get('id')}` - **{course.get('title')}**\n"
                     batch_list.append(course)
 
-            thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
-            caption = "**📊 Now send the Batch ID to Download**"
-            batch_file = None
-
-            if len(batch_list) > 4000:
-                batch_list_name = f"{master_name}_batchList_{user_id}.txt"
-                with open(batch_list_name, "w", encoding="utf-8") as f:
-                    f.write(batch_list)
-                batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
-                os.remove(batch_list_name)
-            else:
-                await msg.edit_text(f"{batch_list}\n\n{caption}")
-
+            await msg.edit_text(f"{course_batches}\n\n**📊 Now send the Batch ID to Download**")
             input3 = await app.listen(user_id=user_id, timeout=30)
             batch_id = input3.text.strip()
             await input3.delete()
-            if batch_file:
-                await batch_file.delete()
 
             batch_name = next((c['title'] for c in batch_list if str(c['id']) == batch_id), None)
             if not batch_name:
@@ -306,7 +285,7 @@ class UtkarshExtractor:
             start_time = time.time()
             data = {"course_id": batch_id, "parent_id": ""}
             encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
-            course_data = await self.fetch(
+            course_data = self.fetch(
                 f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
                 encrypted_data, key, iv
             )
@@ -327,12 +306,12 @@ class UtkarshExtractor:
 
             if not lectures:
                 return await msg.edit_text("📭 **No content found in this batch.**")
-                
+
             end_time = time.time()
             file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w", encoding="utf-8") as f:
                 f.write("\n".join(lectures))
-                
+
             elapsed = main_func.get_time(end_time - start_time)
             caption = (
                 f"**App Name** : `Utkarsh`\n"
@@ -349,6 +328,7 @@ class UtkarshExtractor:
             await message.reply_text("⏰ Timeout! You took too long to reply.")
         except Exception as e:
             await message.reply_text(f"Error: `{e}`")
+
 
 
 
