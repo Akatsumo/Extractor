@@ -109,6 +109,7 @@ class UtkarshExtractor:
         }
         response = self.session.post(url, cookies=cookies, data=data)
         response_data = json.loads(crypto.decrypt(response.json().get("response").split(":")[0]))
+        print(response_data)
         return response_data
 
     async def process_topic(self, course_id, batch_id, subject_id, topic_id, key, iv):
@@ -248,7 +249,7 @@ class UtkarshExtractor:
 
             master_list_text = "📚 **Available Masters:**\n\n"
             for master in master_data:
-                master_list_text += f"{master.get('master_id')} - {master.get('master_name')}\n"
+                master_list_text += f"`{master.get('master_id')}` - {master.get('master_name')}\n"
 
             await msg.edit_text(f"{master_list_text}\n\n📊 **Now send the Master ID to Download**")
             input2 = await app.listen(user_id=user_id, timeout=30)
@@ -266,6 +267,7 @@ class UtkarshExtractor:
             batch_list = []
             course_batches = "📚 **Available Batches:**\n\n"
             for sub in sub_content:
+                print(sub)
                 course_response = self.get_courses(sub.get("parent_id"), sub.get("sub_id"))
                 course_data = course_response.get("data", [])
                 for course in course_data:
