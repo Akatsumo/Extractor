@@ -1,5 +1,5 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill
+from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, kpias, careerwill, utkarsh
 from Extractor.modules.FreeAccess import (cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, 
 testpaper_free, jincjodhpur_free, careerwill_free, geologicalConcepts_free, selectionWay_free, taiyariKarlo_free, sscpinnacle_free, 
 chandraInstitute_free, jchemistry_free, pathfinder_free)
@@ -14,6 +14,7 @@ appNameDict = {
     "vajiram_": {"name": "Vajiram", "func": vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": kpias.kpias_login},
     "videocrypt_": {"name": "Videocrypt", "func": videocrypt.videocrypt_login},
+    "utkaarsh_": {"name": "Utkarsh", "func": utkarsh.utkarsh_start},
 }
 
 # ---------------------------------- WithoutApp-Dict ---------------------------------- #
