@@ -266,9 +266,10 @@ class UtkarshExtractor:
 
             batch_list = []
             course_batches = "📚 **Available Batches:**\n\n"
+            print(sub_content)
             for sub in sub_content:
-                print(sub)
                 course_response = self.get_courses(sub.get("parent_id"), sub.get("sub_id"))
+                print(course_response)
                 course_data = course_response.get("data", [])
                 for course in course_data:
                     course_batches += f"`{course.get('id')}` - **{course.get('title')}**\n"
