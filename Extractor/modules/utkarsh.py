@@ -10,6 +10,31 @@ def gen_device_id(length=16):
     alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import base64
+
+class CryptoHandler:
+    def __init__(self):
+        self.key = b'%!$!%_$&!%F)&^!^'        # 16 bytes key
+        self.iv = b'#*y*#2yJ*#$wJv*v'         # 16 bytes IV
+
+    def encrypt(self, plain_text: str) -> str:
+        cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        encrypted_bytes = cipher.encrypt(pad(plain_text.encode('utf-8'), AES.block_size))
+        encrypted_base64 = base64.b64encode(encrypted_bytes).decode('utf-8')
+        return encrypted_base64
+
+    def decrypt(self, encrypted_text: str) -> str:
+        cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        decrypted_bytes = unpad(cipher.decrypt(base64.b64decode(encrypted_text)), AES.block_size)
+        return decrypted_bytes.decode('utf-8')
+
+
+
+crypto = CryptoHandler()
+
+
 
 class UtkarshExtractor:
     def __init__(self):
