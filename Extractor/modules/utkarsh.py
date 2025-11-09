@@ -63,7 +63,7 @@ class UtkarshExtractor:
 
     def get_master_courses(self):
         r = self.session.get("https://online.utkarsh.com/web/Home/getMasterCat")
-        response_data = json.loads(main_func.decrypt("key", "iv", r.json().get("response")))
+        response_data = json.loads(crypto.decrypt(r.json().get("response")))
         master_cats = response_data["data"]["master_cat"]
         all_cats = response_data["data"]["all_cat"]
 
@@ -108,7 +108,7 @@ class UtkarshExtractor:
             "page": page,
         }
         response = self.session.post(url, cookies=cookies, data=data)
-        response_data = json.loads(main_func.decrypt("key", "iv", response.json().get("response")))
+        response_data = json.loads(crypto.decrypt(response.json().get("response").split(":")[0]))
         return response_data
 
     async def process_topic(self, course_id, batch_id, subject_id, topic_id, key, iv):
