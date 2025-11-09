@@ -224,7 +224,7 @@ class UtkarshExtractor:
             end_time = time.time()
             file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
             with open(file_name, "w", encoding="utf-8") as f:
-                f.write(lectures)
+                f.write("\n".join(lectures))
                 
             elapsed = main_func.get_time(end_time - start_time)
             caption = (
