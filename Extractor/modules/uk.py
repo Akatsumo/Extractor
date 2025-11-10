@@ -62,8 +62,8 @@ class UtkarshExtractor:
         return response_data
 
     
-    def get_master_courses(session):
-        r = session.get("https://online.utkarsh.com/web/Home/getMasterCat")
+    def get_master_courses(self):
+        r = self.session.get("https://online.utkarsh.com/web/Home/getMasterCat")
         response_data = json.loads(crypto.decrypt(r.json().get("response")))
         master_cats = response_data["data"]["master_cat"]
         all_cats = response_data["data"]["all_cat"]
@@ -92,7 +92,7 @@ class UtkarshExtractor:
             })
         return list(master_dict.values())
 
-    def get_courses(self, cat_id, sub_cat_id, page=1):
+    def get_courses(cat_id, sub_cat_id, page=1):
         cookies = {
             "csrf_name": "efcded0e551a154f509163c665fb7cec",
             "ci_session": "irkdqsvrd1ketajm4g8b0beics2ko3na",
