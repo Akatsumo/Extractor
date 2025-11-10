@@ -16,8 +16,8 @@ import base64
 
 class CryptoHandler:
     def __init__(self):
-        self.key = b'%!$!%_$&!%F)&^!^'        # 16 bytes key
-        self.iv = b'#*y*#2yJ*#$wJv*v'         # 16 bytes IV
+        self.key = b'%!$!%_$&!%F)&^!^'        
+        self.iv = b'#*y*#2yJ*#$wJv*v'        
 
     def encrypt(self, plain_text: str) -> str:
         cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
@@ -61,14 +61,14 @@ class UtkarshExtractor:
             return None
         return response_data
 
-    def get_master_courses(self):
-        r = self.session.get("https://online.utkarsh.com/web/Home/getMasterCat")
+    
+    def get_master_courses(session):
+        r = session.get("https://online.utkarsh.com/web/Home/getMasterCat")
         response_data = json.loads(crypto.decrypt(r.json().get("response")))
         master_cats = response_data["data"]["master_cat"]
         all_cats = response_data["data"]["all_cat"]
 
         master_dict = {}
-
         for m in master_cats:
             master_dict[m["id"]] = {
                 "master_id": m["id"],
@@ -83,15 +83,14 @@ class UtkarshExtractor:
             parent_id = str(sub.get("parent_id", "")).strip()
             if not parent_id or parent_id == "0" or m_id not in master_dict:
                 continue
+       
             master_dict[m_id]["sub_categories"].append({
                 "sub_id": sub["id"],
                 "sub_name": sub["name"],
                 "parent_id": parent_id,
                 "is_child": sub.get("is_child", "0")
             })
-
-        final_output = list(master_dict.values())
-        return json.dumps(final_output, indent=4, ensure_ascii=False)
+        return list(master_dict.values())
 
     def get_courses(self, cat_id, sub_cat_id, page=1):
         cookies = {
@@ -107,9 +106,8 @@ class UtkarshExtractor:
             "course_type": "0",
             "page": page,
         }
-        response = self.session.post(url, cookies=cookies, data=data)
+        response = requests.post(url, cookies=cookies, data=data)
         response_data = json.loads(crypto.decrypt(response.json().get("response").split(":")[0]))
-        print(response_data)
         return response_data
 
     async def process_topic(self, course_id, batch_id, subject_id, topic_id, key, iv):
@@ -243,7 +241,7 @@ class UtkarshExtractor:
             data = {"user_id": user_id_api}
             encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
 
-            master_data = json.loads(self.get_master_courses())
+            master_data = self.get_master_courses()
             if not master_data:
                 return await msg.edit_text("Master course not found !!")
 
@@ -265,15 +263,21 @@ class UtkarshExtractor:
                 return await msg.edit_text("Only valid Master IDs are accepted")
 
             batch_list = []
+            seen_ids = set()
             course_batches = "📚 **Available Batches:**\n\n"
-            print(sub_content)
+
             for sub in sub_content:
-                course_response = self.get_courses(sub.get("parent_id"), sub.get("sub_id"))
-                print(course_response)
+                parent_id = str(sub.get("parent_id"))
+                sub_cat_id = str(sub.get("sub_id"))
+                course_response = get_courses(parent_id, sub_cat_id)
                 course_data = course_response.get("data", [])
                 for course in course_data:
-                    course_batches += f"`{course.get('id')}` - **{course.get('title')}**\n"
+                    cid = str(course.get("id"))
+                    if cid in seen_ids:
+                        continue  
+                    seen_ids.add(cid)
                     batch_list.append(course)
+                    course_batches += f"`{cid}` - **{course.get('title')}**\n"
 
             await msg.edit_text(f"{course_batches}\n\n**📊 Now send the Batch ID to Download**")
             input3 = await app.listen(user_id=user_id, timeout=30)
