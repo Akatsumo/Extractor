@@ -35,7 +35,6 @@ class CryptoHandler:
 crypto = CryptoHandler()
 
 
-
 class UtkarshExtractor:
     def __init__(self):
         self.v_count = 0
@@ -91,8 +90,8 @@ class UtkarshExtractor:
                 "is_child": sub.get("is_child", "0")
             })
         return list(master_dict.values())
-
-    def get_courses(cat_id, sub_cat_id, page=1):
+    
+    def get_courses(self, cat_id, sub_cat_id):
         cookies = {
             "csrf_name": "efcded0e551a154f509163c665fb7cec",
             "ci_session": "irkdqsvrd1ketajm4g8b0beics2ko3na",
@@ -104,11 +103,13 @@ class UtkarshExtractor:
             "sub_cat": sub_cat_id,
             "catBranch_text": "",
             "course_type": "0",
-            "page": page,
+            "page": "1",
         }
         response = requests.post(url, cookies=cookies, data=data)
         response_data = json.loads(crypto.decrypt(response.json().get("response").split(":")[0]))
         return response_data
+
+    
 
     async def process_topic(self, course_id, batch_id, subject_id, topic_id, key, iv):
         lectures = []
@@ -337,3 +338,6 @@ class UtkarshExtractor:
             await message.reply_text("⏰ Timeout! You took too long to reply.")
         except Exception as e:
             await message.reply_text(f"Error: `{e}`")
+
+
+
