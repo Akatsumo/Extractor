@@ -63,7 +63,7 @@ class UtkarshExtractor:
 
     
     def get_master_courses(self):
-        r = self.session.get("https://online.utkarsh.com/web/Home/getMasterCat")
+        r = requests.get("https://online.utkarsh.com/web/Home/getMasterCat")
         response_data = json.loads(crypto.decrypt(r.json().get("response")))
         master_cats = response_data["data"]["master_cat"]
         all_cats = response_data["data"]["all_cat"]
