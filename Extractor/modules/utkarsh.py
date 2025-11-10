@@ -191,7 +191,7 @@ class UtkarshExtractor:
             batch_id = input2.text.strip()
             await input2.delete()
 
-            batch_name = next((c['title'] for c in courses if str(c['id']) == batch_id), None)
+            batch_name = next((c['title'] for c in courses if str(c['id']) == batch_id), "Test")
             if not batch_name:
                 return await msg.edit_text("Only valid batch IDs are accepted")
 
