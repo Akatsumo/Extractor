@@ -270,6 +270,7 @@ class UtkarshExtractor:
                 parent_id = str(sub.get("parent_id"))
                 sub_cat_id = str(sub.get("sub_id"))
                 course_response = self.get_courses(parent_id, sub_cat_id)
+                print(course_response)
                 course_data = course_response.get("data", [])
                 for course in course_data:
                     cid = str(course.get("id"))
