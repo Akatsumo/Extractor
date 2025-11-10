@@ -63,7 +63,7 @@ class UtkarshExtractor:
 
     
     def get_master_courses(self):
-        r = requests.get("https://online.utkarsh.com/web/Home/getMasterCat")
+        r = self.session.get("https://online.utkarsh.com/web/Home/getMasterCat")
         response_data = json.loads(crypto.decrypt(r.json().get("response")))
         master_cats = response_data["data"]["master_cat"]
         all_cats = response_data["data"]["all_cat"]
@@ -269,6 +269,7 @@ class UtkarshExtractor:
             for sub in sub_content:
                 parent_id = str(sub.get("parent_id"))
                 sub_cat_id = str(sub.get("sub_id"))
+                print(f"{parent_id} - {sub_cat_id}")
                 course_response = self.get_courses(parent_id, sub_cat_id)
                 print(course_response)
                 course_data = course_response.get("data", [])
