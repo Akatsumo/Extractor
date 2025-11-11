@@ -6,7 +6,6 @@ chandraInstitute_free, jchemistry_free, pathfinder_free)
 
 # ---------------------------------- AppName-Dict ---------------------------------- #
 appNameDict = {
-    # "utkarsh_": {"name": "Utkarsh", "func": utkarsh.handle_utk_logic},
     "khan_": {"name": "Khan", "func": khan.khan_handler},
     "careerwill_": {"name": "Careerwill", "func": careerwill.careerwill_login},
     "adda247_": {"name": "Adda 247", "func": adda247.adda_login},
