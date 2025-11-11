@@ -283,7 +283,7 @@ class UtkarshExtractor:
             batch_file = None
         
             if len(course_batches) > 4000:
-                batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
+                batch_list_name = f"{master_name}_batchList_{user_id}.txt"
                 with open(batch_list_name, "w", encoding="utf-8") as f:
                     f.write(batch_list)
                 batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
