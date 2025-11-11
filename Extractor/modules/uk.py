@@ -250,11 +250,7 @@ class UtkarshExtractor:
             master_id = input2.text.strip()
             await input2.delete()
 
-            master_name, sub_content = next(
-                ((c['master_name'], c['sub_categories']) for c in master_data if str(c['master_id']) == master_id),
-                (None, None)
-            )
-
+            master_name, sub_content = next(((c['master_name'], c['sub_categories']) for c in master_data if str(c['master_id']) == master_id), (None, None))
             if not master_name:
                 return await msg.edit_text("Only valid Master IDs are accepted")
 
@@ -266,9 +262,7 @@ class UtkarshExtractor:
             for sub in sub_content:
                 parent_id = str(sub.get("parent_id"))
                 sub_cat_id = str(sub.get("sub_id"))
-                print(f"{parent_id} - {sub_cat_id}")
                 course_response = self.get_courses(parent_id, sub_cat_id)
-                print(course_response)
                 course_data = course_response.get("data", [])
                 for course in course_data:
                     cid = str(course.get("id"))
@@ -285,7 +279,7 @@ class UtkarshExtractor:
             if len(course_batches) > 4000:
                 batch_list_name = f"{master_name}_batchList_{user_id}.txt"
                 with open(batch_list_name, "w", encoding="utf-8") as f:
-                    f.write(batch_list)
+                    f.write(course_batches)
                 batch_file = await app.send_document(chat_id=user_id, document=batch_list_name, caption=caption, thumb=thumb)
                 os.remove(batch_list_name)
             else:
@@ -297,19 +291,16 @@ class UtkarshExtractor:
             if batch_file:
                 await batch_file.delete()
         
-
             batch_name = next((c['title'] for c in batch_list if str(c['id']) == batch_id), None)
             if not batch_name:
                 return await msg.edit_text("Only valid batch IDs are accepted")
 
             await msg.edit_text("📥 Extracting Course Content, Please Wait...")
+            
             start_time = time.time()
             data = {"course_id": batch_id, "parent_id": ""}
             encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
-            course_data = self.fetch(
-                f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
-                encrypted_data, key, iv
-            )
+            course_data = self.fetch(f"{self.API_BASE}/data_model/course_deprecated/get_course_detail", encrypted_data, key, iv)
 
             lectures = []
             if not course_data or 'data' not in course_data:
