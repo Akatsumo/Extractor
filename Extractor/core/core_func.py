@@ -14,7 +14,6 @@ appNameDict = {
     "vajiram_": {"name": "Vajiram", "func": vajiramias.vajiram_login},
     "kpias_": {"name": "kpIAS", "func": kpias.kpias_login},
     "videocrypt_": {"name": "Videocrypt", "func": videocrypt.videocrypt_login},
-    "utkarsh_": {"name": "Utkarsh", "func": utkarsh.utkarsh_start},
 }
 
 # ---------------------------------- WithoutApp-Dict ---------------------------------- #
@@ -34,6 +33,7 @@ WithoutAppDict = {
     "wchandraInstitute_": {"name": "Chandra Institute", "func": chandraInstitute_free.chandraInstitute_access},
     "wjchemistry_": {"name": "J Chemistry", "func": jchemistry_free.jchemistry_access},
     "wpathfinder_": {"name": "Path Finder", "func": pathfinder_free.patherfinder_access},
+    "wutkarsh_": {"name": "Utkarsh", "func": utkarsh.utkarsh_start},
     # "wjrfadda_": {"name": "Jrf Adda", "func": jrfadda_free.jrfadda_access},
 }
 
