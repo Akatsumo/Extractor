@@ -343,3 +343,9 @@ class UtkarshExtractor:
 
 
 
+async def utkarsh_start(_, message, user_id=None):
+    uk = UtkarshExtractor()
+    await uk.start_login(_, message, user_id)
+
+
+
