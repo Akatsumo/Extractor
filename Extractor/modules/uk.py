@@ -5,11 +5,6 @@ from Extractor import app
 from Extractor.core import main_func
 from pyromod.exceptions import ListenerTimeout
 
-
-def gen_device_id(length=16):
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
-
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 import base64
@@ -30,10 +25,11 @@ class CryptoHandler:
         decrypted_bytes = unpad(cipher.decrypt(base64.b64decode(encrypted_text)), AES.block_size)
         return decrypted_bytes.decode('utf-8')
 
-
-
 crypto = CryptoHandler()
 
+def gen_device_id(length=16):
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 class UtkarshExtractor:
     def __init__(self):
@@ -110,7 +106,6 @@ class UtkarshExtractor:
         return response_data
 
     
-
     async def process_topic(self, course_id, batch_id, subject_id, topic_id, key, iv):
         lectures = []
         data = {
@@ -263,6 +258,7 @@ class UtkarshExtractor:
             if not master_name:
                 return await msg.edit_text("Only valid Master IDs are accepted")
 
+            await msg.edit_text(f"Fetching All {master_name} Batches, Please Wait...")
             batch_list = []
             seen_ids = set()
             course_batches = "📚 **Available Batches:**\n\n"
@@ -286,7 +282,7 @@ class UtkarshExtractor:
             caption = "**📊 Now send the Batch ID to Download**"
             batch_file = None
         
-            if len(batch_list) > 4000:
+            if len(course_batches) > 4000:
                 batch_list_name = f"{keyword_str}_batchList_{user_id}.txt"
                 with open(batch_list_name, "w", encoding="utf-8") as f:
                     f.write(batch_list)
