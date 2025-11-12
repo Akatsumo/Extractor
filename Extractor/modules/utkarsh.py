@@ -276,7 +276,7 @@ class UtkarshExtractor:
             caption = "**📊 Now send the Batch ID to Download**"
             batch_file = None
         
-            if len(course_batches) > 4000:
+            if len(course_batches) > 1000:
                 batch_list_name = f"{master_name}_batchList_{user_id}.txt"
                 with open(batch_list_name, "w", encoding="utf-8") as f:
                     f.write(course_batches)
