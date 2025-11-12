@@ -291,7 +291,8 @@ class UtkarshExtractor:
             thumb = await main_func.send_file(app, file_name=None, user_id=None, caption=None, thumb=None, onlyThumb=True)
             caption = "**📊 Now send the Batch ID to Download**"
             batch_file = None
-        
+
+            print(len(course_batches)
             if len(course_batches) > 3000:
                 batch_list_name = f"{master_name}_batchList_{user_id}.txt"
                 with open(batch_list_name, "w", encoding="utf-8") as f:
