@@ -74,7 +74,7 @@ async def course_extract(session, headers, package_id):
             'level': subject_level,
             'syllabusId': subject_id,
             'pageNo': 0,
-            'pageSize': 20,
+            'pageSize': 50,
             'status': 1,
             'src': 'aweb'
         }
@@ -86,10 +86,10 @@ async def course_extract(session, headers, package_id):
         )
 
         response_json = response.json()
-        total_items = response_json.get('data', {}).get('total', 0)
+        contentCount = response_json.get('data', {}).get('contentCount', 0)
 
-        page_size = 20
-        page_count = math.ceil(total_items / page_size) if total_items > 0 else 1
+        page_size = 50
+        page_count = math.ceil(contentCount / page_size) if contentCount > 0 else 1
 
         for page_number in range(page_count):
             params['pageNo'] = page_number
