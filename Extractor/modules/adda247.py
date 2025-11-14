@@ -197,7 +197,6 @@ async def direct_links(session, headers, course_id):
 
 # ----------------------- Adda-Command ----------------------- #
 
-@app.on_message(filters.command("adda"))
 async def adda_login(_, message, user_id=None):
     user_id = user_id if user_id else message.from_user.id
     try:
