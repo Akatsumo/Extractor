@@ -1,5 +1,5 @@
 import os, math
-import time
+import time, re
 import asyncio
 import requests
 from Extractor import app
@@ -20,9 +20,7 @@ async def csrf_token(session):
     return None
 
 
-
 # ----------------------- Course Extractor ----------------------- #
-
 
 async def course_extract(session, headers, package_id):
     lectures, v_count, p_count = [], 0, 0
@@ -34,7 +32,11 @@ async def course_extract(session, headers, package_id):
         'src': 'aweb'
     }
 
-    response = session.get("https://store.adda247.com/api/v1/syllabus/ppc/subjects", headers=headers, params=params)
+    response = session.get(
+        "https://store.adda247.com/api/v1/syllabus/ppc/subjects",
+        headers=headers,
+        params=params
+    )
     syllabus_output = response.json().get('data', {}).get('syllabus', [])
     if not syllabus_output:
         return lectures, v_count, p_count
@@ -52,7 +54,11 @@ async def course_extract(session, headers, package_id):
         'src': 'aweb'
     }
 
-    response = session.get("https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter", headers=headers, params=params)
+    response = session.get(
+        "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter",
+        headers=headers,
+        params=params
+    )
     subject_output = response.json().get('data', {}).get('syllabus', [])
 
     for subject in subject_output:
@@ -70,7 +76,12 @@ async def course_extract(session, headers, package_id):
             'src': 'aweb'
         }
 
-        response = session.get("https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers=headers, params=params)
+        response = session.get(
+            "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
+            headers=headers,
+            params=params
+        )
+
         contentCount = response.json().get('data', {}).get('contentCount', 0)
         page_size = 50
         page_count = math.ceil(contentCount / page_size) if contentCount > 0 else 1
@@ -78,18 +89,40 @@ async def course_extract(session, headers, package_id):
         for page_number in range(page_count):
             params['pageNo'] = page_number
 
-            response = session.get("https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers=headers, params=params)
+            response = session.get(
+                "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
+                headers=headers,
+                params=params
+            )
             content_output = response.json().get('data', {}).get('content', [])
 
             for content in content_output:
                 name = content.get('name', 'N/A')
-                url = content.get('url')
+                video_url = content.get('url')
                 pdf = content.get('pdfFileName')
                 dpp_files = content.get('dppFileNames', [])
 
-                if url:
+                if video_url:
                     v_count += 1
-                    lectures.append(f"{name}: https://adda247#{url.split("amazonaws.com/")[1].replace(".mp4", "/720p30playlist.m3u8")}#{package_id}#649238")
+
+                    p = {"vp": video_url, "pkgId": package_id, "isOlc": "true"}
+                    r = requests.get("https://videotest.adda247.com/file", headers=headers, params=p)
+                    text = r.text
+
+                    priority = ["720p30", "480p30", "360p30", "160p30"]
+                    found_urls = re.findall(r'https://[^\s]+', text)
+
+                    selected_url = None
+                    for quality in priority:
+                        for u in found_urls:
+                            if quality in u:
+                                selected_url = u
+                                break
+                        if selected_url:
+                            break
+
+                    lectures.append(f"{name}: {selected_url}")
+
                 if pdf:
                     p_count += 1
                     lectures.append(f"{name}: https://store.adda247.com/{pdf}")
@@ -98,6 +131,7 @@ async def course_extract(session, headers, package_id):
                     lectures.append(f"{name}: https://store.adda247.com/{dpp}")
 
     return lectures, v_count, p_count
+
 
 
 
