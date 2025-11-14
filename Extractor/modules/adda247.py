@@ -205,8 +205,8 @@ async def adda_login(_, message, user_id=None):
         maha_pack = next((item.get("mahaPack", False) for item in batch_data if str(item["packageId"]) == str(course_id)), False)
         start_time = time.time()
 
-        if maha_pack:
-            lectures = await asyncio.create_task(course_extract(session, headers, course_id))
+        # if maha_pack:
+        lectures, v_count, p_count = await asyncio.create_task(course_extract(session, headers, course_id))
         # else:
         #     lectures = await asyncio.create_task(direct_links(session, headers, course_id))
 
