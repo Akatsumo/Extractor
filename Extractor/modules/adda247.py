@@ -34,12 +34,7 @@ async def course_extract(session, headers, package_id):
         'src': 'aweb'
     }
 
-    response = session.get(
-        "https://store.adda247.com/api/v1/syllabus/ppc/subjects",
-        headers=headers,
-        params=params
-    )
-
+    response = session.get("https://store.adda247.com/api/v1/syllabus/ppc/subjects", headers=headers, params=params)
     syllabus_output = response.json().get('data', {}).get('syllabus', [])
     if not syllabus_output:
         return lectures, v_count, p_count
@@ -57,11 +52,7 @@ async def course_extract(session, headers, package_id):
         'src': 'aweb'
     }
 
-    response = session.get(
-        "https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter",
-        headers=headers,
-        params=params
-    )
+    response = session.get("https://store.adda247.com/api/v1/syllabus/ppc/getSubjectGroupAndChapter", headers=headers, params=params)
     subject_output = response.json().get('data', {}).get('syllabus', [])
 
     for subject in subject_output:
@@ -79,39 +70,26 @@ async def course_extract(session, headers, package_id):
             'src': 'aweb'
         }
 
-        response = session.get(
-            "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
-            headers=headers,
-            params=params
-        )
-
-        response_json = response.json()
-        contentCount = response_json.get('data', {}).get('contentCount', 0)
-
+        response = session.get("https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers=headers, params=params)
+        contentCount = response.json().get('data', {}).get('contentCount', 0)
         page_size = 50
         page_count = math.ceil(contentCount / page_size) if contentCount > 0 else 1
 
         for page_number in range(page_count):
             params['pageNo'] = page_number
 
-            response = session.get(
-                "https://liveclasses.adda247.com/api/v1/ppc/OLC/content",
-                headers=headers,
-                params=params
-            )
-
+            response = session.get("https://liveclasses.adda247.com/api/v1/ppc/OLC/content", headers=headers, params=params)
             content_output = response.json().get('data', {}).get('content', [])
 
             for content in content_output:
-                name = content.get('name', 'Unknown')
+                name = content.get('name', 'N/A')
                 url = content.get('url')
                 pdf = content.get('pdfFileName')
                 dpp_files = content.get('dppFileNames', [])
 
                 if url:
                     v_count += 1
-                    lectures.append(f"{name}: {url}")
-
+                    lectures.append(f"{name}: https://adda247{url.split("amazonaws.com/")[1].replace(".mp4", "/720p30playlist.m3u8")}#{package_id}#0")
                 if pdf:
                     p_count += 1
                     lectures.append(f"{name}: https://store.adda247.com/{pdf}")
@@ -203,42 +181,34 @@ async def adda_login(_, message, user_id=None):
         await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
 
         maha_pack = next((item.get("mahaPack", False) for item in batch_data if str(item["packageId"]) == str(course_id)), False)
+      
         start_time = time.time()
-
-        # if maha_pack:
         lectures, v_count, p_count = await asyncio.create_task(course_extract(session, headers, course_id))
-        # else:
-        #     lectures = await asyncio.create_task(direct_links(session, headers, course_id))
-
         end_time = time.time()
-        elapsed = main_func.get_time(end_time - start_time)
+      
+        if not lectures:
+            return await msg.edit_text("No batch content found.")
 
-        file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+        file_name = f"{batch_name.replace('/', '_')}_{user_id}.txt"
         with open(file_name, "w", encoding="utf-8") as f:
             f.write("\n".join(lectures))
 
+        elapsed = main_func.get_time(end_time - start_time)
         caption = (
             f"**App Name** : `ADDA 247`\n"
             f"**Batch Name** : `{batch_name}`\n\n"
             f"📜 **Total Materials** : `{len(lectures)}`\n"
-            f"⌚️ **Time Taken** : `{elapsed} sec`"
+            f"🍿 **Videos** : `{v_count}` | 📝 **PDFs** : `{p_count}`\n"
+            f"⌚️ **Time Taken** : `{elapsed}`"
         )
-
-        me = await app.get_me()
-        big_file_id = me.photo.big_file_id
-        thumb = await asyncio.create_task(app.download_media(big_file_id))
-
-        await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)
-        os.remove(file_name)
+        await main_func.send_file(app, file_name, user_id, caption, thumb)
         await msg.delete()
         await message.reply_text(f"✅ Done\n\n✏️ **Token** : `{token}`")
 
-        session.close()
     except ListenerTimeout:
-        await message.reply_text("⏰ Timeout! You took too long to reply.")
+        await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
-        await message.reply_text(f"Error: `{str(e)}`")
-
+        await message.reply_text(f"**Error**: `{e}`")
 
 
 
