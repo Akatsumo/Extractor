@@ -89,7 +89,7 @@ async def course_extract(session, headers, package_id):
 
                 if url:
                     v_count += 1
-                    lectures.append(f"{name}: https://adda247#{url.split("amazonaws.com/")[1].replace(".mp4", "/720p30playlist.m3u8")}#{package_id}#0")
+                    lectures.append(f"{name}: https://adda247#{url.split("amazonaws.com/")[1].replace(".mp4", "/720p30playlist.m3u8")}#{package_id}#649238")
                 if pdf:
                     p_count += 1
                     lectures.append(f"{name}: https://store.adda247.com/{pdf}")
