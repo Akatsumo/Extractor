@@ -23,6 +23,7 @@ async def course_extract(session, api, headers, token, course_id):
         return lectures, v_count, p_count
 
     for subject in subject_output:
+        subject_name = subject.get("subject_name")
         response = await session.get(f"https://{api}/get/alltopicfrmlivecourseclass?courseid={course_id}&subjectid={subject['subjectid']}", headers=headers)
         if response.status != 200:
             continue
@@ -39,7 +40,7 @@ async def course_extract(session, api, headers, token, course_id):
 
             output_topic = json.loads(await response.read()).get("data", [])
             for data in output_topic:
-                title = data.get("Title", "Unknown Title")
+                title = data.get("Title", "N/A")
                 material_type = data.get("material_type", "")
 
                 if material_type == "PDF":
@@ -60,9 +61,9 @@ async def course_extract(session, api, headers, token, course_id):
 
                             if data.get(is_encrypted_key) == "1" and data.get(encryption_key):
                                 pdf_key = data.get(encryption_key)
-                                lectures.append(f"{title}: {pdf_url}*{pdf_key}")
+                                lectures.append(f"{subject_name} | {title}: {pdf_url}*{pdf_key}")
                             else:
-                                lectures.append(f"{title}: {pdf_url}")
+                                lectures.append(f"{subject_name} | {title}: {pdf_url}")
 
                 elif material_type == "VIDEO":
                     v_count += 1
@@ -74,7 +75,7 @@ async def course_extract(session, api, headers, token, course_id):
                         durl = main_func.appx_decrypt(data.get("file_link").split(":")[0])
 
                     if durl:
-                        lectures.append(f"{title}: {durl}")
+                        lectures.append(f"{subject_name} | {title}: {durl}")
 
     return lectures, v_count, p_count
 
