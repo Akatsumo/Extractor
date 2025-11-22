@@ -128,7 +128,7 @@ def generate_site_from_text_lines(lines, out_dir: Path):
 
 
 @app.on_message(filters.command("html"))
-async def html_cmd(c: Client, m: Message):
+async def html_cmd(c, m: Message):
     """Main handler: expects the command as a reply to a message containing a .txt file,
        OR the message itself contains a document (.txt)."""
     await m.chat.action("typing")
