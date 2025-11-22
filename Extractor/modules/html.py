@@ -10,11 +10,7 @@ from pyrogram import filters
 from Extractor import app
 from pyrogram.types import Message
 
-# ------------ Configuration ----------
-API_ID = int(os.environ.get("API_ID", "12345"))       # replace or set env
-API_HASH = os.environ.get("API_HASH", "your_api_hash")
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "your_bot_token")
-# ------------------------------------
+
 
 # ----------------- Helpers (same logic as earlier) -----------------
 def slugify(s: str) -> str:
@@ -131,7 +127,7 @@ def generate_site_from_text_lines(lines, out_dir: Path):
 
 
 
-@app.on_message(filters.command("html") & ~filters.edited)
+@app.on_message(filters.command("html"))
 async def html_cmd(c: Client, m: Message):
     """Main handler: expects the command as a reply to a message containing a .txt file,
        OR the message itself contains a document (.txt)."""
