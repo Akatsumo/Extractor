@@ -1,0 +1,304 @@
+import re
+import os
+import time
+import json
+import asyncio
+import aiohttp
+import cloudscraper
+from Extractor import app
+from pyrogram import filters
+from Extractor.core.main_func import get_time
+import hashlib
+import platform
+import uuid
+
+
+def get_system_fingerprint():
+    system_info = {
+        "system": platform.system(),
+        "node": platform.node(),
+        "release": platform.release(),
+        "version": platform.version(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "uuid": str(uuid.getnode()) 
+    }
+    
+    fingerprint_string = "_".join(system_info.values())
+    fingerprint_hash = hashlib.sha256(fingerprint_string.encode()).hexdigest()
+    
+    return fingerprint_hash
+
+
+
+headers = {
+    "authority": "api.classplusapp.com",
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en",
+    "api-version": "52",
+    "content-type": "application/json;charset=UTF-8",
+    "device-id": "1741200113343",
+}
+
+scraper = cloudscraper.create_scraper()
+
+# ------------------------- Requirements ------------------------- #
+
+async def classplus_org_id(org_id, session):
+    async with session.get(f"https://{org_id}.courses.store") as response:
+        html_content = await response.text()
+        org_id_match = re.search(r'"orgId":(\d+)', html_content)
+        name_match = re.search(r'"name":"([^"]+)"', html_content)
+        org_id = org_id_match.group(1) if org_id_match else None
+        name = name_match.group(1) if name_match else None
+    return org_id, name
+
+
+async def otp_login(session, org_code, org_id, phone):
+    url = "https://api.classplusapp.com/v2/otp/generate"
+    data = {
+        "countryExt": "91",
+        "orgCode": org_code,
+        "viaSms": "1",
+        "viaEmail": "0",
+        "retry": 0,
+        "orgId": org_id,
+        "otpCount": 0,
+        "mobile": str(phone.strip())
+    }
+    
+    response = await session.post(url, headers=headers, json=data)
+    output = await response.json()
+  
+    if output.get("status") == "success":  
+        sessionId = output["data"]["sessionId"]
+        return sessionId  
+    else:
+        return None  
+
+
+
+async def verify_otp(session, otp_num, org_id, phone, sessionID):
+    url = "https://api.classplusapp.com/v2/users/verify"
+    headers = {
+      'accept': 'application/json, text/plain, */*',
+      'accept-language': 'en',
+      'api-version': '52',
+      'content-type': 'application/json;charset=UTF-8',
+      'origin': 'https://web.classplusapp.com',
+      'priority': 'u=1, i',
+      'referer': 'https://web.classplusapp.com/',
+      'sec-ch-ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"Windows"',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-site',
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    }
+    data = {
+        "otp": otp_num,
+        "countryExt": "91",
+        "sessionId": sessionID,
+        "orgId": org_id,
+        "fingerprintId": "b26a64a95429af40fc4ebda1d37ea638", # get_system_fingerprint(),
+        "mobile": str(phone.strip())
+    }
+
+    response = await session.post(url, headers=headers, json=data)
+    output = await response.json()
+    print(output)
+ 
+    if output.get("status") == "success": 
+        token = output['data']['token']
+        refresh_token = output['data']['refreshToken']
+        return token  
+    else:
+        return None
+
+
+# ------------------------- Extracts-Login-Links ------------------------- #
+
+"""
+async def fetch_json(session, url, headers, params=None):
+    async with session.get(url, headers=headers, params=params) as response:
+        return json.loads(await response.read())
+
+
+async def fetch_video_url(session, headers, content_id):
+    url = 'https://api.classplusapp.com/cams/uploader/video/jw-signed-url'
+    async with session.get(url, headers=headers, params={'contentId': content_id}) as output:
+        output_video = await output.json()
+        return output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else content_id
+
+async def extract_links(session, headers, course_id, folder_id=0):
+    try:
+        lectures = []
+        params = {"courseId": course_id, "folderId": folder_id}
+        url = "https://api.classplusapp.com/v2/course/content/get"
+        output1 = await fetch_json(session, url, headers, params)
+        
+        folder_tasks = []
+        video_tasks = []
+        
+        for content in output1.get("data", {}).get("courseContent", []):
+            if content["contentType"] == 1:
+                folder_tasks.append(extract_links(session, headers, course_id, content["id"]))
+            elif content["contentType"] == 2:
+                video_tasks.append(fetch_video_url(session, headers, content.get('contentHashId', '')))
+            elif content["contentType"] == 3:
+                lectures.append(f"{content['name']}: {content.get('url', 'Pdf Not Found')}")
+
+        subfolders = await asyncio.gather(*folder_tasks) if folder_tasks else []
+        videos = await asyncio.gather(*video_tasks) if video_tasks else []
+
+        for content, video_url in zip(output1.get("data", {}).get("courseContent", []), videos):
+            if content["contentType"] == 2:
+                lectures.append(f"{content['name']}: {video_url}")
+
+        for sublist in subfolders:
+            lectures.extend(sublist)
+
+        live_class_url = "https://api.classplusapp.com/v2/course/live/list/videos"
+        live_data = await fetch_json(session, live_class_url, headers, {"type": "2", "entityId": course_id, "limit": "", "offset": "0"})
+
+        if "data" in live_data and "list" in live_data["data"]:
+            live_tasks = [fetch_video_url(session, headers, item.get("contentHashId", "N/A")) for item in live_data["data"]["list"]]
+            live_results = await asyncio.gather(*live_tasks)
+            for item, result in zip(live_data["data"]["list"], live_results):
+                lectures.append(f"{item.get('name', 'N/A')}: {result}")
+
+        return lectures
+    except Exception as e:
+        print(f"Error In Extract Links: {e}")
+        return []
+
+"""
+
+async def extract_links(session, headers, course_id, folder_id=0):
+    try:
+        lectures = []
+        url = f"https://api.classplusapp.com/v2/course/content/get?courseId={course_id}&folderId={folder_id}&storeContentEvent=false"
+        response1 = await session.get(url, headers=headers)
+        output1 = json.loads(await response1.read())
+    
+        for content in output1.get("data", {}).get("courseContent", []):
+            print(f"content: {content}")
+            if content["contentType"] == 1:
+                lectures.extend(await extract_links(session, headers, course_id, content["id"]))
+            elif content["contentType"] == 2:
+                id = content.get('contentHashId', '')
+                print(f"hash ID: {id}")
+                response = scraper.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params={'contentId': id})
+                output_video = response.json()
+                v_url = output_video.get('url', '').split("m3u8")[0] if 'url' in output_video else "Not Found"          
+                lectures.append(f"{content['name']}: {v_url}")               
+                
+            elif content["contentType"] == 3:
+                lectures.append(f"{content['name']}: {content['url']}")
+                                          
+        return lectures
+    except Exception as e:
+        print(f"Error In Extract Links: {e}")
+        return []
+
+
+
+# ------------------------- Classplus-Command ------------------------- #
+
+@app.on_message(filters.command("cp"))
+async def classplus_login(_, message):
+    user_id = message.from_user.id
+    async with aiohttp.ClientSession() as session:
+        try:
+            msg = await message.reply_text("**🔑 For access, please transmit your OrgID & Phone in the correct sequence:**\n\n🔒 **Send like this:** `OrgID*Phone`")
+            input1 = await app.listen(user_id, timeout=30)
+        except:
+            return await message.reply_text("⏳ Timeout! Please try again.")
+
+        try:
+            if "*" in input1.text:
+                org_code, phone_no = input1.text.split("*")
+                org_id, name = await classplus_org_id(org_code, session)
+
+                
+                if org_code.isalpha() and phone_no.isdigit() and len(phone_no) == 10:
+                    sessionID = await otp_login(session, org_code, org_id, phone_no)
+                    
+                    await msg.edit_text("**📝 Now send your ClassPlus OTP**")
+                    input2 = await app.listen(user_id, timeout=50)
+                    otp_code = input2.text.strip()
+                    token = await verify_otp(session, otp_code, org_id, phone_no, sessionID)
+                    if not token:
+                        return await msg.edit_text("bruh are you stupid why you give me invalid otp.")                                           
+                else:
+                    return await msg.edit_text("bruh, i think you are dumped 🤔 ")
+            else:
+                token = input1.text.strip()
+                
+            await input1.delete()
+            url = "https://api.classplusapp.com/v2/courses?tabCategoryId=1&categoryId=[]&"
+            headers = {
+                "accept": "application/json, text/plain, */*",
+                "accept-language": "en",
+                "api-version": "52",
+                "x-access-token": token
+            }
+
+            response = await session.get(url, headers=headers)
+
+            if response.status != 200:
+                return await msg.edit_text("😒 **Login failed, incorrect credentials.**")
+
+            data = await response.json()
+            courses = data.get("data", {}).get("courses", [])
+
+            if not courses:
+                return await msg.edit_text("📭 **No courses found for your account.**")
+
+            batch_list = "**BATCH-ID  -  BATCH NAME**\n\n"
+            batch_map = {}
+
+            for course in courses:
+                batch_list += f"`{course.get('id')}`  -   **{course.get('name')}**\n\n"
+                batch_map[course.get("id")] = course.get("name")
+
+            await msg.edit_text(f"{batch_list}\n\n**📊 Now send the Batch ID to Download**")
+            input3 = await app.listen(user_id)
+            course_id = input3.text.strip()
+            await input3.delete()
+
+            batch_name = batch_map.get(course_id, "Unknown Batch")
+
+            await msg.edit_text("**Extracting Course Content, Please Wait 📥**")
+            start_time = time.time()
+            lectures = await asyncio.create_task(extract_links(session, headers, course_id))
+            end_time = time.time()
+            elapsed = round(end_time - start_time, 2)
+
+            file_name = f"{batch_name.replace('/', '')}_{user_id}.txt"
+            with open(file_name, "w") as f:
+                f.write("\n".join(lectures))
+
+            caption = (f"**App Name** : `unknown`\n**Batch Name** : `{batch_name}`\n\n📜 **Total Materials** : `{len(lectures)}`\n⌚️ **Time Taken** : `{elapsed} sec`")
+            me = await app.get_me()
+            big_file_id = me.photo.big_file_id
+            thumb = await asyncio.create_task(app.download_media(big_file_id))
+
+            await app.send_document(chat_id=message.chat.id, document=file_name, caption=caption, thumb=thumb)           
+            os.remove(file_name)
+            await msg.delete()
+            await message.reply_text(f"✅ **Done**\n\n✏️ **Token** : `{token}`")
+
+        except Exception as e:
+            await message.reply_text(f"**Error:** `{str(e)}`")
+
+        finally:
+            await session.close()
+
+
+
+
+
+
+
