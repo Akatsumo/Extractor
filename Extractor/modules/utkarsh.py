@@ -31,6 +31,9 @@ def gen_device_id(length=16):
     alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
+
+
+
 class UtkarshExtractor:
     def __init__(self):
         self.v_count = 0
@@ -59,34 +62,32 @@ class UtkarshExtractor:
     
     def get_master_courses(self):
         r = self.session.get("https://online.utkarsh.com/web/Home/getMasterCat")
-        response_data = json.loads(crypto.decrypt(r.json().get("response")))
-        master_cats = response_data["data"]["master_cat"]
-        all_cats = response_data["data"]["all_cat"]
-
-        master_dict = {}
-        for m in master_cats:
-            master_dict[m["id"]] = {
-                "master_id": m["id"],
-                "master_name": m["cat"],
+        data = json.loads(crypto.decrypt(r.json().get("response", ""))).get("data", {})
+        
+        master_dict = {
+            m.get("id"): {
+                "master_id": m.get("id"),
+                "master_name": m.get("cat"),
                 "popular_sub_cats": m.get("popular_sub_cats", ""),
                 "image": m.get("image", ""),
                 "sub_categories": []
             }
-
-        for sub in all_cats:
+            for m in data.get("master_cat", [])
+            if m.get("id")
+        }
+        for sub in data.get("all_cat", []):
             m_id = sub.get("master_type")
-            parent_id = str(sub.get("parent_id", "")).strip()
-            if not parent_id or parent_id == "0" or m_id not in master_dict:
-                continue
-       
-            master_dict[m_id]["sub_categories"].append({
-                "sub_id": sub["id"],
-                "sub_name": sub["name"],
-                "parent_id": parent_id,
-                "is_child": sub.get("is_child", "0")
-            })
+            parent_id = str(sub.get("parent_id", "0")).strip()
+            if parent_id != "0" and m_id in master_dict:
+                master_dict[m_id]["sub_categories"].append({
+                    "sub_id": sub.get("id"),
+                    "sub_name": sub.get("name"),
+                    "parent_id": parent_id,
+                    "is_child": sub.get("is_child", "0")
+                })
         return list(master_dict.values())
-    
+
+
     def get_courses(self, cat_id, sub_cat_id):
         cookies = {
             "csrf_name": "efcded0e551a154f509163c665fb7cec",
@@ -120,12 +121,7 @@ class UtkarshExtractor:
             "type": "content"
         }
 
-        topic_data = self.fetch(
-            f"{self.API_BASE}/data_model/course/get_master_data",
-            main_func.encrypt(key, iv, json.dumps(data)),
-            key, iv
-        )
-
+        topic_data = self.fetch(f"{self.API_BASE}/data_model/course/get_master_data", main_func.encrypt(key, iv, json.dumps(data)), key, iv)
         if not topic_data or 'data' not in topic_data:
             return lectures
 
@@ -145,11 +141,7 @@ class UtkarshExtractor:
                     "type": "video"
                 }
 
-                result = self.fetch(
-                    f"{self.API_BASE}/data_model/meta_distributer/on_request_meta_source",
-                    main_func.encrypt(key, iv, json.dumps(data)),
-                    key, iv
-                )
+                result = self.fetch(f"{self.API_BASE}/data_model/meta_distributer/on_request_meta_source", main_func.encrypt(key, iv, json.dumps(data)), key, iv)
                 if not result:
                     continue
 
@@ -175,10 +167,7 @@ class UtkarshExtractor:
     async def process_course(self, course_id, batch_id, key, iv):
         data = {"course_id": course_id, "parent_id": batch_id}
         encrypted_data = main_func.encrypt(key, iv, json.dumps(data))
-        course_detail = self.fetch(
-            f"{self.API_BASE}/data_model/course_deprecated/get_course_detail",
-            encrypted_data, key, iv
-        )
+        course_detail = self.fetch(f"{self.API_BASE}/data_model/course_deprecated/get_course_detail", encrypted_data, key, iv)
 
         lectures = []
         if not course_detail or 'data' not in course_detail:
@@ -190,13 +179,11 @@ class UtkarshExtractor:
 
             for topic in tile.get('meta', {}).get('list', []):
                 for subtopic in topic.get('list', []):
-                    topic_lectures = await self.process_topic(
-                        course_id, batch_id, topic.get('id'), subtopic.get('id'), key, iv
-                    )
+                    topic_lectures = await self.process_topic(course_id, batch_id, topic.get('id'), subtopic.get('id'), key, iv)
                     lectures.extend(topic_lectures)
-
         return lectures
 
+    
     async def start_login(self, app, message, user_id=None):
         user_id = user_id if user_id else message.from_user.id
         try:
@@ -217,10 +204,7 @@ class UtkarshExtractor:
                 }
 
                 encrypted_data = main_func.encrypt(key, iv, json.dumps(login_data))
-                response = self.fetch(
-                    f"{self.API_BASE}/data_model/users/login_auth",
-                    encrypted_data, key, iv
-                )
+                response = self.fetch(f"{self.API_BASE}/data_model/users/login_auth", encrypted_data, key, iv)
 
                 if not response or "data" not in response:
                     return await msg.edit_text("❌ Login failed. Please try again.")
