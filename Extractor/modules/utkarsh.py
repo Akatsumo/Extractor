@@ -134,8 +134,6 @@ class UtkarshExtractor:
                 data = {
                     "course_id": course_id,
                     "device_id": gen_device_id(),
-                    "device_name": "samsungSM-F9360",
-                    "download_click": "0",
                     "name": content['file_url'],
                     "tile_id": content['payload']['tile_id'],
                     "type": "video"
@@ -145,18 +143,11 @@ class UtkarshExtractor:
                 if not result:
                     continue
 
-                urls = result.get('data', {}).get('bitrate_urls', [])
-                if urls:
-                    best = max(urls, key=lambda x: int(x['sort']))['url']
-                    url = re.sub(r'\\/', '/', best.split('?', 1)[0]).replace("https\\:", "https:")
+                link = result.get('data', {}).get('link')
+                if link:
                     self.v_count += 1
+                    url = link if link.startswith("https") else f"https://youtu.be/{link}"
                     lectures.append(f"{subject_name}: {url}")
-                else:
-                    link = result['data'].get('link')
-                    if link:
-                        self.v_count += 1
-                        url = link if link.startswith("https") else f"https://youtu.be/{link}"
-                        lectures.append(f"{subject_name}: {url}")
             else:
                 self.p_count += 1
                 url = re.sub(r'\\/', '/', content['file_url']).replace("https\\:", "https:")
