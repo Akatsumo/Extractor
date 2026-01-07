@@ -7,7 +7,7 @@ requests
 cloudscraper
 pycryptodome
 pytz
-pyromod
+pyromod==1.5
 json-repair
 bs4
 
