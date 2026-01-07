@@ -111,7 +111,7 @@ async def handle_callback(_, query):
                 await core_func.appNameDict[f"{data}"]["func"](_, query.message, user_id)
             
         elif data in appxmethod.a_to_zList:
-            await query.answer(f"You clicked {appxmethod.a_to_zList[f"{data}"]["name"]}", show_alert=True)
+            await query.answer(f'You clicked {appxmethod.a_to_zList[f"{data}"]["name"]}', show_alert=True)
             def get_by_letter(data, letter):
                 letter = letter.upper()
                 return {k: v for k, v in data.items() if k.startswith(letter)}
