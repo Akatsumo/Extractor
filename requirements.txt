@@ -1,5 +1,4 @@
-#kurigram
-pyrogram
+kurigram
 aiohttp
 motor
 tgcrypto
