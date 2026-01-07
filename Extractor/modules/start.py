@@ -107,7 +107,7 @@ async def handle_callback(_, query):
                 await core_func.WithoutAppDict[f"{data}"]["func"](_, query.message, user_id)
                 
             else:
-                await query.answer(f"You clicked {core_func.appNameDict[f"{data}"]["name"]}", show_alert=True)
+                await query.answer(f'You clicked {core_func.appNameDict[f"{data}"]["name"]}', show_alert=True)
                 await core_func.appNameDict[f"{data}"]["func"](_, query.message, user_id)
             
         elif data in appxmethod.a_to_zList:
