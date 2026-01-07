@@ -52,7 +52,7 @@ async def course_extract(session, batch_url):
                 main_video_wrapper = soup.find('div', id='main_video_wrapper')
                 video_url = main_video_wrapper['data-video-url'] if main_video_wrapper else 'Video URL Not Found'
                
-                lectures.append(f"{course_title}, {section_name}: {video_url.split("/")[2]}")
+                lectures.append(f"{course_title}, {section_name}: {video_url.split('/')[2]}")
                 
         return lectures
     
