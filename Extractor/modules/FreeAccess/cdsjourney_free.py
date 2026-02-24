@@ -19,6 +19,10 @@ batch_data = {
     "38": "Bravo MATH batch (NDA 1 2026)",
     "39": "CAPF Paper 1 + Paper 2 Delta batch (CAPF 2026)",
     "40": "CAPF Paper 2 Delta batch (CAPF 2026)",
+    "43": "ECHO Batch (AFCAT 2 2026)",
+    "44": "GOLF OTA batch (CDS-2 2026)",
+    "45": "HOTEL BATCH (NDA-2 2026)",
+    "45": "GOLF MATH BATCH (CDS-2 2026)",
 }
 
 # --------------------------- Course-Content --------------------------- #
