@@ -68,10 +68,11 @@ async def cdsjourney_access(_, message, user_id=None):
     try:
         msg = await message.reply_text("**Fetching CDS Journey All Batches, Please Wait...**")
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-            "Accept-Encoding": "gzip"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Origin": "https://www.cdsjourney.com",
+            "Referer": "https://www.cdsjourney.com/"
         }
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MTAzNjY4LCJpYXQiOjE3NzE5MTk2NjgsImp0aSI6ImEwZDYwNWE1NjAwYjQ4NWRiZTkwZDQ3YmM4NGQzM2FiIiwidXNlcl9pZCI6NDU2Nzk3fQ.E8WWQIhrDLnuWS1Z0BlYyu75BDFRTqklrQkeSlDAz5I"
         
@@ -81,7 +82,7 @@ async def cdsjourney_access(_, message, user_id=None):
             email = input1.text.strip()
             await input1.delete()
 
-            response = session.post("https://www.cdsjourney.com/api/login_or_register/", json={"email": email})
+            response = session.post("https://www.cdsjourney.com/api/login_or_register/", headers=headers, json={"email": email})
             if response.status_code != 200:
                 return await msg.edit_text("Failed to login, Something went wrong!")
 
@@ -90,7 +91,7 @@ async def cdsjourney_access(_, message, user_id=None):
             otp = input2.text.strip()
             await input2.delete()
 
-            response = session.post("https://www.cdsjourney.com/api/verify_otp/", json={"email": email, "otp": otp})
+            response = session.post("https://www.cdsjourney.com/api/verify_otp/", headers=headers, json={"email": email, "otp": otp})
             if response.status_code != 200:
                 return await msg.edit_text("OTP verification failed, Try again!")
 
