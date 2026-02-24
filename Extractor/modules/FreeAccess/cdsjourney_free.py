@@ -73,7 +73,7 @@ async def cdsjourney_access(_, message, user_id=None):
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
             "Accept-Encoding": "gzip"
         }
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxNzQzMDYwLCJpYXQiOjE3NjY1NTkwNjAsImp0aSI6IjRiODY3ZjlhZDgzMDQ2ZWNhMGQwYTFhMTdkMDZlN2JjIiwidXNlcl9pZCI6NDM0MjE0fQ.R9bnUreJY0MAeyr2dU4wCBez0u2YdMDirWrLxFIhFjw"
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MTAzNjY4LCJpYXQiOjE3NzE5MTk2NjgsImp0aSI6ImEwZDYwNWE1NjAwYjQ4NWRiZTkwZDQ3YmM4NGQzM2FiIiwidXNlcl9pZCI6NDU2Nzk3fQ.E8WWQIhrDLnuWS1Z0BlYyu75BDFRTqklrQkeSlDAz5I"
         
         if not token:
             await msg.edit_text("Enter your login Gmail:")
@@ -81,7 +81,7 @@ async def cdsjourney_access(_, message, user_id=None):
             email = input1.text.strip()
             await input1.delete()
 
-            response = session.post("https://www.cdsjourney.com/api/login_or_register/", data={"email": email})
+            response = session.post("https://www.cdsjourney.com/api/login_or_register/", json={"email": email})
             if response.status_code != 200:
                 return await msg.edit_text("Failed to login, Something went wrong!")
 
@@ -90,7 +90,7 @@ async def cdsjourney_access(_, message, user_id=None):
             otp = input2.text.strip()
             await input2.delete()
 
-            response = session.post("https://www.cdsjourney.com/api/verify_otp/", data={"email": email, "otp": otp})
+            response = session.post("https://www.cdsjourney.com/api/verify_otp/", json={"email": email, "otp": otp})
             if response.status_code != 200:
                 return await msg.edit_text("OTP verification failed, Try again!")
 
