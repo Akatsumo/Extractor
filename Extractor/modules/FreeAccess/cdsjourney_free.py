@@ -67,19 +67,19 @@ async def cdsjourney_access(_, message, user_id=None):
     session = requests.Session()
     try:
         msg = await message.reply_text("**Fetching CDS Journey All Batches, Please Wait...**")
-        # headers = {
-        #     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        #     "Accept": "application/json",
-        #     "Content-Type": "application/json",
-        #     "Origin": "https://www.cdsjourney.com",
-        #     "Referer": "https://www.cdsjourney.com/"
-        # }
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-            "Accept-Encoding": "gzip"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Origin": "https://www.cdsjourney.com",
+            "Referer": "https://www.cdsjourney.com/"
         }
+        # headers = {
+        #     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        #                   "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+        #     "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+        #     "Accept-Encoding": "gzip"
+        # }
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MTA0NzYxLCJpYXQiOjE3NzE5MjA3NjEsImp0aSI6ImYyNDlhOWI1NGU1MzQ4ZWZhMGVlODk3MTY2YjI5Mjk0IiwidXNlcl9pZCI6NDU2Nzk3fQ.XxFGWoRAmnM08FEGOsnal7gPp9nFZ6tZCw23XZwzgQE"
         
         if not token:
