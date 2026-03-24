@@ -94,9 +94,9 @@ def get_page(page: int, appNameDict, DictID="Dic1", back_data="home_", query=Non
     row = []
     
     if appx:
-        buttons.append([InlineKeyboardButton("🔐 Manual Login", callback_data="manual_login")])
+        buttons.append([InlineKeyboardButton("🔐 ᴍᴀɴᴜᴀʟ ʟᴏɢɪɴ", callback_data="manual_login")])
     if withoutIdPass:
-        buttons.append([InlineKeyboardButton("🔐 Without Pass", callback_data="without_pass")])
+        buttons.append([InlineKeyboardButton("🧩 ᴡɪᴛʜᴏᴜᴛ ᴘᴀꜱꜱ", callback_data="without_pass")])
         
     for i, key in enumerate(keys[start:end], 1):
         row.append(InlineKeyboardButton(appNameDict[key]["name"], callback_data=f"autoCallback#{key}"))
