@@ -1,8 +1,8 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from Extractor.modules import khan, adda247, classplus, vajiramias, videocrypt, careerwill, utkarsh
 from Extractor.modules.FreeAccess import (cdsjourney_free, classplus_free, civilguruji_free, studyiq_free, qualityEducation_free, 
-testpaper_free, jincjodhpur_free, geologicalConcepts_free, selectionWay_free, taiyariKarlo_free, sscpinnacle_free, 
-chandraInstitute_free, jchemistry_free, pathfinder_free)
+testpaper_free, geologicalConcepts_free, selectionWay_free, taiyariKarlo_free, sscpinnacle_free, 
+chandraInstitute_free, jchemistry_free)
 
 # ---------------------------------- AppName-Dict ---------------------------------- #
 appNameDict = {
@@ -20,16 +20,14 @@ WithoutAppDict = {
     "wclassplus_": {"name": "ᴄʟᴀꜱꜱᴘʟᴜꜱ", "func": classplus_free.classplus_access},
     "wcivilguruji_": {"name": "ᴄɪᴠɪʟ ɢᴜʀᴜᴊɪ", "func": civilguruji_free.civilguruji_access},
     "wstudyiq_": {"name": "ꜱᴛᴜᴅʏ ɪQ", "func": studyiq_free.studyiq_access},
-    "wqualityEducation_": {"name": "Qᴜᴀʟɪᴛʏ ᴇᴅᴜᴄᴀᴛɪᴏɴ", "func": qualityEducation_free.qualityEducation_access},
+    # "wqualityEducation_": {"name": "Qᴜᴀʟɪᴛʏ ᴇᴅᴜᴄᴀᴛɪᴏɴ", "func": qualityEducation_free.qualityEducation_access},
     "wtestpaper_": {"name": "ᴛᴇꜱᴛ ᴘᴀᴘᴇʀ", "func": testpaper_free.testpaper_access},
-    "wjincjodhpur_": {"name": "ᴊɪɴᴄ ᴊᴏᴅʜᴘᴜʀ", "func": jincjodhpur_free.jincJodhpur_access},
     "wgeologicalConcepts_": {"name": "ɢᴇᴏʟᴏɢɪᴄᴀʟ ᴄᴏɴᴄᴇᴘᴛꜱ", "func": geologicalConcepts_free.geologicalConcepts_access},
     "wselectionway_": {"name": "ꜱᴇʟᴇᴄᴛɪᴏɴ ᴡᴀʏ", "func": selectionWay_free.selectionWay_access},
     "wtaiyarikrlo_": {"name": "ᴛᴀɪʏᴀʀɪ ᴋʀʟᴏ", "func": taiyariKarlo_free.taiyarKarlo_access},
     "wsscpinnacle_": {"name": "ꜱꜱᴄ ᴘɪɴɴᴀᴄʟᴇ", "func": sscpinnacle_free.sscpinnacle_access},
     "wchandraInstitute_": {"name": "ᴄʜᴀɴᴅʀᴀ ɪɴꜱᴛɪᴛᴜᴛᴇ", "func": chandraInstitute_free.chandraInstitute_access},
     "wjchemistry_": {"name": "ᴊ ᴄʜᴇᴍɪꜱᴛʀʏ", "func": jchemistry_free.jchemistry_access},
-    "wpathfinder_": {"name": "ᴘᴀᴛʜ ꜰɪɴᴅᴇʀ", "func": pathfinder_free.patherfinder_access},
     "wutkarsh_": {"name": "ᴜᴛᴋᴀʀꜱʜ", "func": utkarsh.utkarsh_start},
     # "wjrfadda_": {"name": "ᴊʀꜰ ᴀᴅᴅᴀ", "func": jrfadda_free.jrfadda_access},
 }
