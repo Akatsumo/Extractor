@@ -22,7 +22,8 @@ batch_data = {
     "43": "ECHO Batch (AFCAT 2 2026)",
     "44": "GOLF OTA batch (CDS-2 2026)",
     "45": "HOTEL BATCH (NDA-2 2026)",
-    "45": "GOLF MATH BATCH (CDS-2 2026)",
+    "46": "GOLF MATH BATCH (CDS-2 2026)",
+    "47": "FOXTROT BATCH (AFCAT 2 2026)",
 }
 
 # --------------------------- Course-Content --------------------------- #
