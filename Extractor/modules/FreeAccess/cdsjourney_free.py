@@ -75,14 +75,8 @@ async def cdsjourney_access(_, message, user_id=None):
             "Origin": "https://www.cdsjourney.com",
             "Referer": "https://www.cdsjourney.com/"
         }
-        # headers = {
-        #     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        #                   "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        #     "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-        #     "Accept-Encoding": "gzip"
-        # }
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyNDk3MTYxLCJpYXQiOjE3NzczMTMxNjEsImp0aSI6IjNkYjAzNThkYTllYjQ2NjlhYzQ5MTRhNDc5NjgyNjRiIiwidXNlcl9pZCI6NDgyMTM5fQ.4xXpPiFw5YfJMs7g8YLHnoK7NAEStdp4-niXTt38T1U"
-        #token = None
+    
         if not token:
             await msg.edit_text("Enter your login Gmail:")
             input1 = await app.listen(user_id=user_id, timeout=30)
@@ -99,7 +93,11 @@ async def cdsjourney_access(_, message, user_id=None):
             await input2.delete()
 
             response = session.post("https://www.cdsjourney.com/api/verify_otp/", headers=headers, json={"email": email, "otp": otp})
-            if response.stat           await message.reply(f"✅ Login successful.\n\nYour token: `{token}`")
+            if response.status_code != 200:
+                return await msg.edit_text("OTP verification failed, Try again!")
+
+            token = response.json().get("access_token")
+            await message.reply(f"✅ Login successful.\n\nYour token: `{token}`")
 
         headers["Authorization"] = f"Bearer {token}"
 
@@ -158,3 +156,4 @@ async def cdsjourney_access(_, message, user_id=None):
         await message.reply_text("**⏳ Oops! Time's Up, You didn’t reply in time.**")
     except Exception as e:
         await message.reply_text(f"**Error**: `{e}`")
+
