@@ -81,8 +81,8 @@ async def cdsjourney_access(_, message, user_id=None):
         #     "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
         #     "Accept-Encoding": "gzip"
         # }
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MTA0NzYxLCJpYXQiOjE3NzE5MjA3NjEsImp0aSI6ImYyNDlhOWI1NGU1MzQ4ZWZhMGVlODk3MTY2YjI5Mjk0IiwidXNlcl9pZCI6NDU2Nzk3fQ.XxFGWoRAmnM08FEGOsnal7gPp9nFZ6tZCw23XZwzgQE"
-        
+        #token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc3MTA0NzYxLCJpYXQiOjE3NzE5MjA3NjEsImp0aSI6ImYyNDlhOWI1NGU1MzQ4ZWZhMGVlODk3MTY2YjI5Mjk0IiwidXNlcl9pZCI6NDU2Nzk3fQ.XxFGWoRAmnM08FEGOsnal7gPp9nFZ6tZCw23XZwzgQE"
+        token = None
         if not token:
             await msg.edit_text("Enter your login Gmail:")
             input1 = await app.listen(user_id=user_id, timeout=30)
